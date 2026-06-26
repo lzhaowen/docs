@@ -2,23 +2,151 @@
   "$schema": "https://mintlify.com/docs.json",
   "theme": "mint",
   "name": "Mintlify Starter Kit",
+  "description": "Multi-language Mintlify documentation with guides and API reference.",
   "colors": {
     "primary": "#16A34A",
     "light": "#07C983",
     "dark": "#15803D"
   },
   "favicon": "/favicon.svg",
+  "appearance": {
+    "default": "system",
+    "strict": false
+  },
+  "background": {
+    "decoration": "gradient"
+  },
   "navigation": {
+    "global": {
+      "anchors": [
+        {
+          "anchor": "Documentation",
+          "href": "https://mintlify.com/docs",
+          "icon": "book-open-cover"
+        },
+        {
+          "anchor": "Blog",
+          "href": "https://mintlify.com/blog",
+          "icon": "newspaper"
+        },
+        {
+          "anchor": "API",
+          "href": "https://api.example.com",
+          "icon": "code"
+        }
+      ]
+    },
     "languages": [
       {
-        "language": "cn",
-        "pages": [
+        "language": "en",
+        "default": true,
+        "groups": [
+          {
+            "group": "Getting started",
+            "pages": [
+              "index",
+              "quickstart"
+            ]
+          },
           {
             "group": "API reference",
             "openapi": "openapi.json"
+          }
+        ],
+        "navbar": {
+          "links": [
+            {
+              "label": "Support",
+              "href": "mailto:hi@mintlify.com"
+            },
+            {
+              "label": "Status",
+              "href": "https://status.example.com"
+            }
+          ],
+          "primary": {
+            "type": "button",
+            "label": "Dashboard",
+            "href": "https://app.mintlify.com"
+          }
+        },
+        "footer": {
+          "socials": {
+            "x": "https://x.com/mintlify",
+            "github": "https://github.com/mintlify",
+            "linkedin": "https://linkedin.com/company/mintlify"
           },
-          "test"
-        ]
+          "links": [
+            {
+              "header": "Resources",
+              "items": [
+                {
+                  "label": "Documentation",
+                  "href": "https://mintlify.com/docs"
+                },
+                {
+                  "label": "Support",
+                  "href": "mailto:hi@mintlify.com"
+                }
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "language": "zh",
+        "groups": [
+          {
+            "group": "快速开始",
+            "pages": [
+              "index",
+              "quickstart"
+            ]
+          },
+          {
+            "group": "API 参考",
+            "openapi": "openapi.json"
+          }
+        ],
+        "navbar": {
+          "links": [
+            {
+              "label": "支持",
+              "href": "mailto:hi@mintlify.com"
+            },
+            {
+              "label": "状态页",
+              "href": "https://status.example.com"
+            }
+          ],
+          "primary": {
+            "type": "button",
+            "label": "控制台",
+            "href": "https://app.mintlify.com"
+          }
+        },
+        "footer": {
+          "socials": {
+            "x": "https://x.com/mintlify",
+            "github": "https://github.com/mintlify",
+            "linkedin": "https://linkedin.com/company/mintlify"
+          },
+          "links": [
+            {
+              "header": "资源",
+              "items": [
+                {
+                  "label": "文档",
+                  "href": "https://mintlify.com/docs"
+                },
+                {
+                  "label": "联系支持",
+                  "href": "mailto:hi@mintlify.com"
+                }
+              ]
+            }
+          ]
+        }
       }
     ]
   },
@@ -26,20 +154,24 @@
     "light": "/logo/light.svg",
     "dark": "/logo/dark.svg"
   },
-  "navbar": {
-    "links": [
-      {
-        "label": "Support",
-        "href": "mailto:hi@mintlify.com"
-      }
-    ],
-    "primary": {
-      "type": "button",
-      "label": "Dashboard",
-      "href": "https://app.mintlify.com"
+  "api": {
+    "playground": {
+      "display": "interactive",
+      "proxy": true,
+      "credentials": false
+    },
+    "examples": {
+      "languages": [
+        "curl",
+        "javascript",
+        "python"
+      ],
+      "defaults": "all",
+      "autogenerate": true
     }
   },
   "contextual": {
+    "display": "header",
     "options": [
       "copy",
       "view",
