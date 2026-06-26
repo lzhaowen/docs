@@ -9,24 +9,16 @@
   },
   "favicon": "/favicon.svg",
   "navigation": {
-    "global": {
-      "anchors": [
-        {
-          "anchor": "Documentation",
-          "href": "https://mintlify.com/docs",
-          "icon": "book-open-cover"
-        },
-        {
-          "anchor": "Blog",
-          "href": "https://mintlify.com/blog",
-          "icon": "newspaper"
-        }
-      ]
-    },
-    "groups": [
+    "languages": [
       {
-        "group": "API reference",
-        "openapi": "openapi.json"
+        "language": "cn",
+        "pages": [
+          {
+            "group": "API reference",
+            "openapi": "openapi.json"
+          },
+          "test"
+        ]
       }
     ]
   },
