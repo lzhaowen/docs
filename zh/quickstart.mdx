@@ -6,7 +6,6 @@ keywords:
   - Bearer token
   - uuid
   - Neural4D
-  - OpenAPI
 ---
 
 本页说明最小调用流程。你会先提交创建请求，再保存返回的 `uuid`，最后查询结果或下载模型。
@@ -59,15 +58,6 @@ keywords:
 
   <Step title="查询结果或进度">
     3D 模型任务通常使用 `POST /api/retrieveModel` 查询。图片或视频任务通常使用 `POST /api/queryGenerationResult` 查询。你也可以使用 `POST /api/queryJobProgress` 看进度。
-
-    ```bash
-    curl --location 'https://alb.neural4d.com:3000/api/retrieveModel' \
-      --header 'Content-Type: application/json;charset=utf-8' \
-      --header 'Authorization: Bearer YOUR_TOKEN' \
-      --data '{
-        "uuid": "f47ac10b-58cc-4372-a567-0e02b2c3d479"
-      }'
-    ```
   </Step>
 
   <Step title="下载或转换结果">

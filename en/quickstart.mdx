@@ -1,0 +1,63 @@
+---
+title: "Quickstart"
+description: "Call the Neural4D legacy API with a Bearer token and follow the async result workflow."
+keywords:
+  - quickstart
+  - Bearer token
+  - uuid
+  - Neural4D
+---
+
+This page covers the minimum request flow. You submit a create request, keep the returned `uuid`, and then query the result or download the generated asset.
+
+## Prerequisites
+
+- You already have a valid `Bearer token` from the Neural4D website.
+- You can send HTTP requests with `curl`, Postman, or your own client.
+- For upload endpoints, you already have image files that meet the documented limits.
+
+## Request flow
+
+<Steps>
+  <Step title="Set the auth header">
+    Every endpoint uses `Authorization: Bearer <token>`.
+
+    ```bash
+    curl --header "Authorization: Bearer YOUR_TOKEN"
+    ```
+  </Step>
+
+  <Step title="Submit a create request">
+    Start with a simple create endpoint such as `POST /api/generateModelWithText`.
+
+    ```bash
+    curl --location 'https://alb.neural4d.com:3000/api/generateModelWithText' \
+      --header 'Content-Type: application/json;charset=utf-8' \
+      --header 'Authorization: Bearer YOUR_TOKEN' \
+      --data '{
+        "prompt": "a cute bird",
+        "modelCount": 1,
+        "disablePbr": 1
+      }'
+    ```
+  </Step>
+
+  <Step title="Store the uuid">
+    Create endpoints usually return `uuid` or `uuids`. Keep them for later result queries and downloads.
+  </Step>
+
+  <Step title="Query the result or progress">
+    For 3D model tasks, call `POST /api/retrieveModel`. For picture or video tasks, call `POST /api/queryGenerationResult`. You can also call `POST /api/queryJobProgress` for progress polling.
+  </Step>
+
+  <Step title="Download or convert the asset">
+    After the model is ready, download it from `modelUrl`. If you need `fbx`, `obj`, `stl`, `blend`, or `usdz`, call `POST /api/convertToFormat`.
+  </Step>
+</Steps>
+
+## Upload limits
+
+- Upload endpoints support `JPG`, `JPEG`, `PNG`, and `WEBP`
+- Recommended resolution range: `256x256` to `6048x8064`
+- Recommended file size: under `10 MB`
+- Picture and video generation endpoints accept up to `6` reference images

@@ -1,8 +1,8 @@
 {
   "$schema": "https://mintlify.com/docs.json",
   "theme": "mint",
-  "name": "Mintlify Starter Kit",
-  "description": "Multi-language Mintlify documentation with guides and API reference.",
+  "name": "Neural4D API Docs",
+  "description": "Neural4D legacy management API docs with localized old-version references and reserved spaces for v1 and v2.",
   "colors": {
     "primary": "#16A34A",
     "light": "#07C983",
@@ -17,136 +17,129 @@
     "decoration": "gradient"
   },
   "navigation": {
-    "global": {
-      "anchors": [
-        {
-          "anchor": "Documentation",
-          "href": "https://mintlify.com/docs",
-          "icon": "book-open-cover"
-        },
-        {
-          "anchor": "Blog",
-          "href": "https://mintlify.com/blog",
-          "icon": "newspaper"
-        },
-        {
-          "anchor": "API",
-          "href": "https://api.example.com",
-          "icon": "code"
-        }
-      ]
-    },
     "languages": [
       {
-        "language": "en",
+        "language": "zh",
         "default": true,
-        "groups": [
+        "versions": [
           {
-            "group": "Getting started",
-            "pages": [
-              "index",
-              "quickstart"
+            "version": "old",
+            "default": true,
+            "groups": [
+              {
+                "group": "开始使用",
+                "pages": [
+                  "zh/index",
+                  "zh/quickstart"
+                ]
+              },
+              {
+                "group": "API 参考",
+                "openapi": {
+                  "source": "openapi.zh.json",
+                  "directory": "zh-old-api-reference"
+                }
+              }
             ]
           },
           {
-            "group": "API reference",
-            "openapi": "openapi.json"
-          }
-        ],
-        "navbar": {
-          "links": [
-            {
-              "label": "Support",
-              "href": "mailto:hi@mintlify.com"
-            },
-            {
-              "label": "Status",
-              "href": "https://status.example.com"
-            }
-          ],
-          "primary": {
-            "type": "button",
-            "label": "Dashboard",
-            "href": "https://app.mintlify.com"
-          }
-        },
-        "footer": {
-          "socials": {
-            "x": "https://x.com/mintlify",
-            "github": "https://github.com/mintlify",
-            "linkedin": "https://linkedin.com/company/mintlify"
+            "version": "v1",
+            "groups": [
+              {
+                "group": "开始使用",
+                "pages": [
+                  "zh/index",
+                  "zh/quickstart"
+                ]
+              },
+              {
+                "group": "API 参考",
+                "pages": [
+                  "zh/v1-coming-soon"
+                ]
+              }
+            ]
           },
-          "links": [
-            {
-              "header": "Resources",
-              "items": [
-                {
-                  "label": "Documentation",
-                  "href": "https://mintlify.com/docs"
-                },
-                {
-                  "label": "Support",
-                  "href": "mailto:hi@mintlify.com"
-                }
-              ]
-            }
-          ]
-        }
+          {
+            "version": "v2",
+            "groups": [
+              {
+                "group": "开始使用",
+                "pages": [
+                  "zh/index",
+                  "zh/quickstart"
+                ]
+              },
+              {
+                "group": "API 参考",
+                "pages": [
+                  "zh/v2-coming-soon"
+                ]
+              }
+            ]
+          }
+        ]
       },
       {
-        "language": "zh",
-        "groups": [
+        "language": "en",
+        "versions": [
           {
-            "group": "快速开始",
-            "pages": [
-              "index",
-              "quickstart"
+            "version": "old",
+            "default": true,
+            "groups": [
+              {
+                "group": "Get started",
+                "pages": [
+                  "en/index",
+                  "en/quickstart"
+                ]
+              },
+              {
+                "group": "API reference",
+                "openapi": {
+                  "source": "openapi.json",
+                  "directory": "en-old-api-reference"
+                }
+              }
             ]
           },
           {
-            "group": "API 参考",
-            "openapi": "openapi.json"
-          }
-        ],
-        "navbar": {
-          "links": [
-            {
-              "label": "支持",
-              "href": "mailto:hi@mintlify.com"
-            },
-            {
-              "label": "状态页",
-              "href": "https://status.example.com"
-            }
-          ],
-          "primary": {
-            "type": "button",
-            "label": "控制台",
-            "href": "https://app.mintlify.com"
-          }
-        },
-        "footer": {
-          "socials": {
-            "x": "https://x.com/mintlify",
-            "github": "https://github.com/mintlify",
-            "linkedin": "https://linkedin.com/company/mintlify"
+            "version": "v1",
+            "groups": [
+              {
+                "group": "Get started",
+                "pages": [
+                  "en/index",
+                  "en/quickstart"
+                ]
+              },
+              {
+                "group": "API reference",
+                "pages": [
+                  "en/v1-coming-soon"
+                ]
+              }
+            ]
           },
-          "links": [
-            {
-              "header": "资源",
-              "items": [
-                {
-                  "label": "文档",
-                  "href": "https://mintlify.com/docs"
-                },
-                {
-                  "label": "联系支持",
-                  "href": "mailto:hi@mintlify.com"
-                }
-              ]
-            }
-          ]
-        }
+          {
+            "version": "v2",
+            "groups": [
+              {
+                "group": "Get started",
+                "pages": [
+                  "en/index",
+                  "en/quickstart"
+                ]
+              },
+              {
+                "group": "API reference",
+                "pages": [
+                  "en/v2-coming-soon"
+                ]
+              }
+            ]
+          }
+        ]
       }
     ]
   },
@@ -175,19 +168,10 @@
     "options": [
       "copy",
       "view",
+      "download-spec",
       "chatgpt",
       "claude",
-      "perplexity",
-      "mcp",
-      "cursor",
-      "vscode"
+      "perplexity"
     ]
-  },
-  "footer": {
-    "socials": {
-      "x": "https://x.com/mintlify",
-      "github": "https://github.com/mintlify",
-      "linkedin": "https://linkedin.com/company/mintlify"
-    }
   }
 }
