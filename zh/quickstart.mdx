@@ -1,6 +1,6 @@
 ---
 title: "快速开始"
-description: "通过 Bearer token 调用 Neural4D 旧版 API，并按异步流程查询生成结果。"
+description: "通过 Bearer token 调用 Neural4D API，并按异步流程查询生成结果。"
 keywords:
   - quickstart
   - Bearer token
@@ -30,16 +30,95 @@ keywords:
   <Step title="提交创建请求">
     你可以先调用一个最简单的创建接口，例如 `POST /api/generateModelWithText`。
 
-    ```bash
-    curl --location 'https://alb.neural4d.com:3000/api/generateModelWithText' \
-      --header 'Content-Type: application/json;charset=utf-8' \
-      --header 'Authorization: Bearer YOUR_TOKEN' \
-      --data '{
-        "prompt": "a cute bird",
-        "modelCount": 1,
-        "disablePbr": 1
-      }'
-    ```
+    <CodeGroup>
+      ```bash cURL
+      curl --location 'https://alb.neural4d.com:3000/api/generateModelWithText' \
+        --header 'Content-Type: application/json;charset=utf-8' \
+        --header 'Authorization: Bearer YOUR_TOKEN' \
+        --data '{
+          "prompt": "a cute bird",
+          "modelCount": 1,
+          "disablePbr": 1
+        }'
+      ```
+
+      ```python Python
+      import requests
+
+      response = requests.post(
+          "https://alb.neural4d.com:3000/api/generateModelWithText",
+          headers={
+              "Content-Type": "application/json;charset=utf-8",
+              "Authorization": "Bearer YOUR_TOKEN",
+          },
+          json={"prompt": "a cute bird", "modelCount": 1, "disablePbr": 1},
+      )
+      print(response.json())
+      ```
+
+      ```javascript Node.js
+      const response = await fetch("https://alb.neural4d.com:3000/api/generateModelWithText", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json;charset=utf-8",
+          Authorization: "Bearer YOUR_TOKEN",
+        },
+        body: JSON.stringify({ prompt: "a cute bird", modelCount: 1, disablePbr: 1 }),
+      });
+
+      console.log(await response.json());
+      ```
+
+      ```go Go
+      package main
+
+      import (
+          "bytes"
+          "fmt"
+          "io"
+          "net/http"
+      )
+
+      func main() {
+          body := []byte(`{"prompt":"a cute bird","modelCount":1,"disablePbr":1}`)
+          request, _ := http.NewRequest(
+              "POST",
+              "https://alb.neural4d.com:3000/api/generateModelWithText",
+              bytes.NewReader(body),
+          )
+          request.Header.Set("Content-Type", "application/json;charset=utf-8")
+          request.Header.Set("Authorization", "Bearer YOUR_TOKEN")
+
+          response, _ := http.DefaultClient.Do(request)
+          defer response.Body.Close()
+          result, _ := io.ReadAll(response.Body)
+          fmt.Println(string(result))
+      }
+      ```
+
+      ```java Java
+      import java.net.URI;
+      import java.net.http.HttpClient;
+      import java.net.http.HttpRequest;
+      import java.net.http.HttpResponse;
+
+      class Main {
+        public static void main(String[] args) throws Exception {
+          var request = HttpRequest.newBuilder()
+              .uri(URI.create("https://alb.neural4d.com:3000/api/generateModelWithText"))
+              .header("Content-Type", "application/json;charset=utf-8")
+              .header("Authorization", "Bearer YOUR_TOKEN")
+              .POST(HttpRequest.BodyPublishers.ofString(
+                  "{\"prompt\":\"a cute bird\",\"modelCount\":1,\"disablePbr\":1}"))
+              .build();
+
+          var response = HttpClient.newHttpClient().send(
+              request, HttpResponse.BodyHandlers.ofString());
+          System.out.println(response.body());
+        }
+      }
+      ```
+    </CodeGroup>
   </Step>
 
   <Step title="保存 uuid">
@@ -58,6 +137,92 @@ keywords:
 
   <Step title="查询结果或进度">
     3D 模型任务通常使用 `POST /api/retrieveModel` 查询。图片或视频任务通常使用 `POST /api/queryGenerationResult` 查询。你也可以使用 `POST /api/queryJobProgress` 看进度。
+
+    <CodeGroup>
+      ```bash cURL
+      curl --location 'https://alb.neural4d.com:3000/api/retrieveModel' \
+        --header 'Content-Type: application/json;charset=utf-8' \
+        --header 'Authorization: Bearer YOUR_TOKEN' \
+        --data '{"uuid":"f47ac10b-58cc-4372-a567-0e02b2c3d479"}'
+      ```
+
+      ```python Python
+      import requests
+
+      response = requests.post(
+          "https://alb.neural4d.com:3000/api/retrieveModel",
+          headers={
+              "Content-Type": "application/json;charset=utf-8",
+              "Authorization": "Bearer YOUR_TOKEN",
+          },
+          json={"uuid": "f47ac10b-58cc-4372-a567-0e02b2c3d479"},
+      )
+      print(response.json())
+      ```
+
+      ```javascript Node.js
+      const response = await fetch("https://alb.neural4d.com:3000/api/retrieveModel", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json;charset=utf-8",
+          Authorization: "Bearer YOUR_TOKEN",
+        },
+        body: JSON.stringify({ uuid: "f47ac10b-58cc-4372-a567-0e02b2c3d479" }),
+      });
+
+      console.log(await response.json());
+      ```
+
+      ```go Go
+      package main
+
+      import (
+          "bytes"
+          "fmt"
+          "io"
+          "net/http"
+      )
+
+      func main() {
+          body := []byte(`{"uuid":"f47ac10b-58cc-4372-a567-0e02b2c3d479"}`)
+          request, _ := http.NewRequest(
+              "POST",
+              "https://alb.neural4d.com:3000/api/retrieveModel",
+              bytes.NewReader(body),
+          )
+          request.Header.Set("Content-Type", "application/json;charset=utf-8")
+          request.Header.Set("Authorization", "Bearer YOUR_TOKEN")
+
+          response, _ := http.DefaultClient.Do(request)
+          defer response.Body.Close()
+          result, _ := io.ReadAll(response.Body)
+          fmt.Println(string(result))
+      }
+      ```
+
+      ```java Java
+      import java.net.URI;
+      import java.net.http.HttpClient;
+      import java.net.http.HttpRequest;
+      import java.net.http.HttpResponse;
+
+      class Main {
+        public static void main(String[] args) throws Exception {
+          var request = HttpRequest.newBuilder()
+              .uri(URI.create("https://alb.neural4d.com:3000/api/retrieveModel"))
+              .header("Content-Type", "application/json;charset=utf-8")
+              .header("Authorization", "Bearer YOUR_TOKEN")
+              .POST(HttpRequest.BodyPublishers.ofString(
+                  "{\"uuid\":\"f47ac10b-58cc-4372-a567-0e02b2c3d479\"}"))
+              .build();
+
+          var response = HttpClient.newHttpClient().send(
+              request, HttpResponse.BodyHandlers.ofString());
+          System.out.println(response.body());
+        }
+      }
+      ```
+    </CodeGroup>
   </Step>
 
   <Step title="下载或转换结果">

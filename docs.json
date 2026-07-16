@@ -1,155 +1,68 @@
 {
   "$schema": "https://mintlify.com/docs.json",
-  "theme": "mint",
+  "theme": "maple",
   "name": "Neural4D API Docs",
-  "description": "Neural4D legacy management API docs with localized old-version references and reserved spaces for v1 and v2.",
+  "description": "Neural4D API documentation in English and Chinese.",
   "colors": {
-    "primary": "#16A34A",
-    "light": "#07C983",
-    "dark": "#15803D"
+    "primary": "#661FFE",
+    "light": "#661FFE",
+    "dark": "#661FFE"
   },
-  "favicon": "/favicon.svg",
+  "favicon": "/favicon.ico",
   "appearance": {
     "default": "system",
     "strict": false
   },
-  "background": {
-    "decoration": "gradient"
-  },
   "navigation": {
     "languages": [
       {
-        "language": "zh",
+        "language": "en",
         "default": true,
-        "versions": [
+        "groups": [
           {
-            "version": "old",
-            "default": true,
-            "groups": [
-              {
-                "group": "开始使用",
-                "pages": [
-                  "zh/index",
-                  "zh/quickstart"
-                ]
-              },
-              {
-                "group": "API 参考",
-                "openapi": {
-                  "source": "openapi.zh.json",
-                  "directory": "zh-old-api-reference"
-                }
-              }
+            "group": "Get started",
+            "pages": [
+              "en/index",
+              "en/quickstart"
             ]
           },
           {
-            "version": "v1",
-            "groups": [
-              {
-                "group": "开始使用",
-                "pages": [
-                  "zh/index",
-                  "zh/quickstart"
-                ]
-              },
-              {
-                "group": "API 参考",
-                "pages": [
-                  "zh/v1-coming-soon"
-                ]
-              }
-            ]
-          },
-          {
-            "version": "v2",
-            "groups": [
-              {
-                "group": "开始使用",
-                "pages": [
-                  "zh/index",
-                  "zh/quickstart"
-                ]
-              },
-              {
-                "group": "API 参考",
-                "pages": [
-                  "zh/v2-coming-soon"
-                ]
-              }
-            ]
+            "group": "API reference",
+            "openapi": {
+              "source": "openapi.old.json",
+              "directory": "en-api-reference"
+            }
           }
         ]
       },
       {
-        "language": "en",
-        "versions": [
+        "language": "zh",
+        "groups": [
           {
-            "version": "old",
-            "default": true,
-            "groups": [
-              {
-                "group": "Get started",
-                "pages": [
-                  "en/index",
-                  "en/quickstart"
-                ]
-              },
-              {
-                "group": "API reference",
-                "openapi": {
-                  "source": "openapi.json",
-                  "directory": "en-old-api-reference"
-                }
-              }
+            "group": "开始使用",
+            "pages": [
+              "zh/index",
+              "zh/quickstart"
             ]
           },
           {
-            "version": "v1",
-            "groups": [
-              {
-                "group": "Get started",
-                "pages": [
-                  "en/index",
-                  "en/quickstart"
-                ]
-              },
-              {
-                "group": "API reference",
-                "pages": [
-                  "en/v1-coming-soon"
-                ]
-              }
-            ]
-          },
-          {
-            "version": "v2",
-            "groups": [
-              {
-                "group": "Get started",
-                "pages": [
-                  "en/index",
-                  "en/quickstart"
-                ]
-              },
-              {
-                "group": "API reference",
-                "pages": [
-                  "en/v2-coming-soon"
-                ]
-              }
-            ]
+            "group": "API 参考",
+            "openapi": {
+              "source": "openapi.old.zh.json",
+              "directory": "zh-api-reference"
+            }
           }
         ]
       }
     ]
   },
   "logo": {
-    "light": "/logo/light.svg",
-    "dark": "/logo/dark.svg"
+    "light": "/logo/n4d-black.png",
+    "dark": "/logo/n4d-white.png"
   },
   "api": {
     "playground": {
-      "display": "interactive",
+      "display": "simple",
       "proxy": true,
       "credentials": false
     },
@@ -157,9 +70,16 @@
       "languages": [
         "curl",
         "javascript",
-        "python"
+        "python",
+        "node",
+        "typescript",
+        "go",
+        "java",
+        "csharp",
+        "php"
       ],
       "defaults": "all",
+      "prefill": true,
       "autogenerate": true
     }
   },

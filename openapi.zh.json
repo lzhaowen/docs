@@ -1,740 +1,1433 @@
 {
   "openapi": "3.0.3",
   "info": {
-    "title": "Neural4D \u65e7\u7248\u7ba1\u7406\u63a5\u53e3",
-    "description": "Neural4D \u65e7\u7248\u7ba1\u7406\u63a5\u53e3\u89c4\u8303\uff0c\u4e2d\u6587\u754c\u9762\u4e0b\u4f7f\u7528\u672c\u89c4\u8303\u5c55\u793a\u4e2d\u6587\u63a5\u53e3\u8bf4\u660e\u3002",
-    "version": "1.4.0"
+    "title": "Neural4D API",
+    "description": "API v1 支持模型发现、异步生成与后处理任务、签名文件访问、格式转换和点数使用记录查询。",
+    "version": "1.0.0"
   },
   "servers": [
     {
-      "url": "https://alb.neural4d.com:3000",
-      "description": "\u65e7\u7248\u751f\u4ea7\u73af\u5883"
-    }
-  ],
-  "security": [
-    {
-      "bearerAuth": []
+      "url": "https://api.neural4d.com",
+      "description": "生产环境"
     }
   ],
   "tags": [
     {
-      "name": "text-to-3d",
-      "description": "\u7528\u4e8e\u901a\u8fc7\u6587\u672c\u751f\u6210 3D \u6a21\u578b\u7684\u63a5\u53e3\u3002",
-      "x-group": "\u6587\u672c\u751f\u6210 3D"
+      "name": "模型",
+      "description": "查询当前 API 密钥可用的模型及其能力。"
     },
     {
-      "name": "image-to-3d",
-      "description": "\u7528\u4e8e\u901a\u8fc7\u56fe\u7247\u751f\u6210 3D \u6a21\u578b\u7684\u63a5\u53e3\u3002",
-      "x-group": "\u56fe\u7247\u751f\u6210 3D"
+      "name": "图片生成",
+      "description": "创建异步图片生成任务。"
     },
     {
-      "name": "model-management",
-      "description": "\u7528\u4e8e\u67e5\u8be2\u6a21\u578b\u3001\u8ddf\u8e2a\u4efb\u52a1\u548c\u8f6c\u6362\u683c\u5f0f\u7684\u63a5\u53e3\u3002",
-      "x-group": "\u6a21\u578b\u7ba1\u7406"
+      "name": "视频生成",
+      "description": "创建异步视频生成任务。"
     },
     {
-      "name": "media-generation",
-      "description": "\u7528\u4e8e\u751f\u6210\u56fe\u7247\u3001\u89c6\u9891\u4ee5\u53ca\u67e5\u8be2\u7ed3\u679c\u7684\u63a5\u53e3\u3002",
-      "x-group": "\u56fe\u7247\u4e0e\u89c6\u9891\u751f\u6210"
+      "name": "3D 模型",
+      "description": "创建并后处理 3D 模型。"
     },
     {
-      "name": "account-and-validation",
-      "description": "\u7528\u4e8e\u6821\u9a8c\u8f93\u5165\u56fe\u7247\u548c\u67e5\u8be2\u70b9\u6570\u4f59\u989d\u7684\u63a5\u53e3\u3002",
-      "x-group": "\u8d26\u6237\u4e0e\u6821\u9a8c"
+      "name": "任务",
+      "description": "通过 ID 轮询任务并移除任务历史记录。"
+    },
+    {
+      "name": "文件",
+      "description": "获取带签名的结果 URL，并转换 3D 模型格式。"
+    },
+    {
+      "name": "用量",
+      "description": "查询点数消耗记录。"
     }
   ],
   "paths": {
-    "/api/generateModelWithText": {
-      "post": {
+    "/openapi/v1/models": {
+      "get": {
         "tags": [
-          "text-to-3d"
+          "模型"
         ],
-        "summary": "\u6587\u672c\u751f\u6210\u6a21\u578b",
-        "description": "\u901a\u8fc7\u6587\u672c\u63d0\u793a\u8bcd\u751f\u6210 3D \u6a21\u578b\u3002\u8be5\u64cd\u4f5c\u6d88\u8017 60 \u70b9\u6570\u3002",
-        "operationId": "generateModelWithText",
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/GenerateModelWithTextRequest"
-              },
-              "examples": {
-                "default": {
-                  "value": {
-                    "prompt": "people",
-                    "modelCount": 1,
-                    "disablePbr": 1
-                  }
-                }
-              }
-            }
-          }
-        },
+        "summary": "列出可用模型",
+        "description": "返回当前启用的公开模型。请以此响应作为模型 ID、模式和能力的权威来源。提交任务时会校验账户访问权限。",
+        "operationId": "listModels",
         "responses": {
           "200": {
-            "description": "\u5df2\u63a5\u53d7\u751f\u6210\u4efb\u52a1",
+            "description": "可用模型列表",
+            "headers": {
+              "X-RateLimit-Limit": {
+                "$ref": "#/components/headers/XRateLimitLimit"
+              },
+              "X-RateLimit-Remaining": {
+                "$ref": "#/components/headers/XRateLimitRemaining"
+              },
+              "X-RateLimit-Reset": {
+                "$ref": "#/components/headers/XRateLimitReset"
+              }
+            },
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/GenerateModelWithTextResponse"
+                  "$ref": "#/components/schemas/ModelList"
                 },
-                "examples": {
-                  "generating": {
-                    "value": {
-                      "type": "sys",
-                      "message": "Generating",
-                      "uuids": [
-                        "f47ac10b-58cc-4372-a567-0e02b2c3d479",
-                        "c9bf9e57-1685-4c89-bafb-ff5af830be8a",
-                        "e7b8c5b2-fd0d-4d28-bf8a-a6a1b2c1f9c8",
-                        "a6edc906-2d9b-4cc3-bb7b-5b5a7e5c9f0a"
-                      ]
-                    }
-                  }
-                }
-              }
-            }
-          }
-        },
-        "x-mint": {
-          "href": "/zh-old-api-reference/text-to-3d/generate-model-from-text",
-          "metadata": {
-            "title": "\u6587\u672c\u751f\u6210\u6a21\u578b",
-            "sidebarTitle": "\u6587\u672c\u751f\u6210\u6a21\u578b",
-            "description": "\u901a\u8fc7\u6587\u672c\u63d0\u793a\u8bcd\u751f\u6210 3D \u6a21\u578b\u3002\u8be5\u64cd\u4f5c\u6d88\u8017 60 \u70b9\u6570\u3002"
-          }
-        }
-      }
-    },
-    "/api/retrieveModel": {
-      "post": {
-        "tags": [
-          "model-management"
-        ],
-        "summary": "\u67e5\u8be2\u6a21\u578b",
-        "description": "\u901a\u8fc7 UUID \u67e5\u8be2\u5df2\u751f\u6210\u7684\u6a21\u578b\u3002",
-        "operationId": "retrieveModel",
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/UuidRequest"
-              },
-              "examples": {
-                "default": {
-                  "value": {
-                    "uuid": "f47ac10b-58cc-4372-a567-0e02b2c3d479"
-                  }
-                }
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "\u6a21\u578b\u67e5\u8be2\u7ed3\u679c",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/RetrieveModelResponse"
-                },
-                "examples": {
-                  "completed": {
-                    "value": {
-                      "codeStatus": 0,
-                      "message": "Generate model success",
-                      "modelUrl": "https://cos.zmkj.com/afsafr24.glb?AWSAccessKeyId=AKIDodI2mK61Xsfasfsfsa",
-                      "imageUrl": "https://cos.zmkj.com/afsafr24.jpg?AWSAccessKeyId=AKIDodI2mK61Xsfasfsfsa",
-                      "prompts": "a cute bird",
-                      "createdAt": "2024-11-07T05:59:40.000Z",
-                      "sourcePage": "createModel"
-                    }
-                  }
-                }
-              }
-            }
-          }
-        },
-        "x-mint": {
-          "href": "/zh-old-api-reference/model-management/retrieve-model",
-          "metadata": {
-            "title": "\u67e5\u8be2\u6a21\u578b",
-            "sidebarTitle": "\u67e5\u8be2\u6a21\u578b",
-            "description": "\u901a\u8fc7 UUID \u67e5\u8be2\u5df2\u751f\u6210\u7684\u6a21\u578b\u3002"
-          }
-        }
-      }
-    },
-    "/api/generateModelWithImage": {
-      "post": {
-        "tags": [
-          "image-to-3d"
-        ],
-        "summary": "\u56fe\u7247\u751f\u6210\u6a21\u578b",
-        "description": "\u901a\u8fc7\u4e0a\u4f20\u56fe\u7247\u751f\u6210 3D \u6a21\u578b\u3002\u8be5\u64cd\u4f5c\u6d88\u8017 80 \u70b9\u6570\u3002",
-        "operationId": "generateModelWithImage",
-        "requestBody": {
-          "required": true,
-          "content": {
-            "multipart/form-data": {
-              "schema": {
-                "$ref": "#/components/schemas/GenerateModelWithImageRequest"
-              },
-              "examples": {
-                "default": {
-                  "value": {
-                    "disablePbr": 1,
-                    "modelCount": 1,
-                    "image": "(binary)"
-                  }
-                }
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "\u5df2\u63a5\u53d7\u751f\u6210\u4efb\u52a1",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/GenerateModelWithImageResponse"
-                },
-                "examples": {
-                  "generating": {
-                    "value": {
-                      "type": "sys",
-                      "message": "Generating",
-                      "uuids": [
-                        "aaaa-aaaa-aaaa-aaaaaaaa"
+                "example": {
+                  "object": "list",
+                  "data": [
+                    {
+                      "id": "openai/gpt-image-2",
+                      "object": "model",
+                      "modality": "image",
+                      "owned_by": "openai",
+                      "modes": [
+                        "text-to-image",
+                        "image-to-image"
                       ],
-                      "uploadedImageUrl": "https://s3.neural4d.com/example.png?sign=xxx.png"
-                    }
-                  }
-                }
-              }
-            }
-          }
-        },
-        "x-mint": {
-          "href": "/zh-old-api-reference/image-to-3d/generate-model-with-image",
-          "metadata": {
-            "title": "\u56fe\u7247\u751f\u6210\u6a21\u578b",
-            "sidebarTitle": "\u56fe\u7247\u751f\u6210\u6a21\u578b",
-            "description": "\u901a\u8fc7\u4e0a\u4f20\u56fe\u7247\u751f\u6210 3D \u6a21\u578b\u3002\u8be5\u64cd\u4f5c\u6d88\u8017 80 \u70b9\u6570\u3002"
-          }
-        }
-      }
-    },
-    "/api/createCuteModelsFromImages": {
-      "post": {
-        "tags": [
-          "image-to-3d"
-        ],
-        "summary": "\u56fe\u7247\u751f\u6210 Q \u7248\u6a21\u578b",
-        "description": "\u901a\u8fc7\u4e0a\u4f20\u56fe\u7247\u548c\u9884\u914d\u7f6e\u7684\u98ce\u683c\u6807\u7b7e\u751f\u6210 Q \u7248 3D \u89d2\u8272\u6a21\u578b\u3002\u8be5\u64cd\u4f5c\u6d88\u8017 30 \u70b9\u6570\u3002\u4f7f\u7528\u524d\u9700\u8981\u5148\u5b8c\u6210\u98ce\u683c\u6807\u7b7e\u914d\u7f6e\u3002",
-        "operationId": "createCuteModelsFromImages",
-        "requestBody": {
-          "required": true,
-          "content": {
-            "multipart/form-data": {
-              "schema": {
-                "$ref": "#/components/schemas/CreateCuteModelsFromImagesRequest"
-              },
-              "examples": {
-                "default": {
-                  "value": {
-                    "images": [
-                      "(binary)"
-                    ],
-                    "styleType": "Pixel-Style"
-                  }
-                }
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "\u6279\u91cf\u521b\u5efa\u7ed3\u679c",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/CreateCuteModelsFromImagesResponse"
-                },
-                "examples": {
-                  "success": {
-                    "value": {
-                      "success": true,
-                      "totalFiles": 1,
-                      "successCount": 1,
-                      "failureCount": 0,
-                      "results": [
-                        {
-                          "uuids": [
-                            "31f15c88-48ae"
-                          ],
-                          "success": true,
-                          "message": "Task created and model generation started, please retrieve model after a moment"
-                        }
+                      "capabilities": {
+                        "supports_text_input": true,
+                        "supports_image_input": true,
+                        "supports_video_input": false,
+                        "max_n": 4,
+                        "aspect_ratios": [
+                          "1:1",
+                          "16:9",
+                          "9:16",
+                          "4:3",
+                          "3:4"
+                        ],
+                        "resolutions": [
+                          "1K",
+                          "2K"
+                        ]
+                      }
+                    },
+                    {
+                      "id": "google/nano-banana-pro",
+                      "object": "model",
+                      "modality": "image",
+                      "owned_by": "google",
+                      "modes": [
+                        "text-to-image",
+                        "image-to-image"
                       ],
-                      "failures": [],
-                      "message": "Processed 1 files: 1 succeeded, 0 failed"
-                    }
-                  }
-                }
-              }
-            }
-          }
-        },
-        "x-mint": {
-          "href": "/zh-old-api-reference/image-to-3d/generate-chibi-style-model-with-image",
-          "metadata": {
-            "title": "\u56fe\u7247\u751f\u6210 Q \u7248\u6a21\u578b",
-            "sidebarTitle": "\u56fe\u7247\u751f\u6210 Q \u7248\u6a21\u578b",
-            "description": "\u901a\u8fc7\u4e0a\u4f20\u56fe\u7247\u548c\u9884\u914d\u7f6e\u7684\u98ce\u683c\u6807\u7b7e\u751f\u6210 Q \u7248 3D \u89d2\u8272\u6a21\u578b\u3002\u8be5\u64cd\u4f5c\u6d88\u8017 30 \u70b9\u6570\u3002\u4f7f\u7528\u524d\u9700\u8981\u5148\u5b8c\u6210\u98ce\u683c\u6807\u7b7e\u914d\u7f6e\u3002"
-          }
-        }
-      }
-    },
-    "/api/createNormalPicture": {
-      "post": {
-        "tags": [
-          "media-generation"
-        ],
-        "summary": "\u751f\u6210\u56fe\u7247",
-        "description": "\u901a\u8fc7\u6587\u672c\u63d0\u793a\u8bcd\u751f\u6210\u56fe\u7247\uff0c\u5e76\u53ef\u9009\u4e0a\u4f20\u53c2\u8003\u56fe\u3002\u5355\u6b21\u8bf7\u6c42\u6700\u591a\u53ef\u4e0a\u4f20 6 \u5f20\u53c2\u8003\u56fe\uff0c\u5e76\u63d0\u4ea4 1 \u5230 4 \u4e2a\u751f\u6210\u4efb\u52a1\u3002",
-        "operationId": "createNormalPicture",
-        "requestBody": {
-          "required": true,
-          "content": {
-            "multipart/form-data": {
-              "schema": {
-                "$ref": "#/components/schemas/CreateNormalPictureRequest"
-              },
-              "examples": {
-                "default": {
-                  "value": {
-                    "prompt": "a beautiful flower",
-                    "images": [
-                      "(binary)",
-                      "(binary)",
-                      "(binary)"
-                    ],
-                    "jobNum": 2,
-                    "modelKey": "image-2",
-                    "aspectRatio": "4:3"
-                  }
-                }
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "\u5df2\u63a5\u53d7\u56fe\u7247\u751f\u6210\u4efb\u52a1",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/QueuedGenerationResponse"
-                },
-                "examples": {
-                  "queued": {
-                    "value": {
-                      "success": true,
-                      "data": {
-                        "pointsDeducted": 26,
-                        "queueStatus": "queued",
-                        "jobNum": 2,
-                        "uuids": [
-                          "834d7e8c-bd70-48d8-9830-ca1ad9886e33",
-                          "774bd78d-d14f-4531-8972-321086c92edu"
+                      "capabilities": {
+                        "supports_text_input": true,
+                        "supports_image_input": true,
+                        "supports_video_input": false,
+                        "max_n": 4,
+                        "aspect_ratios": [
+                          "1:1",
+                          "16:9",
+                          "9:16",
+                          "4:3",
+                          "3:4"
+                        ],
+                        "resolutions": [
+                          "1K",
+                          "2K"
+                        ]
+                      }
+                    },
+                    {
+                      "id": "bytedance/seedance-2.0",
+                      "object": "model",
+                      "modality": "video",
+                      "owned_by": "bytedance",
+                      "modes": [
+                        "text-to-video",
+                        "first-frame-to-video",
+                        "first-last-frame-to-video",
+                        "reference-to-video"
+                      ],
+                      "capabilities": {
+                        "supports_text_input": true,
+                        "supports_image_input": true,
+                        "supports_video_input": false,
+                        "max_n": 4,
+                        "aspect_ratios": [
+                          "16:9",
+                          "9:16",
+                          "1:1",
+                          "4:3",
+                          "3:4"
+                        ],
+                        "resolutions": [
+                          "480p",
+                          "720p",
+                          "1080p"
+                        ],
+                        "durations_seconds": [
+                          4,
+                          5,
+                          6,
+                          7,
+                          8,
+                          9,
+                          10,
+                          11,
+                          12,
+                          13,
+                          14,
+                          15
+                        ]
+                      }
+                    },
+                    {
+                      "id": "dreamtech/neural4d-2.5",
+                      "object": "model",
+                      "modality": "3dmodel",
+                      "owned_by": "dreamtech",
+                      "modes": [
+                        "text-to-3d",
+                        "image-to-3d"
+                      ],
+                      "capabilities": {
+                        "supports_text_input": true,
+                        "supports_image_input": true,
+                        "supports_video_input": false,
+                        "max_n": 4,
+                        "mesh_qualities": [
+                          "standard",
+                          "high",
+                          "extra_high"
+                        ],
+                        "output_formats": [
+                          "glb",
+                          "obj",
+                          "fbx",
+                          "stl",
+                          "usdz",
+                          "blend"
+                        ],
+                        "postprocessing": [
+                          "refine",
+                          "texture",
+                          "pbr",
+                          "remesh"
                         ]
                       }
                     }
-                  }
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalError"
+          }
+        },
+        "servers": [
+          {
+            "url": "https://api.neural4d.com",
+            "description": "生产环境"
+          }
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": []
+      }
+    },
+    "/openapi/v1/images/generations": {
+      "post": {
+        "tags": [
+          "图片生成"
+        ],
+        "summary": "创建图片生成任务",
+        "description": "根据提示词和最多六张可选参考图片创建 1 到 4 个图片生成任务。文生图使用 application/json，参考图生成使用 multipart/form-data。响应包含已排队任务和扣除点数。",
+        "operationId": "createImageGeneration",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ImageGenerationJsonRequest"
+              },
+              "example": {
+                "model": "openai/gpt-image-2",
+                "prompt": "白色摄影棚背景中的陶瓷茶壶",
+                "mode": "text-to-image",
+                "n": 1,
+                "resolution": "1K",
+                "aspect_ratio": "1:1",
+                "extra_body": {
+                  "custom_option": "value"
+                }
+              }
+            },
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/ImageGenerationMultipartRequest"
+              },
+              "example": {
+                "model": "openai/gpt-image-2",
+                "prompt": "Restyle the reference images as a studio product photo",
+                "mode": "image-to-image",
+                "images": [
+                  "(binary)",
+                  "(binary)"
+                ],
+                "n": 2,
+                "resolution": "1K",
+                "aspect_ratio": "4:3",
+                "extra_body": {
+                  "custom_option": "value"
+                }
+              },
+              "encoding": {
+                "extra_body": {
+                  "contentType": "application/json"
                 }
               }
             }
           }
         },
-        "x-mint": {
-          "href": "/zh-old-api-reference/media-generation/generate-picture",
-          "metadata": {
-            "title": "\u751f\u6210\u56fe\u7247",
-            "sidebarTitle": "\u751f\u6210\u56fe\u7247",
-            "description": "\u901a\u8fc7\u6587\u672c\u63d0\u793a\u8bcd\u751f\u6210\u56fe\u7247\uff0c\u5e76\u53ef\u9009\u4e0a\u4f20\u53c2\u8003\u56fe\u3002\u5355\u6b21\u8bf7\u6c42\u6700\u591a\u53ef\u4e0a\u4f20 6 \u5f20\u53c2\u8003\u56fe\uff0c\u5e76\u63d0\u4ea4 1 \u5230 4 \u4e2a\u751f\u6210\u4efb\u52a1\u3002"
+        "responses": {
+          "202": {
+            "description": "已接受生成任务",
+            "headers": {
+              "X-RateLimit-Limit": {
+                "$ref": "#/components/headers/XRateLimitLimit"
+              },
+              "X-RateLimit-Remaining": {
+                "$ref": "#/components/headers/XRateLimitRemaining"
+              },
+              "X-RateLimit-Reset": {
+                "$ref": "#/components/headers/XRateLimitReset"
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TaskList"
+                },
+                "example": {
+                  "object": "list",
+                  "data": [
+                    {
+                      "id": "c6f5dc4e-61ac-4694-9a8b-6a95f3ac4457",
+                      "object": "task",
+                      "type": "image.generation",
+                      "status": "queued",
+                      "model": "openai/gpt-image-2",
+                      "created_at": 1784044800
+                    }
+                  ],
+                  "usage": {
+                    "credits": 13
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalError"
           }
-        }
+        },
+        "servers": [
+          {
+            "url": "https://api.neural4d.com",
+            "description": "生产环境"
+          }
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": []
       }
     },
-    "/api/createNormalVideo": {
+    "/openapi/v1/videos/generations": {
       "post": {
         "tags": [
-          "media-generation"
+          "视频生成"
         ],
-        "summary": "\u751f\u6210\u89c6\u9891",
-        "description": "\u901a\u8fc7\u6587\u672c\u63d0\u793a\u8bcd\u751f\u6210\u89c6\u9891\uff0c\u5e76\u53ef\u9009\u4e0a\u4f20\u53c2\u8003\u56fe\u3002\u5355\u6b21\u8bf7\u6c42\u53ef\u4e0a\u4f20 0 \u5230 6 \u5f20\u53c2\u8003\u56fe\uff0c\u5e76\u63d0\u4ea4 1 \u5230 4 \u4e2a\u751f\u6210\u4efb\u52a1\u3002",
-        "operationId": "createNormalVideo",
+        "summary": "创建视频生成任务",
+        "description": "每个请求生成的视频都会创建一个任务 ID。省略 mode 时，multipart 图片数量决定文本、首帧、首尾帧或参考图模式。",
+        "operationId": "createVideoGeneration",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/VideoGenerationJsonRequest"
+              },
+              "example": {
+                "model": "bytedance/seedance-2.0",
+                "prompt": "镜头缓慢环绕一个陶瓷茶壶",
+                "duration_seconds": 5,
+                "resolution": "720p",
+                "aspect_ratio": "16:9",
+                "n": 1,
+                "extra_body": {
+                  "custom_option": "value"
+                }
+              }
+            },
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/VideoGenerationMultipartRequest"
+              },
+              "example": {
+                "model": "bytedance/seedance-2.0",
+                "prompt": "A slow orbit around the reference subject",
+                "mode": "first-frame-to-video",
+                "images": [
+                  "(binary)"
+                ],
+                "duration_seconds": 5,
+                "resolution": "720p",
+                "aspect_ratio": "16:9",
+                "n": 1,
+                "extra_body": {
+                  "custom_option": "value"
+                }
+              },
+              "encoding": {
+                "extra_body": {
+                  "contentType": "application/json"
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "202": {
+            "description": "已接受生成任务",
+            "headers": {
+              "X-RateLimit-Limit": {
+                "$ref": "#/components/headers/XRateLimitLimit"
+              },
+              "X-RateLimit-Remaining": {
+                "$ref": "#/components/headers/XRateLimitRemaining"
+              },
+              "X-RateLimit-Reset": {
+                "$ref": "#/components/headers/XRateLimitReset"
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TaskList"
+                },
+                "example": {
+                  "object": "list",
+                  "data": [
+                    {
+                      "id": "c50fe63e-699d-4d61-93f5-2099ab159d6d",
+                      "object": "task",
+                      "type": "video.generation",
+                      "status": "queued",
+                      "model": "bytedance/seedance-2.0",
+                      "created_at": 1784044800
+                    }
+                  ],
+                  "usage": {
+                    "credits": 160
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalError"
+          }
+        },
+        "servers": [
+          {
+            "url": "https://api.neural4d.com",
+            "description": "生产环境"
+          }
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": []
+      }
+    },
+    "/openapi/v1/3dmodels/generations": {
+      "post": {
+        "tags": [
+          "3D 模型"
+        ],
+        "summary": "创建 3D 模型生成任务",
+        "description": "创建文生 3D 或单图生 3D 任务。文本输入使用 application/json，单张本地图片使用 multipart/form-data。",
+        "operationId": "create3DModelGeneration",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TextTo3DGenerationRequest"
+              },
+              "example": {
+                "mode": "text-to-3d",
+                "prompt": "风格化的陶瓷茶壶",
+                "with_texture": true,
+                "with_pbr": true,
+                "mesh_quality": "high",
+                "n": 1
+              }
+            },
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/ImageTo3DGenerationRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "202": {
+            "description": "已接受生成任务",
+            "headers": {
+              "X-RateLimit-Limit": {
+                "$ref": "#/components/headers/XRateLimitLimit"
+              },
+              "X-RateLimit-Remaining": {
+                "$ref": "#/components/headers/XRateLimitRemaining"
+              },
+              "X-RateLimit-Reset": {
+                "$ref": "#/components/headers/XRateLimitReset"
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TaskList"
+                },
+                "example": {
+                  "object": "list",
+                  "data": [
+                    {
+                      "id": "72e30159-a242-4491-a67c-2ad0cfc9efb6",
+                      "object": "task",
+                      "type": "3dmodel.generation",
+                      "status": "queued",
+                      "model": "dreamtech/neural4d-2.5",
+                      "created_at": 1784044800
+                    }
+                  ],
+                  "usage": {
+                    "credits": 30
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalError"
+          }
+        },
+        "servers": [
+          {
+            "url": "https://api.neural4d.com",
+            "description": "生产环境"
+          }
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": []
+      }
+    },
+    "/openapi/v1/3dmodels/refine": {
+      "post": {
+        "tags": [
+          "3D 模型"
+        ],
+        "summary": "精细化 3D 模型",
+        "description": "为已完成的模型 ID 提交精细化流程。该流程会将 standard 或 high 网格升级为 extra_high，并在源上下文可用时重新生成纹理和 PBR。",
+        "operationId": "refine3DModel",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Refine3DModelRequest"
+              },
+              "example": {
+                "quality": "extra_high",
+                "id": "4d0f8188-3fdd-4596-9d31-ceb6eab831655"
+              }
+            }
+          }
+        },
+        "responses": {
+          "202": {
+            "description": "已接受精细化任务",
+            "headers": {
+              "X-RateLimit-Limit": {
+                "$ref": "#/components/headers/XRateLimitLimit"
+              },
+              "X-RateLimit-Remaining": {
+                "$ref": "#/components/headers/XRateLimitRemaining"
+              },
+              "X-RateLimit-Reset": {
+                "$ref": "#/components/headers/XRateLimitReset"
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TaskList"
+                },
+                "example": {
+                  "object": "list",
+                  "data": [
+                    {
+                      "id": "22a3cb70-40af-4d38-8adf-bfd169d5646e",
+                      "object": "task",
+                      "type": "3dmodel.edit.refine",
+                      "status": "queued",
+                      "model": "dreamtech/neural4d-2.5",
+                      "created_at": 1784044800
+                    }
+                  ],
+                  "usage": {
+                    "credits": 10
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalError"
+          }
+        },
+        "servers": [
+          {
+            "url": "https://api.neural4d.com",
+            "description": "生产环境"
+          }
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": []
+      }
+    },
+    "/openapi/v1/3dmodels/texture": {
+      "post": {
+        "tags": [
+          "3D 模型"
+        ],
+        "summary": "为 3D 模型生成纹理",
+        "description": "使用且仅使用一种输入提交纹理生成任务：提示词或一张本地参考图片。",
+        "operationId": "texture3DModel",
         "requestBody": {
           "required": true,
           "content": {
             "multipart/form-data": {
               "schema": {
-                "$ref": "#/components/schemas/CreateNormalVideoRequest"
+                "$ref": "#/components/schemas/Texture3DModelRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "202": {
+            "description": "已接受纹理任务",
+            "headers": {
+              "X-RateLimit-Limit": {
+                "$ref": "#/components/headers/XRateLimitLimit"
               },
-              "examples": {
-                "default": {
-                  "value": {
-                    "prompt": "a flower bouquet",
+              "X-RateLimit-Remaining": {
+                "$ref": "#/components/headers/XRateLimitRemaining"
+              },
+              "X-RateLimit-Reset": {
+                "$ref": "#/components/headers/XRateLimitReset"
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TaskList"
+                },
+                "example": {
+                  "object": "list",
+                  "data": [
+                    {
+                      "id": "3d397b20-ea20-4c89-b5b5-50656d930af9",
+                      "object": "task",
+                      "type": "3dmodel.edit.texture",
+                      "status": "queued",
+                      "model": "dreamtech/neural4d-2.5",
+                      "created_at": 1784044800
+                    }
+                  ],
+                  "usage": {
+                    "credits": 10
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalError"
+          }
+        },
+        "servers": [
+          {
+            "url": "https://api.neural4d.com",
+            "description": "生产环境"
+          }
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": []
+      }
+    },
+    "/openapi/v1/3dmodels/pbr": {
+      "post": {
+        "tags": [
+          "3D 模型"
+        ],
+        "summary": "为 3D 模型生成 PBR 材质",
+        "description": "为已完成的模型 ID 提交 PBR 流程。任务结束后返回结果模型 URL。",
+        "operationId": "generate3DModelPbr",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Pbr3DModelRequest"
+              },
+              "example": {
+                "id": "4d0f8188-3fdd-4596-9d31-ceb6eab831655"
+              }
+            }
+          }
+        },
+        "responses": {
+          "202": {
+            "description": "已接受 PBR 任务",
+            "headers": {
+              "X-RateLimit-Limit": {
+                "$ref": "#/components/headers/XRateLimitLimit"
+              },
+              "X-RateLimit-Remaining": {
+                "$ref": "#/components/headers/XRateLimitRemaining"
+              },
+              "X-RateLimit-Reset": {
+                "$ref": "#/components/headers/XRateLimitReset"
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TaskList"
+                },
+                "example": {
+                  "object": "list",
+                  "data": [
+                    {
+                      "id": "04ff9123-f611-4384-b8a7-5313f521d82d",
+                      "object": "task",
+                      "type": "3dmodel.edit.pbr",
+                      "status": "queued",
+                      "model": "dreamtech/neural4d-2.5",
+                      "created_at": 1784044800
+                    }
+                  ],
+                  "usage": {
+                    "credits": 10
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalError"
+          }
+        },
+        "servers": [
+          {
+            "url": "https://api.neural4d.com",
+            "description": "生产环境"
+          }
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": []
+      }
+    },
+    "/openapi/v1/files/convert": {
+      "post": {
+        "tags": [
+          "文件"
+        ],
+        "summary": "转换 3D 模型格式",
+        "description": "启动异步 3D 格式转换。任务完成后返回带签名的文件 URL。",
+        "operationId": "convertFile",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ConvertFileRequest"
+              },
+              "example": {
+                "target_format": "fbx",
+                "model_size": 2,
+                "id": "4d0f8188-3fdd-4596-9d31-ceb6eab831655"
+              }
+            }
+          }
+        },
+        "responses": {
+          "202": {
+            "description": "已接受转换任务",
+            "headers": {
+              "X-RateLimit-Limit": {
+                "$ref": "#/components/headers/XRateLimitLimit"
+              },
+              "X-RateLimit-Remaining": {
+                "$ref": "#/components/headers/XRateLimitRemaining"
+              },
+              "X-RateLimit-Reset": {
+                "$ref": "#/components/headers/XRateLimitReset"
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TaskList"
+                },
+                "example": {
+                  "object": "list",
+                  "data": [
+                    {
+                      "id": "ad9372c6-6be6-4316-a1c5-31d3b2929bc9",
+                      "object": "task",
+                      "type": "file.convert",
+                      "status": "queued",
+                      "model": "dreamtech/neural4d-2.5",
+                      "created_at": 1784044800
+                    }
+                  ],
+                  "usage": {
+                    "credits": 10
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalError"
+          }
+        },
+        "servers": [
+          {
+            "url": "https://api.neural4d.com",
+            "description": "生产环境"
+          }
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": []
+      }
+    },
+    "/openapi/v1/usage": {
+      "get": {
+        "tags": [
+          "用量"
+        ],
+        "summary": "列出点数用量",
+        "description": "返回当前已认证用户的点数消耗记录，并支持按时间、模型和任务类型筛选。",
+        "operationId": "listUsage",
+        "responses": {
+          "200": {
+            "description": "点数用量记录",
+            "headers": {
+              "X-RateLimit-Limit": {
+                "$ref": "#/components/headers/XRateLimitLimit"
+              },
+              "X-RateLimit-Remaining": {
+                "$ref": "#/components/headers/XRateLimitRemaining"
+              },
+              "X-RateLimit-Reset": {
+                "$ref": "#/components/headers/XRateLimitReset"
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UsageList"
+                },
+                "example": {
+                  "object": "usage_list",
+                  "data": [
+                    {
+                      "id": "c6f5dc4e-61ac-4694-9a8b-6a95f3ac4457",
+                      "model": "openai/gpt-image-2",
+                      "type": "image.generation",
+                      "credits": 13,
+                      "created_at": 1784044800
+                    }
+                  ],
+                  "total_credits": 13,
+                  "page": 1,
+                  "has_more": false
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalError"
+          }
+        },
+        "servers": [
+          {
+            "url": "https://api.neural4d.com",
+            "description": "生产环境"
+          }
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "start_time",
+            "in": "query",
+            "description": "起始 Unix 时间戳（秒，包含该时刻）。",
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          },
+          {
+            "name": "end_time",
+            "in": "query",
+            "description": "结束 Unix 时间戳（秒，不包含该时刻）。",
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          },
+          {
+            "name": "model",
+            "in": "query",
+            "description": "按公开的供应商/模型别名筛选。",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "openai/gpt-image-2",
+                "google/nano-banana-pro",
+                "bytedance/seedance-2.0",
+                "dreamtech/neural4d-2.5"
+              ]
+            }
+          },
+          {
+            "name": "type",
+            "in": "query",
+            "description": "按公开任务类型筛选。",
+            "schema": {
+              "$ref": "#/components/schemas/TaskType"
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "default": 1
+            },
+            "description": "页码，从 1 开始。"
+          },
+          {
+            "name": "page_size",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 20
+            },
+            "description": "每页最多返回的用量记录数量。"
+          }
+        ]
+      }
+    },
+    "/openapi/v1/3dmodels/remesh": {
+      "post": {
+        "tags": [
+          "3D 模型"
+        ],
+        "summary": "重网格化 3D 模型",
+        "description": "使用请求的目标面数提交重网格流程。",
+        "operationId": "remesh3DModel",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Remesh3DModelRequest"
+              },
+              "example": {
+                "target_polycount": 100000,
+                "id": "4d0f8188-3fdd-4596-9d31-ceb6eab831655"
+              }
+            }
+          }
+        },
+        "responses": {
+          "202": {
+            "description": "已接受重网格任务",
+            "headers": {
+              "X-RateLimit-Limit": {
+                "$ref": "#/components/headers/XRateLimitLimit"
+              },
+              "X-RateLimit-Remaining": {
+                "$ref": "#/components/headers/XRateLimitRemaining"
+              },
+              "X-RateLimit-Reset": {
+                "$ref": "#/components/headers/XRateLimitReset"
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TaskList"
+                },
+                "example": {
+                  "object": "list",
+                  "data": [
+                    {
+                      "id": "f1a8c8c8-938a-4f91-b497-76071be434b2",
+                      "object": "task",
+                      "type": "3dmodel.edit.remesh",
+                      "status": "queued",
+                      "model": "dreamtech/neural4d-2.5",
+                      "created_at": 1784044800
+                    }
+                  ],
+                  "usage": {
+                    "credits": 10
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalError"
+          }
+        },
+        "servers": [
+          {
+            "url": "https://api.neural4d.com",
+            "description": "生产环境"
+          }
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": []
+      }
+    },
+    "/openapi/v1/tasks/{id}": {
+      "get": {
+        "tags": [
+          "任务"
+        ],
+        "summary": "查询任务",
+        "description": "通过任务 ID 返回单个任务，ID 使用 UUID 格式。状态统一为 queued、processing、succeeded 或 failed。请轮询此接口，直到返回终态。",
+        "operationId": "getTask",
+        "responses": {
+          "200": {
+            "description": "任务详情",
+            "headers": {
+              "X-RateLimit-Limit": {
+                "$ref": "#/components/headers/XRateLimitLimit"
+              },
+              "X-RateLimit-Remaining": {
+                "$ref": "#/components/headers/XRateLimitRemaining"
+              },
+              "X-RateLimit-Reset": {
+                "$ref": "#/components/headers/XRateLimitReset"
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Task"
+                },
+                "example": {
+                  "id": "c6f5dc4e-61ac-4694-9a8b-6a95f3ac4457",
+                  "object": "task",
+                  "type": "image.generation",
+                  "status": "succeeded",
+                  "model": "openai/gpt-image-2",
+                  "created_at": 1784044800,
+                  "updated_at": 1784044842,
+                  "output": {
                     "images": [
-                      "(binary)"
-                    ],
-                    "duration": 14,
-                    "aspectRatio": "9:16",
-                    "resolution": "480p",
-                    "jobNum": 3
-                  }
-                }
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "\u5df2\u63a5\u53d7\u89c6\u9891\u751f\u6210\u4efb\u52a1",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/QueuedGenerationResponse"
-                },
-                "examples": {
-                  "queued": {
-                    "value": {
-                      "success": true,
-                      "data": {
-                        "pointsDeducted": 1344,
-                        "queueStatus": "queued",
-                        "jobNum": 3,
-                        "uuids": [
-                          "18c8eb80-e1b0-43d4-878e-7fdd31a7e525",
-                          "76f14626-e2ef-466c-a720-473dc64ebf43",
-                          "acb40a9d-082b-4842-bd92-1955b7eb1a13"
-                        ]
+                      {
+                        "url": "https://cdn.neural4d.com/results/image.png",
+                        "format": "png"
                       }
-                    }
-                  }
-                }
-              }
-            }
-          }
-        },
-        "x-mint": {
-          "href": "/zh-old-api-reference/media-generation/generate-video",
-          "metadata": {
-            "title": "\u751f\u6210\u89c6\u9891",
-            "sidebarTitle": "\u751f\u6210\u89c6\u9891",
-            "description": "\u901a\u8fc7\u6587\u672c\u63d0\u793a\u8bcd\u751f\u6210\u89c6\u9891\uff0c\u5e76\u53ef\u9009\u4e0a\u4f20\u53c2\u8003\u56fe\u3002\u5355\u6b21\u8bf7\u6c42\u53ef\u4e0a\u4f20 0 \u5230 6 \u5f20\u53c2\u8003\u56fe\uff0c\u5e76\u63d0\u4ea4 1 \u5230 4 \u4e2a\u751f\u6210\u4efb\u52a1\u3002"
-          }
-        }
-      }
-    },
-    "/api/queryGenerationResult": {
-      "post": {
-        "tags": [
-          "media-generation"
-        ],
-        "summary": "\u67e5\u8be2\u751f\u6210\u7ed3\u679c",
-        "description": "\u901a\u8fc7 UUID \u67e5\u8be2\u751f\u6210\u7ed3\u679c\u3002\u8be5\u64cd\u4f5c\u4ec5\u7528\u4e8e\u67e5\u8be2\uff0c\u4e0d\u6d88\u8017\u70b9\u6570\u3002",
-        "operationId": "queryGenerationResult",
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/UuidRequest"
-              },
-              "examples": {
-                "default": {
-                  "value": {
-                    "uuid": "16be86d7-210a-4d22-a00b-62935c1900d2"
-                  }
-                }
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "\u751f\u6210\u7ed3\u679c",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/QueryGenerationResultResponse"
-                },
-                "examples": {
-                  "completedVideo": {
-                    "value": {
-                      "success": true,
-                      "data": {
-                        "uuid": "4d0f8188-3fdd-4596-9d31-ceb6eab831655",
-                        "status": "completed",
-                        "resultType": "video",
-                        "resultUrl": "https://example.mp4"
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          }
-        },
-        "x-mint": {
-          "href": "/zh-old-api-reference/media-generation/retrieve-generation-result",
-          "metadata": {
-            "title": "\u67e5\u8be2\u751f\u6210\u7ed3\u679c",
-            "sidebarTitle": "\u67e5\u8be2\u751f\u6210\u7ed3\u679c",
-            "description": "\u901a\u8fc7 UUID \u67e5\u8be2\u751f\u6210\u7ed3\u679c\u3002\u8be5\u64cd\u4f5c\u4ec5\u7528\u4e8e\u67e5\u8be2\uff0c\u4e0d\u6d88\u8017\u70b9\u6570\u3002"
-          }
-        }
-      }
-    },
-    "/api/convertToFormat": {
-      "post": {
-        "tags": [
-          "model-management"
-        ],
-        "summary": "\u8f6c\u6362\u6a21\u578b\u683c\u5f0f",
-        "description": "\u5c06\u5df2\u751f\u6210\u6a21\u578b\u8f6c\u6362\u4e3a\u76ee\u6807\u683c\u5f0f\uff0c\u5e76\u8fd4\u56de\u4e0b\u8f7d\u94fe\u63a5\u3002\u8be5\u64cd\u4f5c\u6d88\u8017 10 \u70b9\u6570\u3002",
-        "operationId": "convertToFormat",
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/ConvertToFormatRequest"
-              },
-              "examples": {
-                "default": {
-                  "value": {
-                    "uuid": "2dee04d4-f6e5-4fdf-b626-0f814e24db84",
-                    "modelType": "fbx",
-                    "modelSize": 2
-                  }
-                }
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "\u683c\u5f0f\u8f6c\u6362\u7ed3\u679c",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ConvertToFormatResponse"
-                },
-                "examples": {
-                  "converting": {
-                    "value": {
-                      "statusType": 1,
-                      "modelSize": 2,
-                      "message": "The specified model format does not exist, converting now..."
-                    }
+                    ]
                   },
-                  "completed": {
-                    "value": {
-                      "statusType": 0,
-                      "modelUrl": "https://s3.neural4d.com/fbx_54078587-7fdd-49c5-9fe6-317d22f27098.zip?sig=example",
-                      "scaleNumber": 4,
-                      "message": "Format conversion has been completed and is ready for download."
-                    }
-                  },
-                  "missingUuid": {
-                    "value": {
-                      "statusType": -1,
-                      "message": "Model not found for this UUID (0efc2b3-57e1-4813-90c6-419de96e785e). Please check if the UUID is correct."
-                    }
+                  "usage": {
+                    "credits": 13
                   }
                 }
               }
             }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalError"
           }
         },
-        "x-mint": {
-          "href": "/zh-old-api-reference/model-management/convert-model-format",
-          "metadata": {
-            "title": "\u8f6c\u6362\u6a21\u578b\u683c\u5f0f",
-            "sidebarTitle": "\u8f6c\u6362\u6a21\u578b\u683c\u5f0f",
-            "description": "\u5c06\u5df2\u751f\u6210\u6a21\u578b\u8f6c\u6362\u4e3a\u76ee\u6807\u683c\u5f0f\uff0c\u5e76\u8fd4\u56de\u4e0b\u8f7d\u94fe\u63a5\u3002\u8be5\u64cd\u4f5c\u6d88\u8017 10 \u70b9\u6570\u3002"
+        "servers": [
+          {
+            "url": "https://api.neural4d.com",
+            "description": "生产环境"
           }
-        }
-      }
-    },
-    "/api/checkHumanImage": {
-      "post": {
-        "tags": [
-          "account-and-validation"
         ],
-        "summary": "\u68c0\u6d4b\u4eba\u50cf\u56fe\u7247",
-        "description": "\u68c0\u67e5\u4e0a\u4f20\u56fe\u7247\u4e2d\u662f\u5426\u5305\u542b\u4eba\u50cf\u3002",
-        "operationId": "checkHumanImage",
-        "requestBody": {
-          "required": true,
-          "content": {
-            "multipart/form-data": {
-              "schema": {
-                "$ref": "#/components/schemas/CheckHumanImageRequest"
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "生成或后处理请求返回的任务 ID，格式为 UUID。",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ]
+      },
+      "delete": {
+        "tags": [
+          "任务"
+        ],
+        "summary": "移除任务历史记录",
+        "description": "从当前已认证账户的历史记录中移除任务及其结果。排队中或运行中的执行保持当前状态。",
+        "operationId": "deleteTaskHistory",
+        "responses": {
+          "204": {
+            "description": "任务历史记录已移除",
+            "headers": {
+              "X-RateLimit-Limit": {
+                "$ref": "#/components/headers/XRateLimitLimit"
               },
-              "examples": {
-                "default": {
-                  "value": {
-                    "image": "(binary)"
-                  }
-                }
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "\u68c0\u6d4b\u7ed3\u679c",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/CheckHumanImageResponse"
-                },
-                "examples": {
-                  "portraitDetected": {
-                    "value": {
-                      "statusCode": 0,
-                      "result": true,
-                      "message": "success"
-                    }
-                  },
-                  "rateLimited": {
-                    "value": {
-                      "statusCode": -1,
-                      "result": false,
-                      "message": "Rate limit reached for image style detection, returning false"
-                    }
-                  }
-                }
-              }
-            }
-          }
-        },
-        "x-mint": {
-          "href": "/zh-old-api-reference/account-and-validation/detect-portrait-image",
-          "metadata": {
-            "title": "\u68c0\u6d4b\u4eba\u50cf\u56fe\u7247",
-            "sidebarTitle": "\u68c0\u6d4b\u4eba\u50cf\u56fe\u7247",
-            "description": "\u68c0\u67e5\u4e0a\u4f20\u56fe\u7247\u4e2d\u662f\u5426\u5305\u542b\u4eba\u50cf\u3002"
-          }
-        }
-      }
-    },
-    "/api/queryPointsInfo": {
-      "post": {
-        "tags": [
-          "account-and-validation"
-        ],
-        "summary": "\u67e5\u8be2\u5269\u4f59\u70b9\u6570",
-        "description": "\u67e5\u8be2\u540e\u7eed\u64cd\u4f5c\u53ef\u7528\u7684\u5269\u4f59\u70b9\u6570\u3002",
-        "operationId": "queryPointsInfo",
-        "responses": {
-          "200": {
-            "description": "\u5269\u4f59\u70b9\u6570\u4fe1\u606f",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/QueryPointsInfoResponse"
-                },
-                "examples": {
-                  "success": {
-                    "value": {
-                      "statusType": 0,
-                      "data": {
-                        "total_points": 54335,
-                        "monthly_bonus_points": 0,
-                        "permanent_points": 54335,
-                        "year_points": 0,
-                        "expiration_day": null
-                      },
-                      "message": "Get the points info successfully"
-                    }
-                  }
-                }
-              }
-            }
-          }
-        },
-        "x-mint": {
-          "href": "/zh-old-api-reference/account-and-validation/query-remaining-balance",
-          "metadata": {
-            "title": "\u67e5\u8be2\u5269\u4f59\u70b9\u6570",
-            "sidebarTitle": "\u67e5\u8be2\u5269\u4f59\u70b9\u6570",
-            "description": "\u67e5\u8be2\u540e\u7eed\u64cd\u4f5c\u53ef\u7528\u7684\u5269\u4f59\u70b9\u6570\u3002"
-          }
-        }
-      }
-    },
-    "/api/queryJobProgress": {
-      "post": {
-        "tags": [
-          "model-management"
-        ],
-        "summary": "\u67e5\u8be2\u4efb\u52a1\u8fdb\u5ea6",
-        "description": "\u901a\u8fc7 UUID \u67e5\u8be2\u6a21\u578b\u751f\u6210\u4efb\u52a1\u7684\u5f53\u524d\u8fdb\u5ea6\u3002",
-        "operationId": "queryJobProgress",
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/UuidRequest"
+              "X-RateLimit-Remaining": {
+                "$ref": "#/components/headers/XRateLimitRemaining"
               },
-              "examples": {
-                "default": {
-                  "value": {
-                    "uuid": "c7b77026-88f5-417f-a7c8-648a9448"
-                  }
-                }
+              "X-RateLimit-Reset": {
+                "$ref": "#/components/headers/XRateLimitReset"
               }
             }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalError"
           }
         },
+        "servers": [
+          {
+            "url": "https://api.neural4d.com",
+            "description": "生产环境"
+          }
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "生成或后处理请求返回的任务 ID，格式为 UUID。",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ]
+      }
+    },
+    "/openapi/v1/files/{id}": {
+      "get": {
+        "tags": [
+          "文件"
+        ],
+        "summary": "获取带签名的文件 URL",
+        "description": "返回已完成图片、视频或 3D 模型 ID 对应的临时签名结果 URL。请使用 ID 作为持久标识。",
+        "operationId": "getFiles",
         "responses": {
           "200": {
-            "description": "\u4efb\u52a1\u8fdb\u5ea6\u7ed3\u679c",
+            "description": "文件 URL",
+            "headers": {
+              "X-RateLimit-Limit": {
+                "$ref": "#/components/headers/XRateLimitLimit"
+              },
+              "X-RateLimit-Remaining": {
+                "$ref": "#/components/headers/XRateLimitRemaining"
+              },
+              "X-RateLimit-Reset": {
+                "$ref": "#/components/headers/XRateLimitReset"
+              }
+            },
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/QueryJobProgressResponse"
+                  "$ref": "#/components/schemas/FileResource"
                 },
-                "examples": {
-                  "success": {
-                    "value": {
-                      "statusType": 0,
-                      "message": "Get job progress successfully",
-                      "progress": "100%"
+                "example": {
+                  "urls": [
+                    {
+                      "url": "https://cdn.neural4d.com/results/model.glb",
+                      "format": "glb"
                     }
-                  }
+                  ],
+                  "thumbnail_urls": [
+                    "https://cdn.neural4d.com/results/model.png"
+                  ],
+                  "expires_at": 1786636800,
+                  "id": "4d0f8188-3fdd-4596-9d31-ceb6eab831655"
                 }
               }
             }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "409": {
+            "$ref": "#/components/responses/TaskNotReady"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalError"
           }
         },
-        "x-mint": {
-          "href": "/zh-old-api-reference/model-management/query-job-progress",
-          "metadata": {
-            "title": "\u67e5\u8be2\u4efb\u52a1\u8fdb\u5ea6",
-            "sidebarTitle": "\u67e5\u8be2\u4efb\u52a1\u8fdb\u5ea6",
-            "description": "\u901a\u8fc7 UUID \u67e5\u8be2\u6a21\u578b\u751f\u6210\u4efb\u52a1\u7684\u5f53\u524d\u8fdb\u5ea6\u3002"
+        "servers": [
+          {
+            "url": "https://api.neural4d.com",
+            "description": "生产环境"
           }
-        }
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "任务或 3D 模型 ID，格式为 UUID。",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ]
       }
     }
   },
@@ -743,307 +1436,658 @@
       "bearerAuth": {
         "type": "http",
         "scheme": "bearer",
-        "description": "\u4f7f\u7528 Neural4D \u7f51\u7ad9\u63d0\u4f9b\u7684 Bearer token\u3002",
-        "x-default": "YOUR_TOKEN"
+        "description": "使用 Neural4D 提供的 API 密钥，并通过 Authorization 请求头的 Bearer 方式发送。",
+        "x-default": "Bearer ${YOUR_API_KEY}"
       }
     },
     "schemas": {
-      "UuidRequest": {
-        "type": "object",
-        "required": [
-          "uuid"
-        ],
-        "properties": {
-          "uuid": {
-            "type": "string",
-            "description": "\u7531\u521b\u5efa\u63a5\u53e3\u8fd4\u56de\u7684\u4efb\u52a1\u6216\u6a21\u578b\u552f\u4e00\u6807\u8bc6\u3002",
-            "example": "f47ac10b-58cc-4372-a567-0e02b2c3d479"
-          }
-        }
-      },
-      "GenerateModelWithTextRequest": {
-        "type": "object",
-        "required": [
-          "prompt"
-        ],
-        "properties": {
-          "prompt": {
-            "type": "string",
-            "description": "\u7528\u4e8e\u751f\u6210 3D \u6a21\u578b\u7684\u6587\u672c\u63d0\u793a\u8bcd\u3002",
-            "example": "people"
-          },
-          "modelCount": {
-            "type": "integer",
-            "minimum": 1,
-            "default": 4,
-            "description": "\u751f\u6210\u6a21\u578b\u7684\u6570\u91cf\u3002"
-          },
-          "disablePbr": {
-            "type": "integer",
-            "enum": [
-              0,
-              1
-            ],
-            "default": 0,
-            "description": "PBR \u5f00\u5173\u3002\u4f7f\u7528 `0` \u5f00\u542f PBR\uff0c\u4f7f\u7528 `1` \u5173\u95ed PBR\u3002"
-          }
-        }
-      },
-      "GenerateModelWithTextResponse": {
+      "ApiError": {
         "type": "object",
         "required": [
           "type",
+          "code",
           "message",
-          "uuids"
+          "request_id"
         ],
         "properties": {
           "type": {
             "type": "string",
-            "description": "\u54cd\u5e94\u6765\u6e90\u6216\u7c7b\u578b\u6807\u8bb0\u3002",
-            "example": "sys"
-          },
-          "message": {
-            "type": "string",
-            "description": "\u751f\u6210\u72b6\u6001\u6d88\u606f\u3002",
-            "example": "Generating"
-          },
-          "uuids": {
-            "type": "array",
-            "description": "\u53ef\u5728\u540e\u7eed\u67e5\u8be2\u6a21\u578b\u65f6\u4f7f\u7528\u7684 UUID \u5217\u8868\u3002",
-            "items": {
-              "type": "string"
-            }
-          }
-        }
-      },
-      "RetrieveModelResponse": {
-        "type": "object",
-        "required": [
-          "codeStatus",
-          "message"
-        ],
-        "properties": {
-          "codeStatus": {
-            "type": "integer",
             "enum": [
-              -3,
-              -2,
-              -1,
-              0,
-              1
+              "invalid_request_error",
+              "authentication_error",
+              "permission_error",
+              "not_found_error",
+              "rate_limit_error",
+              "content_policy_violation",
+              "api_error"
             ],
-            "description": "\u7ed3\u679c\u72b6\u6001\u3002`0` \u8868\u793a\u5df2\u5b8c\u6210\uff0c`1` \u8868\u793a\u751f\u6210\u4e2d\uff0c`-1` \u8868\u793a token \u65e0\u6548\u6216\u5df2\u8fc7\u671f\uff0c`-2` \u8868\u793a UUID \u4e0d\u5b58\u5728\uff0c`-3` \u8868\u793a\u751f\u6210\u5931\u8d25\u3002"
+            "description": "用于程序处理的高层错误类别。"
+          },
+          "code": {
+            "type": "string",
+            "description": "稳定且可供程序读取的错误码。",
+            "example": "invalid_prompt"
           },
           "message": {
             "type": "string",
-            "description": "\u67e5\u8be2\u72b6\u6001\u6d88\u606f\u3002"
+            "example": "prompt 为必填项，且必须是非空字符串",
+            "description": "便于阅读的错误说明。"
           },
-          "modelUrl": {
+          "param": {
+            "type": "string",
+            "nullable": true,
+            "example": "prompt",
+            "description": "与错误相关的请求字段；错误不针对特定字段时为 null。"
+          },
+          "request_id": {
+            "type": "string",
+            "example": "req_01J2R6Y7F6Q8K9P0M1N2B3V4CX",
+            "description": "用于追踪此错误的请求 ID。"
+          },
+          "doc_url": {
             "type": "string",
             "format": "uri",
             "nullable": true,
-            "description": "\u751f\u6210\u5b8c\u6210\u540e\u53ef\u7528\u7684\u6a21\u578b\u4e0b\u8f7d\u94fe\u63a5\u3002"
-          },
-          "imageUrl": {
+            "example": "https://api.neural4d.com/docs/errors#invalid_prompt",
+            "description": "包含此错误更多信息的可选文档 URL。"
+          }
+        }
+      },
+      "ErrorResponse": {
+        "type": "object",
+        "required": [
+          "error"
+        ],
+        "properties": {
+          "error": {
+            "$ref": "#/components/schemas/ApiError",
+            "description": "结构化错误详情。"
+          }
+        }
+      },
+      "TaskUsage": {
+        "type": "object",
+        "required": [
+          "credits"
+        ],
+        "properties": {
+          "credits": {
+            "type": "number",
+            "format": "float",
+            "minimum": 0,
+            "description": "该任务或请求扣除的点数。",
+            "example": 26
+          }
+        }
+      },
+      "ImageFile": {
+        "type": "object",
+        "required": [
+          "url"
+        ],
+        "properties": {
+          "url": {
             "type": "string",
             "format": "uri",
-            "nullable": true,
-            "description": "\u751f\u6210\u5b8c\u6210\u540e\u53ef\u7528\u7684\u6a21\u578b\u9884\u89c8\u56fe\u94fe\u63a5\u3002"
+            "description": "用于下载生成图片的临时签名 URL。"
           },
-          "prompts": {
+          "format": {
             "type": "string",
             "nullable": true,
-            "description": "\u4e0e\u8be5\u6a21\u578b\u5173\u8054\u7684\u63d0\u793a\u8bcd\u5185\u5bb9\u3002"
-          },
-          "createdAt": {
-            "type": "string",
-            "format": "date-time",
-            "nullable": true,
-            "description": "\u6a21\u578b\u521b\u5efa\u65f6\u95f4\u3002"
-          },
-          "sourcePage": {
-            "type": "string",
-            "nullable": true,
-            "description": "\u65e7\u7248\u670d\u52a1\u8fd4\u56de\u7684\u6765\u6e90\u9875\u9762\u6807\u8bb0\u3002"
+            "example": "png",
+            "description": "已知时返回图片文件格式，例如 png。"
           }
         }
       },
-      "GenerateModelWithImageRequest": {
+      "VideoFile": {
         "type": "object",
         "required": [
-          "image"
+          "url"
         ],
         "properties": {
-          "modelCount": {
-            "type": "integer",
-            "minimum": 1,
-            "default": 4,
-            "description": "\u751f\u6210\u6a21\u578b\u7684\u6570\u91cf\u3002"
-          },
-          "disablePbr": {
-            "type": "integer",
-            "enum": [
-              0,
-              1
-            ],
-            "default": 0,
-            "description": "PBR \u5f00\u5173\u3002\u4f7f\u7528 `0` \u5f00\u542f PBR\uff0c\u4f7f\u7528 `1` \u5173\u95ed PBR\u3002"
-          },
-          "image": {
+          "url": {
             "type": "string",
-            "format": "binary",
-            "description": "\u8f93\u5165\u56fe\u7247\u6587\u4ef6\u3002\u5efa\u8bae\u4f7f\u7528 JPG\u3001JPEG\u3001PNG \u6216 WEBP\uff0c\u4e14\u6587\u4ef6\u5c0f\u4e8e 10 MB\u3002"
+            "format": "uri",
+            "description": "用于下载生成视频的临时签名 URL。"
+          },
+          "format": {
+            "type": "string",
+            "nullable": true,
+            "example": "mp4",
+            "description": "已知时返回视频文件格式，例如 mp4。"
+          },
+          "duration_seconds": {
+            "type": "integer",
+            "nullable": true,
+            "minimum": 0,
+            "description": "可用时返回生成视频的时长，单位为秒。"
+          },
+          "resolution": {
+            "type": "string",
+            "nullable": true,
+            "example": "720p",
+            "description": "可用时返回生成视频的分辨率，例如 720p。"
           }
         }
       },
-      "GenerateModelWithImageResponse": {
+      "ModelFile": {
         "type": "object",
         "required": [
-          "type",
-          "message",
-          "uuids",
-          "uploadedImageUrl"
+          "id",
+          "url"
         ],
         "properties": {
-          "type": {
+          "url": {
             "type": "string",
-            "description": "\u54cd\u5e94\u6765\u6e90\u6216\u7c7b\u578b\u6807\u8bb0\u3002",
-            "example": "sys"
+            "format": "uri",
+            "description": "用于下载生成 3D 模型的临时签名 URL。"
           },
-          "message": {
+          "format": {
             "type": "string",
-            "description": "\u751f\u6210\u72b6\u6001\u6d88\u606f\u3002"
+            "nullable": true,
+            "example": "glb",
+            "description": "已知时返回 3D 模型文件格式，例如 glb。"
           },
-          "uuids": {
+          "thumbnail_urls": {
             "type": "array",
-            "description": "\u53ef\u7528\u4e8e\u67e5\u8be2\u751f\u6210\u6a21\u578b\u7684 UUID \u5217\u8868\u3002",
             "items": {
-              "type": "string"
-            }
+              "type": "string",
+              "format": "uri"
+            },
+            "description": "模型预览图片的临时签名 URL 列表。"
           },
-          "uploadedImageUrl": {
+          "polycount": {
+            "type": "integer",
+            "nullable": true,
+            "minimum": 0,
+            "description": "可用时返回模型的多边形面数。"
+          },
+          "mesh_type": {
             "type": "string",
-            "format": "uri",
-            "description": "\u4e0a\u4f20\u6e90\u56fe\u7684\u7b7e\u540d\u4e0b\u8f7d\u94fe\u63a5\u3002"
+            "nullable": true,
+            "description": "可用时返回生成流程报告的网格拓扑类型。"
+          },
+          "has_texture": {
+            "type": "boolean",
+            "nullable": true,
+            "description": "已知时表示模型是否包含纹理数据。"
+          },
+          "has_pbr": {
+            "type": "boolean",
+            "nullable": true,
+            "description": "已知时表示模型是否包含 PBR 材质数据。"
+          },
+          "id": {
+            "type": "string",
+            "description": "UUID 格式的已生成 3D 模型资源 ID。",
+            "format": "uuid"
           }
         }
       },
-      "CreateCuteModelsFromImagesRequest": {
+      "FileLink": {
         "type": "object",
         "required": [
-          "images",
-          "styleType"
+          "url",
+          "format"
+        ],
+        "properties": {
+          "url": {
+            "type": "string",
+            "format": "uri",
+            "description": "用于下载文件的临时签名 URL。"
+          },
+          "format": {
+            "type": "string",
+            "example": "glb",
+            "description": "此 URL 对应的文件格式。"
+          }
+        }
+      },
+      "ImageTaskOutput": {
+        "type": "object",
+        "required": [
+          "images"
         ],
         "properties": {
           "images": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ImageFile"
+            },
+            "description": "任务成功后返回的生成图片文件列表。"
+          }
+        }
+      },
+      "VideoTaskOutput": {
+        "type": "object",
+        "required": [
+          "videos"
+        ],
+        "properties": {
+          "videos": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/VideoFile"
+            },
+            "description": "任务成功后返回的生成视频文件列表。"
+          }
+        }
+      },
+      "ModelTaskOutput": {
+        "type": "object",
+        "required": [
+          "models"
+        ],
+        "properties": {
+          "models": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ModelFile"
+            },
+            "description": "任务成功后返回的生成 3D 模型文件列表。"
+          }
+        }
+      },
+      "FileConversionTaskOutput": {
+        "type": "object",
+        "required": [
+          "files"
+        ],
+        "properties": {
+          "files": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/FileLink"
+            },
+            "description": "任务成功后返回的转换文件列表。"
+          }
+        }
+      },
+      "TaskOutput": {
+        "oneOf": [
+          {
+            "$ref": "#/components/schemas/ImageTaskOutput"
+          },
+          {
+            "$ref": "#/components/schemas/VideoTaskOutput"
+          },
+          {
+            "$ref": "#/components/schemas/ModelTaskOutput"
+          },
+          {
+            "$ref": "#/components/schemas/FileConversionTaskOutput"
+          }
+        ]
+      },
+      "Task": {
+        "type": "object",
+        "required": [
+          "id",
+          "object",
+          "type",
+          "status",
+          "created_at"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "UUID 格式的公开任务 ID。",
+            "format": "uuid"
+          },
+          "object": {
+            "type": "string",
+            "enum": [
+              "task"
+            ],
+            "description": "对象类型标识，固定为 task。"
+          },
+          "type": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/TaskType"
+              }
+            ],
+            "description": "任务执行的操作类型。"
+          },
+          "status": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/TaskStatus"
+              }
+            ],
+            "description": "标准化后的任务生命周期状态。"
+          },
+          "model": {
+            "type": "string",
+            "nullable": true,
+            "description": "GET /openapi/v1/models 返回的公开供应商/模型别名。",
+            "enum": [
+              "openai/gpt-image-2",
+              "google/nano-banana-pro",
+              "bytedance/seedance-2.0",
+              "dreamtech/neural4d-2.5"
+            ]
+          },
+          "created_at": {
+            "type": "integer",
+            "format": "int64",
+            "description": "Unix 时间戳（秒）。"
+          },
+          "updated_at": {
+            "type": "integer",
+            "format": "int64",
+            "description": "Unix 时间戳（秒）。"
+          },
+          "input": {
+            "type": "object",
+            "additionalProperties": true,
+            "description": "标准化后的请求快照，不包含上传的二进制数据。"
+          },
+          "output": {
+            "$ref": "#/components/schemas/TaskOutput",
+            "description": "任务结果，在结果可用时返回。"
+          },
+          "usage": {
+            "$ref": "#/components/schemas/TaskUsage",
+            "description": "可用时返回此任务扣除的点数。"
+          },
+          "error": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/TaskError"
+              }
+            ],
+            "description": "任务失败时返回的错误详情。"
+          }
+        }
+      },
+      "TaskList": {
+        "type": "object",
+        "required": [
+          "object",
+          "data"
+        ],
+        "properties": {
+          "object": {
+            "type": "string",
+            "enum": [
+              "list"
+            ],
+            "description": "对象类型标识，固定为 list。"
+          },
+          "data": {
             "type": "array",
             "minItems": 1,
             "items": {
-              "type": "string",
-              "format": "binary"
+              "$ref": "#/components/schemas/Task"
             },
-            "description": "\u7528\u4e8e\u751f\u6210 Q \u7248\u6a21\u578b\u7684\u8f93\u5165\u56fe\u7247\u6587\u4ef6\u3002"
+            "description": "本次请求创建的任务列表。"
           },
-          "styleType": {
+          "usage": {
+            "$ref": "#/components/schemas/TaskUsage",
+            "description": "可用时返回本次提交任务扣除的总点数。"
+          }
+        }
+      },
+      "ModelCapabilities": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "supports_text_input": {
+            "type": "boolean",
+            "description": "模型是否接受文本输入。"
+          },
+          "supports_image_input": {
+            "type": "boolean",
+            "description": "模型是否接受图片输入。"
+          },
+          "supports_video_input": {
+            "type": "boolean",
+            "description": "公开 API 是否允许该模型接收视频输入。"
+          },
+          "max_n": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 4,
+            "description": "单次请求允许生成的最大输出数量。"
+          },
+          "aspect_ratios": {
+            "type": "array",
+            "uniqueItems": true,
+            "items": {
+              "type": "string",
+              "enum": [
+                "1:1",
+                "16:9",
+                "9:16",
+                "4:3",
+                "3:4"
+              ]
+            },
+            "description": "支持的输出宽高比。"
+          },
+          "resolutions": {
+            "type": "array",
+            "uniqueItems": true,
+            "items": {
+              "type": "string",
+              "enum": [
+                "1K",
+                "2K",
+                "480p",
+                "720p",
+                "1080p"
+              ]
+            },
+            "description": "支持的输出分辨率。"
+          },
+          "durations_seconds": {
+            "type": "array",
+            "uniqueItems": true,
+            "items": {
+              "type": "integer",
+              "enum": [
+                4,
+                5,
+                6,
+                7,
+                8,
+                9,
+                10,
+                11,
+                12,
+                13,
+                14,
+                15
+              ]
+            },
+            "description": "支持的视频时长完整列表，单位为秒。"
+          },
+          "mesh_qualities": {
+            "type": "array",
+            "uniqueItems": true,
+            "items": {
+              "type": "string",
+              "enum": [
+                "standard",
+                "high",
+                "extra_high"
+              ]
+            },
+            "description": "支持的 3D 网格质量等级。"
+          },
+          "output_formats": {
+            "type": "array",
+            "uniqueItems": true,
+            "items": {
+              "type": "string",
+              "enum": [
+                "glb",
+                "obj",
+                "fbx",
+                "stl",
+                "usdz",
+                "blend"
+              ]
+            },
+            "description": "支持下载的输出格式。"
+          },
+          "postprocessing": {
+            "type": "array",
+            "uniqueItems": true,
+            "items": {
+              "type": "string",
+              "enum": [
+                "refine",
+                "texture",
+                "pbr",
+                "remesh"
+              ]
+            },
+            "description": "支持的 3D 后处理操作。"
+          }
+        }
+      },
+      "Model": {
+        "type": "object",
+        "required": [
+          "id",
+          "object",
+          "modality",
+          "owned_by",
+          "modes",
+          "capabilities"
+        ],
+        "properties": {
+          "object": {
             "type": "string",
-            "description": "\u65e7\u7248 Q \u7248\u6a21\u578b\u6d41\u7a0b\u4f7f\u7528\u7684\u5df2\u914d\u7f6e\u63d0\u793a\u8bcd\u6807\u7b7e\u3002",
-            "example": "Pixel-Style"
+            "enum": [
+              "model"
+            ],
+            "description": "对象类型标识，固定为 model。"
+          },
+          "modality": {
+            "type": "string",
+            "enum": [
+              "image",
+              "video",
+              "3dmodel"
+            ],
+            "description": "模型生成的主要输出类型。"
+          },
+          "owned_by": {
+            "type": "string",
+            "description": "拥有该模型的供应商或组织。",
+            "enum": [
+              "openai",
+              "google",
+              "bytedance",
+              "dreamtech"
+            ]
+          },
+          "modes": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "text-to-image",
+                "image-to-image",
+                "text-to-video",
+                "first-frame-to-video",
+                "first-last-frame-to-video",
+                "reference-to-video",
+                "text-to-3d",
+                "image-to-3d"
+              ]
+            },
+            "description": "该模型支持的生成模式。"
+          },
+          "capabilities": {
+            "$ref": "#/components/schemas/ModelCapabilities",
+            "description": "该模型支持的限制和选项。"
+          },
+          "id": {
+            "type": "string",
+            "example": "openai/gpt-image-2",
+            "description": "生成请求中使用的公开模型标识。",
+            "enum": [
+              "openai/gpt-image-2",
+              "google/nano-banana-pro",
+              "bytedance/seedance-2.0",
+              "dreamtech/neural4d-2.5"
+            ]
           }
         }
       },
-      "CreateCuteModelsFromImagesResponse": {
+      "ModelList": {
         "type": "object",
         "required": [
-          "success",
-          "totalFiles",
-          "successCount",
-          "failureCount",
-          "results",
-          "failures",
-          "message"
+          "object",
+          "data"
         ],
         "properties": {
-          "success": {
-            "type": "boolean"
+          "object": {
+            "type": "string",
+            "enum": [
+              "list"
+            ],
+            "description": "对象类型标识，固定为 list。"
           },
-          "totalFiles": {
-            "type": "integer"
-          },
-          "successCount": {
-            "type": "integer"
-          },
-          "failureCount": {
-            "type": "integer"
-          },
-          "results": {
+          "data": {
             "type": "array",
             "items": {
-              "$ref": "#/components/schemas/CreateCuteModelResult"
-            }
-          },
-          "failures": {
-            "type": "array",
-            "items": {
-              "type": "object",
-              "additionalProperties": true
-            }
-          },
-          "message": {
-            "type": "string"
+              "$ref": "#/components/schemas/Model"
+            },
+            "description": "当前已认证账户可用的模型列表。"
           }
         }
       },
-      "CreateCuteModelResult": {
+      "ImageGenerationJsonRequest": {
         "type": "object",
         "required": [
-          "uuids",
-          "success",
-          "message"
-        ],
-        "properties": {
-          "uuids": {
-            "type": "array",
-            "items": {
-              "type": "string"
-            }
-          },
-          "success": {
-            "type": "boolean"
-          },
-          "message": {
-            "type": "string"
-          }
-        }
-      },
-      "CreateNormalPictureRequest": {
-        "type": "object",
-        "required": [
+          "model",
           "prompt"
         ],
         "properties": {
+          "model": {
+            "type": "string",
+            "description": "使用 GET /openapi/v1/models 返回的图片模型。",
+            "example": "openai/gpt-image-2",
+            "enum": [
+              "openai/gpt-image-2",
+              "google/nano-banana-pro"
+            ]
+          },
           "prompt": {
             "type": "string",
-            "description": "\u63cf\u8ff0\u76ee\u6807\u56fe\u7247\u5185\u5bb9\u7684\u6587\u672c\u63d0\u793a\u8bcd\u3002"
+            "minLength": 1,
+            "description": "描述待生成图片内容的文本提示词。"
           },
-          "images": {
-            "type": "array",
-            "maxItems": 6,
-            "items": {
-              "type": "string",
-              "format": "binary"
-            },
-            "description": "\u7528\u4e8e\u5f15\u5bfc\u751f\u6210\u7684\u53ef\u9009\u53c2\u8003\u56fe\u3002"
-          },
-          "modelKey": {
+          "mode": {
             "type": "string",
             "enum": [
-              "image-2",
-              "nano_banana_pro"
+              "text-to-image"
             ],
-            "default": "image-2",
-            "description": "\u56fe\u7247\u751f\u6210\u6a21\u578b\u6807\u8bc6\u3002"
+            "default": "text-to-image",
+            "description": "图片生成模式。JSON 请求支持 text-to-image。"
           },
-          "aspectRatio": {
+          "n": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 4,
+            "default": 1,
+            "description": "需要创建的图片生成任务数量。"
+          },
+          "resolution": {
+            "type": "string",
+            "enum": [
+              "1K",
+              "2K"
+            ],
+            "default": "1K",
+            "description": "目标图片分辨率。"
+          },
+          "aspect_ratio": {
             "type": "string",
             "enum": [
               "1:1",
@@ -1053,26 +2097,43 @@
               "3:4"
             ],
             "default": "1:1",
-            "description": "\u751f\u6210\u56fe\u7247\u7684\u76ee\u6807\u5bbd\u9ad8\u6bd4\u3002"
+            "description": "目标图片宽高比。"
           },
-          "jobNum": {
-            "type": "integer",
-            "minimum": 1,
-            "maximum": 4,
-            "default": 1,
-            "description": "\u63d0\u4ea4\u7684\u751f\u6210\u4efb\u52a1\u6570\u91cf\u3002"
+          "extra_body": {
+            "type": "object",
+            "additionalProperties": true,
+            "description": "随生成请求透传的其他供应商参数。"
           }
         }
       },
-      "CreateNormalVideoRequest": {
+      "ImageGenerationMultipartRequest": {
         "type": "object",
         "required": [
+          "model",
           "prompt"
         ],
         "properties": {
+          "model": {
+            "type": "string",
+            "example": "openai/gpt-image-2",
+            "description": "GET /openapi/v1/models 返回的图片模型标识。",
+            "enum": [
+              "openai/gpt-image-2",
+              "google/nano-banana-pro"
+            ]
+          },
           "prompt": {
             "type": "string",
-            "description": "\u63cf\u8ff0\u76ee\u6807\u89c6\u9891\u5185\u5bb9\u7684\u6587\u672c\u63d0\u793a\u8bcd\u3002"
+            "minLength": 1,
+            "description": "描述待生成或编辑图片内容的文本提示词。"
+          },
+          "mode": {
+            "type": "string",
+            "enum": [
+              "text-to-image",
+              "image-to-image"
+            ],
+            "description": "生成模式。上传图片时使用 image-to-image；图片列表为空时使用 text-to-image。"
           },
           "images": {
             "type": "array",
@@ -1081,33 +2142,77 @@
               "type": "string",
               "format": "binary"
             },
-            "description": "\u7528\u4e8e\u5f15\u5bfc\u751f\u6210\u7684\u53ef\u9009\u53c2\u8003\u56fe\u3002"
+            "description": "通过 multipart/form-data 上传的本地参考图片，最多六张。"
           },
-          "aspectRatio": {
-            "type": "string",
-            "enum": [
-              "16:9",
-              "9:16",
-              "1:1",
-              "4:3",
-              "3:4"
-            ],
-            "default": "16:9",
-            "description": "\u751f\u6210\u89c6\u9891\u7684\u76ee\u6807\u5bbd\u9ad8\u6bd4\u3002"
-          },
-          "jobNum": {
+          "n": {
             "type": "integer",
             "minimum": 1,
             "maximum": 4,
             "default": 1,
-            "description": "\u63d0\u4ea4\u7684\u751f\u6210\u4efb\u52a1\u6570\u91cf\u3002"
+            "description": "需要创建的图片生成任务数量。"
           },
-          "duration": {
+          "resolution": {
+            "type": "string",
+            "enum": [
+              "1K",
+              "2K"
+            ],
+            "default": "1K",
+            "description": "目标图片分辨率。"
+          },
+          "aspect_ratio": {
+            "type": "string",
+            "enum": [
+              "1:1",
+              "16:9",
+              "9:16",
+              "4:3",
+              "3:4"
+            ],
+            "default": "1:1",
+            "description": "目标图片宽高比。"
+          },
+          "extra_body": {
+            "type": "object",
+            "additionalProperties": true,
+            "description": "随生成请求透传的其他供应商参数。"
+          }
+        }
+      },
+      "VideoGenerationJsonRequest": {
+        "type": "object",
+        "required": [
+          "model",
+          "prompt"
+        ],
+        "properties": {
+          "model": {
+            "type": "string",
+            "description": "使用 GET /openapi/v1/models 返回的视频模型。",
+            "example": "bytedance/seedance-2.0",
+            "enum": [
+              "bytedance/seedance-2.0"
+            ]
+          },
+          "prompt": {
+            "type": "string",
+            "minLength": 1,
+            "description": "描述待生成视频内容的文本提示词。"
+          },
+          "mode": {
+            "type": "string",
+            "enum": [
+              "text-to-video"
+            ],
+            "default": "text-to-video",
+            "description": "视频生成模式。JSON 请求支持 text-to-video。"
+          },
+          "duration_seconds": {
             "type": "integer",
             "minimum": 4,
             "maximum": 15,
             "default": 5,
-            "description": "\u76ee\u6807\u89c6\u9891\u65f6\u957f\uff0c\u5355\u4f4d\u4e3a\u79d2\u3002"
+            "description": "目标视频时长，单位为秒。"
           },
           "resolution": {
             "type": "string",
@@ -1117,282 +2222,766 @@
               "1080p"
             ],
             "default": "720p",
-            "description": "\u76ee\u6807\u8f93\u51fa\u5206\u8fa8\u7387\u3002"
+            "description": "目标视频分辨率。"
+          },
+          "aspect_ratio": {
+            "type": "string",
+            "enum": [
+              "16:9",
+              "9:16",
+              "1:1",
+              "4:3",
+              "3:4"
+            ],
+            "default": "16:9",
+            "description": "目标视频宽高比。"
+          },
+          "n": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 4,
+            "default": 1,
+            "description": "需要生成的视频数量。"
+          },
+          "extra_body": {
+            "type": "object",
+            "additionalProperties": true,
+            "description": "随生成请求透传的其他供应商参数。"
           }
         }
       },
-      "QueuedGenerationResponse": {
+      "VideoGenerationMultipartRequest": {
         "type": "object",
         "required": [
-          "success",
-          "data"
+          "model",
+          "prompt"
         ],
         "properties": {
-          "success": {
-            "type": "boolean"
+          "model": {
+            "type": "string",
+            "example": "bytedance/seedance-2.0",
+            "description": "GET /openapi/v1/models 返回的视频模型标识。",
+            "enum": [
+              "bytedance/seedance-2.0"
+            ]
+          },
+          "prompt": {
+            "type": "string",
+            "minLength": 1,
+            "description": "描述待生成视频内容的文本提示词。"
+          },
+          "mode": {
+            "type": "string",
+            "enum": [
+              "text-to-video",
+              "first-frame-to-video",
+              "first-last-frame-to-video",
+              "reference-to-video"
+            ],
+            "description": "省略时根据图片数量推断模式：0 张为文本生成，1 张为首帧，2 张为首尾帧，3 到 6 张为参考图。"
+          },
+          "images": {
+            "type": "array",
+            "maxItems": 6,
+            "items": {
+              "type": "string",
+              "format": "binary"
+            },
+            "description": "最多六张本地图片，按首帧、尾帧或参考图顺序上传。"
+          },
+          "duration_seconds": {
+            "type": "integer",
+            "minimum": 4,
+            "maximum": 15,
+            "default": 5,
+            "description": "目标视频时长，单位为秒。"
+          },
+          "resolution": {
+            "type": "string",
+            "enum": [
+              "480p",
+              "720p",
+              "1080p"
+            ],
+            "default": "720p",
+            "description": "目标视频分辨率。"
+          },
+          "aspect_ratio": {
+            "type": "string",
+            "enum": [
+              "16:9",
+              "9:16",
+              "1:1",
+              "4:3",
+              "3:4"
+            ],
+            "default": "16:9",
+            "description": "目标视频宽高比。"
+          },
+          "n": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 4,
+            "default": 1,
+            "description": "需要生成的视频数量。"
+          },
+          "extra_body": {
+            "type": "object",
+            "additionalProperties": true,
+            "description": "随生成请求透传的其他供应商参数。"
+          }
+        }
+      },
+      "TextTo3DGenerationRequest": {
+        "type": "object",
+        "required": [
+          "prompt"
+        ],
+        "properties": {
+          "model": {
+            "type": "string",
+            "description": "GET /openapi/v1/models 返回的可选 3D 模型别名。省略时使用账户默认模型。",
+            "example": "dreamtech/neural4d-2.5",
+            "enum": [
+              "dreamtech/neural4d-2.5"
+            ]
+          },
+          "mode": {
+            "type": "string",
+            "enum": [
+              "text-to-3d"
+            ],
+            "default": "text-to-3d",
+            "description": "3D 生成模式。文本请求使用 text-to-3d。"
+          },
+          "prompt": {
+            "type": "string",
+            "minLength": 1,
+            "description": "描述待生成 3D 模型的文本提示词。"
+          },
+          "with_texture": {
+            "type": "boolean",
+            "default": true,
+            "description": "是否为模型生成纹理数据。"
+          },
+          "with_pbr": {
+            "type": "boolean",
+            "default": true,
+            "description": "要求 with_texture=true。"
+          },
+          "mesh_quality": {
+            "type": "string",
+            "enum": [
+              "standard",
+              "high",
+              "extra_high"
+            ],
+            "default": "high",
+            "description": "目标网格质量等级。"
+          },
+          "n": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 4,
+            "default": 1,
+            "description": "需要生成的 3D 模型数量。"
+          }
+        }
+      },
+      "ImageTo3DGenerationRequest": {
+        "type": "object",
+        "required": [
+          "mode",
+          "image"
+        ],
+        "properties": {
+          "model": {
+            "type": "string",
+            "example": "dreamtech/neural4d-2.5",
+            "description": "GET /openapi/v1/models 返回的可选 3D 模型标识。",
+            "enum": [
+              "dreamtech/neural4d-2.5"
+            ]
+          },
+          "mode": {
+            "type": "string",
+            "enum": [
+              "image-to-3d"
+            ],
+            "description": "3D 生成模式。图片请求使用 image-to-3d。"
+          },
+          "image": {
+            "type": "string",
+            "format": "binary",
+            "description": "通过 multipart/form-data 上传的一张本地 JPG、JPEG、PNG 或 WEBP 图片。"
+          },
+          "prompt": {
+            "type": "string",
+            "maxLength": 500,
+            "description": "可选的语义或风格说明。"
+          },
+          "with_texture": {
+            "type": "boolean",
+            "default": true,
+            "description": "是否为模型生成纹理数据。"
+          },
+          "with_pbr": {
+            "type": "boolean",
+            "default": true,
+            "description": "要求 with_texture=true。"
+          },
+          "mesh_quality": {
+            "type": "string",
+            "enum": [
+              "standard",
+              "high",
+              "extra_high"
+            ],
+            "default": "high",
+            "description": "目标网格质量等级。"
+          },
+          "n": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 4,
+            "default": 1,
+            "description": "需要生成的 3D 模型数量。"
+          }
+        }
+      },
+      "Refine3DModelRequest": {
+        "type": "object",
+        "required": [
+          "id"
+        ],
+        "properties": {
+          "quality": {
+            "type": "string",
+            "enum": [
+              "extra_high"
+            ],
+            "default": "extra_high",
+            "description": "当前精细化流程会将 standard 或 high 网格升级为 extra_high。"
+          },
+          "id": {
+            "type": "string",
+            "description": "已完成 3D 模型的 ID，格式为 UUID。",
+            "format": "uuid"
+          }
+        }
+      },
+      "Texture3DModelRequest": {
+        "type": "object",
+        "required": [
+          "id"
+        ],
+        "properties": {
+          "prompt": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 500,
+            "description": "描述待生成纹理的文本提示词。"
+          },
+          "image": {
+            "type": "string",
+            "format": "binary",
+            "description": "一张本地纹理参考图片。"
+          },
+          "id": {
+            "type": "string",
+            "description": "已完成 3D 模型的 ID，格式为 UUID。",
+            "format": "uuid"
+          }
+        },
+        "oneOf": [
+          {
+            "required": [
+              "prompt"
+            ]
+          },
+          {
+            "required": [
+              "image"
+            ]
+          }
+        ]
+      },
+      "Pbr3DModelRequest": {
+        "type": "object",
+        "required": [
+          "id"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "已完成 3D 模型的 ID，格式为 UUID。",
+            "format": "uuid"
+          }
+        }
+      },
+      "ConvertFileRequest": {
+        "type": "object",
+        "required": [
+          "id",
+          "target_format"
+        ],
+        "properties": {
+          "target_format": {
+            "type": "string",
+            "enum": [
+              "glb",
+              "obj",
+              "fbx",
+              "stl",
+              "usdz",
+              "blend"
+            ],
+            "description": "转换后模型的目标文件格式。"
+          },
+          "model_size": {
+            "type": "number",
+            "exclusiveMinimum": true,
+            "minimum": 0,
+            "default": 2,
+            "description": "模型尺寸，单位为毫米。"
+          },
+          "id": {
+            "type": "string",
+            "description": "已完成 3D 模型的 ID，格式为 UUID。",
+            "format": "uuid"
+          }
+        }
+      },
+      "FileResource": {
+        "type": "object",
+        "required": [
+          "id",
+          "urls"
+        ],
+        "properties": {
+          "urls": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/FileLink"
+            },
+            "description": "可用结果文件的临时签名下载 URL 列表。"
+          },
+          "thumbnail_urls": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uri"
+            },
+            "description": "可用预览图片的临时签名 URL 列表。"
+          },
+          "expires_at": {
+            "type": "integer",
+            "format": "int64",
+            "nullable": true,
+            "description": "签名 URL 到期时的 Unix 时间戳（秒）。"
+          },
+          "id": {
+            "type": "string",
+            "description": "与这些文件关联的任务或模型 ID，格式为 UUID。",
+            "format": "uuid"
+          }
+        }
+      },
+      "UsageRecord": {
+        "type": "object",
+        "required": [
+          "id",
+          "type",
+          "credits",
+          "created_at"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "nullable": true,
+            "description": "关联任务的 ID，格式为 UUID。",
+            "format": "uuid"
+          },
+          "model": {
+            "type": "string",
+            "nullable": true,
+            "description": "可从用量记录解析时返回公开模型标识。",
+            "enum": [
+              "openai/gpt-image-2",
+              "google/nano-banana-pro",
+              "bytedance/seedance-2.0",
+              "dreamtech/neural4d-2.5"
+            ]
+          },
+          "type": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/TaskType"
+              }
+            ],
+            "description": "公开任务类型。"
+          },
+          "credits": {
+            "type": "number",
+            "format": "float",
+            "minimum": 0,
+            "description": "此条用量记录扣除的点数。"
+          },
+          "created_at": {
+            "type": "integer",
+            "format": "int64",
+            "description": "Unix 时间戳（秒）。"
+          }
+        }
+      },
+      "UsageList": {
+        "type": "object",
+        "required": [
+          "object",
+          "data",
+          "total_credits",
+          "page",
+          "has_more"
+        ],
+        "properties": {
+          "object": {
+            "type": "string",
+            "enum": [
+              "usage_list"
+            ],
+            "description": "对象类型标识，固定为 usage_list。"
           },
           "data": {
-            "$ref": "#/components/schemas/QueuedGenerationData"
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/UsageRecord"
+            },
+            "description": "当前页的用量记录。"
+          },
+          "total_credits": {
+            "type": "number",
+            "format": "float",
+            "minimum": 0,
+            "description": "筛选结果集合对应的总点数。"
+          },
+          "page": {
+            "type": "integer",
+            "minimum": 1,
+            "description": "当前页码，从 1 开始。"
+          },
+          "has_more": {
+            "type": "boolean",
+            "description": "是否还有下一页用量记录。"
           }
         }
       },
-      "QueuedGenerationData": {
+      "TaskType": {
+        "type": "string",
+        "enum": [
+          "image.generation",
+          "video.generation",
+          "3dmodel.generation",
+          "3dmodel.edit.refine",
+          "3dmodel.edit.texture",
+          "3dmodel.edit.pbr",
+          "3dmodel.edit.remesh",
+          "file.convert"
+        ],
+        "description": "异步任务对应的稳定操作类型。"
+      },
+      "TaskStatus": {
+        "type": "string",
+        "enum": [
+          "queued",
+          "processing",
+          "succeeded",
+          "failed"
+        ],
+        "description": "异步任务的标准化生命周期状态。"
+      },
+      "TaskError": {
         "type": "object",
         "required": [
-          "pointsDeducted",
-          "queueStatus",
-          "jobNum",
-          "uuids"
+          "code",
+          "message"
+        ],
+        "description": "异步处理记录的失败详情。",
+        "properties": {
+          "code": {
+            "type": "string",
+            "description": "稳定且可供程序读取的任务失败代码。"
+          },
+          "message": {
+            "type": "string",
+            "description": "便于阅读的任务失败说明。"
+          },
+          "failed_at": {
+            "type": "integer",
+            "format": "int64",
+            "description": "任务失败时的 Unix 时间戳（秒）。"
+          },
+          "retryable": {
+            "type": "boolean",
+            "description": "重试相同操作是否可能成功。"
+          }
+        }
+      },
+      "Remesh3DModelRequest": {
+        "type": "object",
+        "required": [
+          "id",
+          "target_polycount"
         ],
         "properties": {
-          "pointsDeducted": {
+          "target_polycount": {
             "type": "integer",
-            "description": "\u5f53\u524d\u5df2\u63a5\u53d7\u751f\u6210\u8bf7\u6c42\u6263\u9664\u7684\u70b9\u6570\u3002"
+            "minimum": 1,
+            "description": "传递给重网格流程的目标面数。"
           },
-          "queueStatus": {
+          "id": {
             "type": "string",
-            "description": "\u5df2\u63d0\u4ea4\u4efb\u52a1\u7684\u5f53\u524d\u6392\u961f\u72b6\u6001\u3002"
+            "description": "已完成 3D 模型的 ID，格式为 UUID。",
+            "format": "uuid"
+          }
+        }
+      }
+    },
+    "headers": {
+      "XRateLimitLimit": {
+        "description": "当前时间窗口的请求上限。",
+        "schema": {
+          "type": "integer",
+          "minimum": 0
+        }
+      },
+      "XRateLimitRemaining": {
+        "description": "当前时间窗口内的剩余请求次数。",
+        "schema": {
+          "type": "integer",
+          "minimum": 0
+        }
+      },
+      "XRateLimitReset": {
+        "description": "当前时间窗口重置时的 Unix 时间戳（秒）。",
+        "schema": {
+          "type": "integer",
+          "format": "int64"
+        }
+      },
+      "RetryAfter": {
+        "description": "重试前需要等待的秒数。",
+        "schema": {
+          "type": "integer",
+          "minimum": 0
+        }
+      }
+    },
+    "responses": {
+      "BadRequest": {
+        "description": "请求无效",
+        "headers": {
+          "X-RateLimit-Limit": {
+            "$ref": "#/components/headers/XRateLimitLimit"
           },
-          "jobNum": {
-            "type": "integer",
-            "description": "\u5df2\u63a5\u53d7\u7684\u751f\u6210\u4efb\u52a1\u6570\u91cf\u3002"
+          "X-RateLimit-Remaining": {
+            "$ref": "#/components/headers/XRateLimitRemaining"
           },
-          "uuids": {
-            "type": "array",
-            "description": "\u5206\u914d\u7ed9\u6bcf\u4e2a\u5df2\u63a5\u53d7\u751f\u6210\u4efb\u52a1\u7684 UUID\u3002",
-            "items": {
-              "type": "string"
+          "X-RateLimit-Reset": {
+            "$ref": "#/components/headers/XRateLimitReset"
+          }
+        },
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ErrorResponse"
+            },
+            "example": {
+              "error": {
+                "type": "invalid_request_error",
+                "code": "invalid_prompt",
+                "message": "prompt is required and must be a non-empty string",
+                "param": "prompt",
+                "request_id": "req_01J2R6Y7F6Q8K9P0M1N2B3V4CX"
+              }
             }
           }
         }
       },
-      "QueryGenerationResultResponse": {
-        "type": "object",
-        "required": [
-          "success",
-          "data"
-        ],
-        "properties": {
-          "success": {
-            "type": "boolean"
+      "Unauthorized": {
+        "description": "认证失败",
+        "headers": {
+          "X-RateLimit-Limit": {
+            "$ref": "#/components/headers/XRateLimitLimit"
           },
-          "data": {
-            "$ref": "#/components/schemas/QueryGenerationResultData"
+          "X-RateLimit-Remaining": {
+            "$ref": "#/components/headers/XRateLimitRemaining"
+          },
+          "X-RateLimit-Reset": {
+            "$ref": "#/components/headers/XRateLimitReset"
+          }
+        },
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ErrorResponse"
+            },
+            "example": {
+              "error": {
+                "type": "authentication_error",
+                "code": "invalid_api_key",
+                "message": "The API key is invalid or expired",
+                "request_id": "req_01J2R6Y7F6Q8K9P0M1N2B3V4CX"
+              }
+            }
           }
         }
       },
-      "QueryGenerationResultData": {
-        "type": "object",
-        "required": [
-          "uuid",
-          "status",
-          "resultType",
-          "resultUrl"
-        ],
-        "properties": {
-          "uuid": {
-            "type": "string"
+      "Forbidden": {
+        "description": "当前已认证用户无权访问该模型或资源",
+        "headers": {
+          "X-RateLimit-Limit": {
+            "$ref": "#/components/headers/XRateLimitLimit"
           },
-          "status": {
-            "type": "string",
-            "description": "\u5f53\u524d\u751f\u6210\u72b6\u6001\uff0c\u4f8b\u5982 `completed`\u3001`queued`\u3001`processing` \u6216 `failed`\u3002"
+          "X-RateLimit-Remaining": {
+            "$ref": "#/components/headers/XRateLimitRemaining"
           },
-          "resultType": {
-            "type": "string",
-            "nullable": true,
-            "description": "\u751f\u6210\u5b8c\u6210\u540e\u7684\u7ed3\u679c\u7c7b\u578b\uff0c\u901a\u5e38\u4e3a `image` \u6216 `video`\u3002"
-          },
-          "resultUrl": {
-            "type": "string",
-            "format": "uri",
-            "nullable": true,
-            "description": "\u751f\u6210\u7ed3\u679c\u53ef\u7528\u65f6\u7684\u4e0b\u8f7d\u94fe\u63a5\u3002"
+          "X-RateLimit-Reset": {
+            "$ref": "#/components/headers/XRateLimitReset"
+          }
+        },
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ErrorResponse"
+            },
+            "example": {
+              "error": {
+                "type": "permission_error",
+                "code": "model_not_authorized",
+                "message": "The requested model is not available to this API key",
+                "param": "model",
+                "request_id": "req_01J2R6Y7F6Q8K9P0M1N2B3V4CX"
+              }
+            }
           }
         }
       },
-      "ConvertToFormatRequest": {
-        "type": "object",
-        "required": [
-          "uuid"
-        ],
-        "properties": {
-          "uuid": {
-            "type": "string",
-            "description": "\u9700\u8981\u8f6c\u6362\u7684\u751f\u6210\u6a21\u578b UUID\u3002"
+      "NotFound": {
+        "description": "未找到请求的资源",
+        "headers": {
+          "X-RateLimit-Limit": {
+            "$ref": "#/components/headers/XRateLimitLimit"
           },
-          "modelType": {
-            "type": "string",
-            "enum": [
-              "fbx",
-              "glb",
-              "obj",
-              "stl",
-              "blend",
-              "usdz"
-            ],
-            "default": "glb",
-            "description": "\u76ee\u6807\u6a21\u578b\u683c\u5f0f\u3002"
+          "X-RateLimit-Remaining": {
+            "$ref": "#/components/headers/XRateLimitRemaining"
           },
-          "modelSize": {
-            "type": "integer",
-            "minimum": 2,
-            "default": 2,
-            "description": "\u76ee\u6807\u6a21\u578b\u5c3a\u5bf8\uff0c\u5355\u4f4d\u4e3a\u6beb\u7c73\u3002\u65e7\u7248\u6587\u6863\u8bf4\u660e\u8be5\u503c\u5fc5\u987b\u5927\u4e8e 1\u3002"
+          "X-RateLimit-Reset": {
+            "$ref": "#/components/headers/XRateLimitReset"
+          }
+        },
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ErrorResponse"
+            },
+            "example": {
+              "error": {
+                "type": "not_found_error",
+                "code": "task_not_found",
+                "message": "The requested task does not exist",
+                "request_id": "req_01J2R6Y7F6Q8K9P0M1N2B3V4CX"
+              }
+            }
           }
         }
       },
-      "ConvertToFormatResponse": {
-        "type": "object",
-        "required": [
-          "statusType",
-          "message"
-        ],
-        "properties": {
-          "statusType": {
-            "type": "integer",
-            "enum": [
-              -1,
-              0,
-              1
-            ],
-            "description": "\u8f6c\u6362\u72b6\u6001\u3002`0` \u8868\u793a\u5df2\u5b8c\u6210\uff0c`1` \u8868\u793a\u4ecd\u5728\u8f6c\u6362\u4e2d\uff0c`-1` \u8868\u793a\u8bf7\u6c42\u65e0\u6548\u6216\u8f6c\u6362\u5931\u8d25\u3002"
+      "RateLimited": {
+        "description": "已超过请求或配额限制",
+        "headers": {
+          "X-RateLimit-Limit": {
+            "$ref": "#/components/headers/XRateLimitLimit"
           },
-          "modelUrl": {
-            "type": "string",
-            "format": "uri",
-            "nullable": true,
-            "description": "\u8f6c\u6362\u5b8c\u6210\u540e\u53ef\u7528\u7684\u6a21\u578b\u4e0b\u8f7d\u94fe\u63a5\u3002"
+          "X-RateLimit-Remaining": {
+            "$ref": "#/components/headers/XRateLimitRemaining"
           },
-          "scaleNumber": {
-            "type": "integer",
-            "nullable": true,
-            "description": "\u8f6c\u6362\u5b8c\u6210\u540e\u8fd4\u56de\u7684\u7f29\u653e\u6570\u503c\u3002"
+          "X-RateLimit-Reset": {
+            "$ref": "#/components/headers/XRateLimitReset"
           },
-          "modelSize": {
-            "type": "integer",
-            "nullable": true,
-            "description": "\u8bf7\u6c42\u6216\u4e2d\u95f4\u54cd\u5e94\u4e2d\u56de\u663e\u7684\u6a21\u578b\u5c3a\u5bf8\u3002"
-          },
-          "message": {
-            "type": "string",
-            "description": "\u8f6c\u6362\u72b6\u6001\u6d88\u606f\u3002"
+          "Retry-After": {
+            "$ref": "#/components/headers/RetryAfter"
+          }
+        },
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ErrorResponse"
+            },
+            "example": {
+              "error": {
+                "type": "rate_limit_error",
+                "code": "rate_limit_exceeded",
+                "message": "Too many requests. Retry after the indicated interval.",
+                "request_id": "req_01J2R6Y7F6Q8K9P0M1N2B3V4CX"
+              }
+            }
           }
         }
       },
-      "CheckHumanImageRequest": {
-        "type": "object",
-        "required": [
-          "image"
-        ],
-        "properties": {
-          "image": {
-            "type": "string",
-            "format": "binary",
-            "description": "\u7528\u4e8e\u68c0\u6d4b\u7684\u4eba\u50cf\u56fe\u7247\u3002\u652f\u6301 JPG\u3001JPEG \u548c PNG\u3002"
+      "InternalError": {
+        "description": "内部或上游服务错误",
+        "headers": {
+          "X-RateLimit-Limit": {
+            "$ref": "#/components/headers/XRateLimitLimit"
+          },
+          "X-RateLimit-Remaining": {
+            "$ref": "#/components/headers/XRateLimitRemaining"
+          },
+          "X-RateLimit-Reset": {
+            "$ref": "#/components/headers/XRateLimitReset"
+          }
+        },
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ErrorResponse"
+            },
+            "example": {
+              "error": {
+                "type": "api_error",
+                "code": "internal_error",
+                "message": "An internal error occurred",
+                "request_id": "req_01J2R6Y7F6Q8K9P0M1N2B3V4CX"
+              }
+            }
           }
         }
       },
-      "CheckHumanImageResponse": {
-        "type": "object",
-        "required": [
-          "statusCode",
-          "result",
-          "message"
-        ],
-        "properties": {
-          "statusCode": {
-            "type": "integer",
-            "enum": [
-              -1,
-              0
-            ],
-            "description": "\u68c0\u6d4b\u72b6\u6001\u3002`0` \u8868\u793a\u7ed3\u679c\u6709\u6548\uff0c`-1` \u8868\u793a\u7ed3\u679c\u65e0\u6548\u3002"
+      "TaskNotReady": {
+        "description": "所请求的任务尚未生成文件",
+        "headers": {
+          "X-RateLimit-Limit": {
+            "$ref": "#/components/headers/XRateLimitLimit"
           },
-          "result": {
-            "type": "boolean",
-            "description": "\u4e0a\u4f20\u56fe\u7247\u4e2d\u662f\u5426\u68c0\u6d4b\u5230\u4eba\u50cf\u3002"
+          "X-RateLimit-Remaining": {
+            "$ref": "#/components/headers/XRateLimitRemaining"
           },
-          "message": {
-            "type": "string"
+          "X-RateLimit-Reset": {
+            "$ref": "#/components/headers/XRateLimitReset"
           }
-        }
-      },
-      "QueryPointsInfoResponse": {
-        "type": "object",
-        "required": [
-          "statusType",
-          "data",
-          "message"
-        ],
-        "properties": {
-          "statusType": {
-            "type": "integer",
-            "enum": [
-              -1,
-              0
-            ],
-            "description": "\u67e5\u8be2\u72b6\u6001\u3002`0` \u8868\u793a\u7ed3\u679c\u6709\u6548\uff0c`-1` \u8868\u793a\u7ed3\u679c\u65e0\u6548\u3002"
-          },
-          "data": {
-            "$ref": "#/components/schemas/BalanceInfo"
-          },
-          "message": {
-            "type": "string"
-          }
-        }
-      },
-      "BalanceInfo": {
-        "type": "object",
-        "required": [
-          "total_points",
-          "monthly_bonus_points",
-          "permanent_points",
-          "year_points",
-          "expiration_day"
-        ],
-        "properties": {
-          "total_points": {
-            "type": "integer"
-          },
-          "monthly_bonus_points": {
-            "type": "integer"
-          },
-          "permanent_points": {
-            "type": "integer"
-          },
-          "year_points": {
-            "type": "integer"
-          },
-          "expiration_day": {
-            "type": "string",
-            "nullable": true,
-            "description": "\u9650\u65f6\u70b9\u6570\u7684\u5230\u671f\u65e5\uff0c\u5b58\u5728\u65f6\u8fd4\u56de\u3002"
-          }
-        }
-      },
-      "QueryJobProgressResponse": {
-        "type": "object",
-        "required": [
-          "statusType",
-          "message"
-        ],
-        "properties": {
-          "statusType": {
-            "type": "integer",
-            "enum": [
-              -2,
-              -1,
-              0
-            ],
-            "description": "\u8fdb\u5ea6\u67e5\u8be2\u72b6\u6001\u3002`0` \u8868\u793a\u6709\u6548\uff0c`-1` \u8868\u793a\u4efb\u52a1\u4e0d\u5b58\u5728\uff0c`-2` \u8868\u793a\u67e5\u8be2\u65e0\u6548\u3002"
-          },
-          "message": {
-            "type": "string"
-          },
-          "progress": {
-            "type": "string",
-            "nullable": true,
-            "description": "\u65e7\u7248\u670d\u52a1\u8fd4\u56de\u7684\u5f53\u524d\u4efb\u52a1\u8fdb\u5ea6\u767e\u5206\u6bd4\u3002"
+        },
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ErrorResponse"
+            },
+            "example": {
+              "error": {
+                "type": "invalid_request_error",
+                "code": "task_not_ready",
+                "message": "The requested task has not produced downloadable files yet.",
+                "request_id": "req_01J2R6Y7F6Q8K9P0M1N2B3V4CX"
+              }
+            }
           }
         }
       }

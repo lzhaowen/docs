@@ -1,45 +1,45 @@
 ---
-title: "Neural4D API 文档"
-description: "查看 Neural4D 旧版管理接口，包括 3D 生成、图片生成、视频生成、模型转换和点数查询。"
+title: "Neural4D API docs"
+description: "Browse Neural4D management APIs for 3D generation, media generation, model conversion, and balance queries."
 keywords:
   - Neural4D
   - API
-  - legacy API
+  - management API
   - text-to-3d
   - image generation
 ---
 
-本文档整理了 Neural4D 旧版管理接口。你可以在这里查看接口路径、请求参数、返回字段和请求示例。
+This site documents the available Neural4D management APIs. Browse the API reference to view endpoint paths, parameters, response fields, and request examples.
 
 <Note>
-  这套 API 统一使用 `Bearer token` 鉴权，接口基址为 `https://alb.neural4d.com:3000`。大多数生成接口会先返回 `uuid` 或 `uuids`，你需要再调用查询接口获取最终结果。
+All endpoints use `Bearer token` authentication and the `https://alb.neural4d.com:3000` base URL. Most generation endpoints return a `uuid` or `uuids` first, which you then use to query the final result.
 </Note>
 
-## 接口范围
+## Included capabilities
 
-- 文本生成 3D 模型
-- 图片生成 3D 模型和 Q 版模型
-- 图片生成和视频生成
-- 查询生成结果和任务进度
-- 转换模型格式并下载结果
-- 检测人像图片和查询剩余点数
+- Text-to-3D model generation
+- Image-to-3D model generation and chibi-style model generation
+- Picture generation and video generation
+- Generation result lookup and job progress lookup
+- Model format conversion and download
+- Portrait image detection and points balance queries
 
-## 从哪里开始
+## Get started
 
 <Columns cols={3}>
-  <Card title="快速开始" icon="rocket" href="/quickstart">
-    了解鉴权方式、异步调用流程和最小请求示例。
+  <Card title="Quickstart" icon="rocket" href="/en/quickstart">
+    Review authentication, async job flow, and the minimum request pattern.
   </Card>
-  <Card title="调用流程" icon="workflow" href="/quickstart#调用流程">
-    查看创建任务、查询结果和下载模型的标准顺序。
+  <Card title="Request flow" icon="workflow" href="/en/quickstart#request-flow">
+    Review the standard sequence for creating tasks, querying results, and downloading models.
   </Card>
-  <Card title="OpenAPI 规范" icon="code" href="/openapi.json">
-    下载当前站点使用的 `openapi.json` 规范文件。
+  <Card title="OpenAPI reference" icon="code" href="/en-api-reference">
+    Browse the generated English OpenAPI reference.
   </Card>
 </Columns>
 
-## 使用建议
+## Usage tips
 
-- 先从 `/quickstart` 确认鉴权方式和异步查询流程。
-- 再进入左侧 `API 参考` 查看每个接口的字段定义和示例。
-- 如果你需要导入其他工具，可以直接下载 `/openapi.json`。
+- Start with `/en/quickstart` to confirm authentication and the async result flow.
+- Open `API reference` in the left navigation to review each endpoint's fields and examples.
+- Use the contextual `download-spec` action on an API reference page when you need the OpenAPI document.
