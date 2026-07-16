@@ -3,7 +3,7 @@
   "info": {
     "title": "Neural4D Management API",
     "description": "Management endpoints for Neural4D, including request and response examples.",
-    "version": "1.5.3"
+    "version": "1.5.4"
   },
   "servers": [
     {
@@ -63,7 +63,6 @@
                 "default": {
                   "value": {
                     "prompt": "people",
-                    "sourcePage": "createModel",
                     "modelCount": 1,
                     "disablePbr": 0,
                     "onlyGenerateMesh": false,
@@ -102,7 +101,7 @@
                         "faceNum": {
                           "default": 1000000,
                           "min": 500000,
-                          "max": 2000000,
+                          "max": 1000000,
                           "value": 1000000
                         }
                       },
@@ -277,8 +276,6 @@
                 "default": {
                   "value": {
                     "image": "(binary)",
-                    "mode": "general",
-                    "sourcePage": "direct3DAll",
                     "modelCount": 1,
                     "disablePbr": 0,
                     "onlyGenerateMesh": false,
@@ -323,7 +320,7 @@
                         "faceNum": {
                           "default": 1000000,
                           "min": 500000,
-                          "max": 2000000,
+                          "max": 1000000,
                           "value": 1000000
                         }
                       }
@@ -928,14 +925,8 @@
           "faceNum": {
             "type": "integer",
             "minimum": 100000,
-            "maximum": 2000000,
-            "description": "Target face count. standard accepts 100000 to 500000 and defaults to 500000; high and extra_high accept 500000 to 2000000 and default to 1000000."
-          },
-          "sourcePage": {
-            "type": "string",
-            "minLength": 1,
-            "default": "createModel",
-            "description": "Generation source identifier. The public text endpoint defaults to createModel."
+            "maximum": 1000000,
+            "description": "Target face count. standard accepts 100000 to 500000 and defaults to 500000; high and extra_high accept 500000 to 1000000 and default to 1000000."
           }
         },
         "oneOf": [
@@ -972,7 +963,7 @@
               "faceNum": {
                 "type": "integer",
                 "minimum": 500000,
-                "maximum": 2000000,
+                "maximum": 1000000,
                 "description": "Target face count for high, extra-high, or default quality."
               }
             }
@@ -1133,23 +1124,8 @@
           "faceNum": {
             "type": "integer",
             "minimum": 100000,
-            "maximum": 2000000,
-            "description": "Target face count. standard accepts 100000 to 500000 and defaults to 500000; high and extra_high accept 500000 to 2000000 and default to 1000000."
-          },
-          "mode": {
-            "type": "string",
-            "enum": [
-              "general",
-              "avatar"
-            ],
-            "default": "general",
-            "description": "Generation mode. general creates a regular model; avatar creates an avatar model."
-          },
-          "sourcePage": {
-            "type": "string",
-            "minLength": 1,
-            "default": "direct3DAll",
-            "description": "Generation source identifier. The public image endpoint defaults to direct3DAll."
+            "maximum": 1000000,
+            "description": "Target face count. standard accepts 100000 to 500000 and defaults to 500000; high and extra_high accept 500000 to 1000000 and default to 1000000."
           }
         },
         "oneOf": [
@@ -1186,7 +1162,7 @@
               "faceNum": {
                 "type": "integer",
                 "minimum": 500000,
-                "maximum": 2000000,
+                "maximum": 1000000,
                 "description": "Target face count for high, extra-high, or default quality."
               }
             }

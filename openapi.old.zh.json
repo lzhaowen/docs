@@ -3,7 +3,7 @@
   "info": {
     "title": "Neural4D 管理接口",
     "description": "Neural4D 管理接口规范，中文界面下使用本规范展示中文接口说明。",
-    "version": "1.5.3"
+    "version": "1.5.4"
   },
   "servers": [
     {
@@ -63,7 +63,6 @@
                 "default": {
                   "value": {
                     "prompt": "people",
-                    "sourcePage": "createModel",
                     "modelCount": 1,
                     "disablePbr": 0,
                     "onlyGenerateMesh": false,
@@ -102,7 +101,7 @@
                         "faceNum": {
                           "default": 1000000,
                           "min": 500000,
-                          "max": 2000000,
+                          "max": 1000000,
                           "value": 1000000
                         }
                       },
@@ -293,8 +292,6 @@
                 "default": {
                   "value": {
                     "image": "(binary)",
-                    "mode": "general",
-                    "sourcePage": "direct3DAll",
                     "modelCount": 1,
                     "disablePbr": 0,
                     "onlyGenerateMesh": false,
@@ -339,7 +336,7 @@
                         "faceNum": {
                           "default": 1000000,
                           "min": 500000,
-                          "max": 2000000,
+                          "max": 1000000,
                           "value": 1000000
                         }
                       }
@@ -1016,14 +1013,8 @@
           "faceNum": {
             "type": "integer",
             "minimum": 100000,
-            "maximum": 2000000,
-            "description": "目标面数。standard 支持 100000 到 500000，默认 500000；high 和 extra_high 支持 500000 到 2000000，默认 1000000。"
-          },
-          "sourcePage": {
-            "type": "string",
-            "minLength": 1,
-            "default": "createModel",
-            "description": "生成来源标识。对外文本接口默认为 createModel。"
+            "maximum": 1000000,
+            "description": "目标面数。standard 支持 100000 到 500000，默认 500000；high 和 extra_high 支持 500000 到 1000000，默认 1000000。"
           }
         },
         "oneOf": [
@@ -1060,7 +1051,7 @@
               "faceNum": {
                 "type": "integer",
                 "minimum": 500000,
-                "maximum": 2000000,
+                "maximum": 1000000,
                 "description": "high、extra_high 或默认质量对应的目标面数。"
               }
             }
@@ -1221,23 +1212,8 @@
           "faceNum": {
             "type": "integer",
             "minimum": 100000,
-            "maximum": 2000000,
-            "description": "目标面数。standard 支持 100000 到 500000，默认 500000；high 和 extra_high 支持 500000 到 2000000，默认 1000000。"
-          },
-          "mode": {
-            "type": "string",
-            "enum": [
-              "general",
-              "avatar"
-            ],
-            "default": "general",
-            "description": "生成模式。general 生成普通模型；avatar 生成头像模型。"
-          },
-          "sourcePage": {
-            "type": "string",
-            "minLength": 1,
-            "default": "direct3DAll",
-            "description": "生成来源标识。对外图片接口默认为 direct3DAll。"
+            "maximum": 1000000,
+            "description": "目标面数。standard 支持 100000 到 500000，默认 500000；high 和 extra_high 支持 500000 到 1000000，默认 1000000。"
           }
         },
         "oneOf": [
@@ -1274,7 +1250,7 @@
               "faceNum": {
                 "type": "integer",
                 "minimum": 500000,
-                "maximum": 2000000,
+                "maximum": 1000000,
                 "description": "high、extra_high 或默认质量对应的目标面数。"
               }
             }
