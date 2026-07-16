@@ -230,18 +230,15 @@ const queryParameterDescriptions = {
 
 const legacySchemaFieldDescriptions = {
     GenerateModelWithTextRequest: {
-        sourcePage: ['Generation source identifier. The public text endpoint defaults to createModel.', '生成来源标识。对外文本接口默认为 createModel。'],
         onlyGenerateMesh: ['Whether to generate only the mesh, without texture or PBR output.', '是否仅生成网格，不生成纹理或 PBR 输出。'],
         mesh_quality: ['Mesh quality level. Supported values are standard, high, and extra_high.', '网格质量等级。支持 standard、high 和 extra_high。'],
-        faceNum: ['Target face count. standard accepts 100000 to 500000 and defaults to 500000; high and extra_high accept 500000 to 2000000 and default to 1000000.', '目标面数。standard 支持 100000 到 500000，默认 500000；high 和 extra_high 支持 500000 到 2000000，默认 1000000。']
+        faceNum: ['Target face count. standard accepts 100000 to 500000 and defaults to 500000; high and extra_high accept 500000 to 1000000 and default to 1000000.', '目标面数。standard 支持 100000 到 500000，默认 500000；high 和 extra_high 支持 500000 到 1000000，默认 1000000。']
     },
     GenerateModelWithImageRequest: {
         image: ['Required input file. The multipart part must use an image/* Content-Type and must not exceed 50 MB.', '必填输入文件。multipart 文件部分必须使用 image/* Content-Type，且不得超过 50 MB。'],
-        mode: ['Generation mode. general creates a regular model; avatar creates an avatar model.', '生成模式。general 生成普通模型；avatar 生成头像模型。'],
-        sourcePage: ['Generation source identifier. The public image endpoint defaults to direct3DAll.', '生成来源标识。对外图片接口默认为 direct3DAll。'],
         onlyGenerateMesh: ['Whether to generate only the mesh, without texture or PBR output.', '是否仅生成网格，不生成纹理或 PBR 输出。'],
         mesh_quality: ['Mesh quality level. Supported values are standard, high, and extra_high.', '网格质量等级。支持 standard、high 和 extra_high。'],
-        faceNum: ['Target face count. standard accepts 100000 to 500000 and defaults to 500000; high and extra_high accept 500000 to 2000000 and default to 1000000.', '目标面数。standard 支持 100000 到 500000，默认 500000；high 和 extra_high 支持 500000 到 2000000，默认 1000000。']
+        faceNum: ['Target face count. standard accepts 100000 to 500000 and defaults to 500000; high and extra_high accept 500000 to 1000000 and default to 1000000.', '目标面数。standard 支持 100000 到 500000，默认 500000；high 和 extra_high 支持 500000 到 1000000，默认 1000000。']
     },
     GenerateModelWithTextResponse: {
         uploadedImageUrl: ['Always null for text-only generation.', '纯文本生成时始终为 null。'],
@@ -324,31 +321,15 @@ const legacySchemaFieldDescriptions = {
 
 function applyLegacyGenerationEndpointUpdates(spec, languageIndex) {
     const isChinese = languageIndex === 1;
-    spec.info.version = '1.5.3';
+    spec.info.version = '1.5.4';
 
     const textRequestSchema = spec.components.schemas.GenerateModelWithTextRequest;
     const imageRequestSchema = spec.components.schemas.GenerateModelWithImageRequest;
+    delete textRequestSchema.properties.sourcePage;
     delete imageRequestSchema.properties.preUpload;
+    delete imageRequestSchema.properties.sourcePage;
+    delete imageRequestSchema.properties.mode;
     textRequestSchema.properties.prompt.minLength = 1;
-    Object.assign(textRequestSchema.properties, {
-        sourcePage: {
-            type: 'string',
-            minLength: 1,
-            default: 'createModel'
-        }
-    });
-    Object.assign(imageRequestSchema.properties, {
-        mode: {
-            type: 'string',
-            enum: ['general', 'avatar'],
-            default: 'general'
-        },
-        sourcePage: {
-            type: 'string',
-            minLength: 1,
-            default: 'direct3DAll'
-        }
-    });
 
     const requestSchemas = [
         textRequestSchema,
@@ -372,7 +353,7 @@ function applyLegacyGenerationEndpointUpdates(spec, languageIndex) {
             faceNum: {
                 type: 'integer',
                 minimum: 100000,
-                maximum: 2000000
+                maximum: 1000000
             }
         });
         schema.oneOf = [
@@ -402,7 +383,7 @@ function applyLegacyGenerationEndpointUpdates(spec, languageIndex) {
                     faceNum: {
                         type: 'integer',
                         minimum: 500000,
-                        maximum: 2000000,
+                        maximum: 1000000,
                         description: isChinese ? 'high、extra_high 或默认质量对应的目标面数。' : 'Target face count for high, extra-high, or default quality.'
                     }
                 }
@@ -535,7 +516,6 @@ function applyLegacyGenerationEndpointUpdates(spec, languageIndex) {
                 : 'Generate 3D models from a text prompt. Supports model count, mesh quality, target face count, and mesh-only output. Existing defaults are preserved when the new options are omitted.',
             example: {
                 prompt: 'people',
-                sourcePage: 'createModel',
                 modelCount: 1,
                 disablePbr: 0,
                 onlyGenerateMesh: false,
@@ -551,8 +531,6 @@ function applyLegacyGenerationEndpointUpdates(spec, languageIndex) {
                 : 'Generate 3D models from one uploaded image. Supports model count, mesh quality, target face count, and mesh-only output. Existing defaults are preserved when the new options are omitted.',
             example: {
                 image: '(binary)',
-                mode: 'general',
-                sourcePage: 'direct3DAll',
                 modelCount: 1,
                 disablePbr: 0,
                 onlyGenerateMesh: false,
@@ -672,7 +650,7 @@ function applyLegacyGenerationEndpointUpdates(spec, languageIndex) {
                 faceNum: {
                     default: 1000000,
                     min: 500000,
-                    max: 2000000,
+                    max: 1000000,
                     value: 1000000
                 }
             };
@@ -721,7 +699,7 @@ function assertLegacyGenerationExamplesAligned(spec) {
 
         const quality = requestExample.mesh_quality || 'high';
         const minFaceNum = quality === 'standard' ? 100000 : 500000;
-        const maxFaceNum = quality === 'standard' ? 500000 : 2000000;
+        const maxFaceNum = quality === 'standard' ? 500000 : 1000000;
         if (requestExample.faceNum < minFaceNum || requestExample.faceNum > maxFaceNum) {
             throw new Error(`${endpoint.path} request example faceNum does not match mesh_quality`);
         }
