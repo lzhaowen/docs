@@ -18,39 +18,89 @@
       {
         "language": "en",
         "default": true,
-        "groups": [
+        "versions": [
           {
-            "group": "Get started",
-            "pages": [
-              "en/index",
-              "en/quickstart"
+            "version": "old",
+            "default": true,
+            "groups": [
+              {
+                "group": "Get started",
+                "pages": [
+                  "en/index",
+                  "en/quickstart"
+                ]
+              },
+              {
+                "group": "API reference",
+                "openapi": {
+                  "source": "openapi.old.json",
+                  "directory": "en-api-reference"
+                }
+              }
             ]
           },
           {
-            "group": "API reference",
-            "openapi": {
-              "source": "openapi.old.json",
-              "directory": "en-api-reference"
-            }
+            "version": "v1",
+            "groups": [
+              {
+                "group": "Get started",
+                "pages": [
+                  "en/v1-overview",
+                  "en/common-headers"
+                ]
+              },
+              {
+                "group": "API reference",
+                "openapi": {
+                  "source": "openapi.json",
+                  "directory": "en-v1-api-reference"
+                }
+              }
+            ]
           }
         ]
       },
       {
         "language": "zh",
-        "groups": [
+        "versions": [
           {
-            "group": "开始使用",
-            "pages": [
-              "zh/index",
-              "zh/quickstart"
+            "version": "old",
+            "default": true,
+            "groups": [
+              {
+                "group": "开始使用",
+                "pages": [
+                  "zh/index",
+                  "zh/quickstart"
+                ]
+              },
+              {
+                "group": "API 参考",
+                "openapi": {
+                  "source": "openapi.old.zh.json",
+                  "directory": "zh-api-reference"
+                }
+              }
             ]
           },
           {
-            "group": "API 参考",
-            "openapi": {
-              "source": "openapi.old.zh.json",
-              "directory": "zh-api-reference"
-            }
+            "version": "v1",
+            "groups": [
+              {
+                "group": "开始使用",
+                "pages": [
+                  "zh/v1-overview",
+                  "zh/common-headers"
+                ]
+              },
+              {
+                "group": "API 参考",
+                "openapi": {
+                  "source": "openapi.zh.json",
+                  "directory": "zh-v1-api-reference"
+                }
+              }
+            ]
           }
         ]
       }
