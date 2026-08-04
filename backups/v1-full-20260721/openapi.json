@@ -1,0 +1,3213 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Neural4D API",
+    "description": "API v1 provides model discovery, managed input files, asynchronous generation and 3D processing tasks, task progress, credit usage, and credit balance.",
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "https://api.neural4d.com",
+      "description": "Production server"
+    }
+  ],
+  "security": [
+    {
+      "bearerAuth": []
+    }
+  ],
+  "tags": [
+    {
+      "name": "Models",
+      "description": "Discover the models and capabilities available to the current API key."
+    },
+    {
+      "name": "Image generation",
+      "description": "Create asynchronous image generation tasks."
+    },
+    {
+      "name": "Video generation",
+      "description": "Create asynchronous video generation tasks."
+    },
+    {
+      "name": "3D models",
+      "description": "Create and post-process 3D models."
+    },
+    {
+      "name": "Tasks",
+      "description": "Poll asynchronous tasks by ID."
+    },
+    {
+      "name": "Files",
+      "description": "Create and inspect managed input files."
+    },
+    {
+      "name": "Usage",
+      "description": "Query credit consumption records."
+    },
+    {
+      "name": "Credits",
+      "description": "Query the current credit balance."
+    }
+  ],
+  "paths": {
+    "/openapi/v1/models": {
+      "get": {
+        "tags": [
+          "Models"
+        ],
+        "summary": "List available models",
+        "description": "Returns enabled entries from the runtime model registry. The example lists the models and request parameters currently published by the service.",
+        "operationId": "listModels",
+        "responses": {
+          "200": {
+            "description": "Available model list",
+            "headers": {
+              "x-ratelimit-limit-requests": {
+                "$ref": "#/components/headers/RateLimitLimitRequests"
+              },
+              "x-ratelimit-remaining-requests": {
+                "$ref": "#/components/headers/RateLimitRemainingRequests"
+              },
+              "x-ratelimit-reset-requests": {
+                "$ref": "#/components/headers/RateLimitResetRequests"
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ModelList"
+                },
+                "example": {
+                  "object": "list",
+                  "data": [
+                    {
+                      "id": "openai/gpt-image-2",
+                      "object": "model",
+                      "created_at": 1784044800,
+                      "updated_at": 1784044800,
+                      "owned_by": "openai",
+                      "name": "GPT Image 2",
+                      "architecture": {
+                        "input_modalities": [
+                          "text",
+                          "image"
+                        ],
+                        "output_modalities": [
+                          "image"
+                        ]
+                      },
+                      "supported_parameters": [
+                        "prompt",
+                        "images",
+                        "n",
+                        "resolution",
+                        "size",
+                        "aspect_ratio",
+                        "extra_body"
+                      ],
+                      "default_parameters": {
+                        "n": 1,
+                        "resolution": "1K",
+                        "aspect_ratio": "1:1"
+                      }
+                    },
+                    {
+                      "id": "google/nano-banana-pro",
+                      "object": "model",
+                      "created_at": 1784044800,
+                      "updated_at": 1784044800,
+                      "owned_by": "google",
+                      "name": "Nano Banana Pro",
+                      "architecture": {
+                        "input_modalities": [
+                          "text",
+                          "image"
+                        ],
+                        "output_modalities": [
+                          "image"
+                        ]
+                      },
+                      "supported_parameters": [
+                        "prompt",
+                        "images",
+                        "n",
+                        "resolution",
+                        "size",
+                        "aspect_ratio",
+                        "extra_body"
+                      ],
+                      "default_parameters": {
+                        "n": 1,
+                        "resolution": "1K",
+                        "aspect_ratio": "1:1"
+                      }
+                    },
+                    {
+                      "id": "bytedance/seedance-2.0",
+                      "object": "model",
+                      "created_at": 1784044800,
+                      "updated_at": 1784044800,
+                      "owned_by": "bytedance",
+                      "name": "Seedance 2.0",
+                      "architecture": {
+                        "input_modalities": [
+                          "text",
+                          "image"
+                        ],
+                        "output_modalities": [
+                          "video"
+                        ]
+                      },
+                      "supported_parameters": [
+                        "prompt",
+                        "images",
+                        "duration_seconds",
+                        "n",
+                        "resolution",
+                        "size",
+                        "aspect_ratio",
+                        "extra_body"
+                      ],
+                      "default_parameters": {
+                        "duration_seconds": 5,
+                        "n": 1,
+                        "resolution": "720p",
+                        "aspect_ratio": "16:9"
+                      }
+                    },
+                    {
+                      "id": "dreamtech/neural4d-2.5",
+                      "object": "model",
+                      "created_at": 1784044800,
+                      "updated_at": 1784044800,
+                      "owned_by": "dreamtech",
+                      "name": "Neural4D 2.5",
+                      "architecture": {
+                        "input_modalities": [
+                          "text",
+                          "image"
+                        ],
+                        "output_modalities": [
+                          "3dmodel"
+                        ]
+                      },
+                      "supported_parameters": [
+                        "prompt",
+                        "images",
+                        "with_texture",
+                        "with_pbr",
+                        "target_polycount",
+                        "mesh_quality",
+                        "art_style",
+                        "n"
+                      ],
+                      "default_parameters": {
+                        "with_texture": true,
+                        "with_pbr": true,
+                        "mesh_quality": "high",
+                        "art_style": "standard",
+                        "n": 1
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalError"
+          }
+        },
+        "servers": [
+          {
+            "url": "https://api.neural4d.com",
+            "description": "Production server"
+          }
+        ],
+        "parameters": []
+      }
+    },
+    "/openapi/v1/images/generations": {
+      "post": {
+        "tags": [
+          "Image generation"
+        ],
+        "summary": "Create image generation tasks",
+        "description": "Creates asynchronous image generation tasks. Reference images use HTTPS URLs or managed file keys. Named resolution and pixel size are mutually exclusive.",
+        "operationId": "createImageGeneration",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ImageGenerationJsonRequest"
+              },
+              "examples": {
+                "named_resolution": {
+                  "summary": "Use a named resolution and managed file references",
+                  "value": {
+                    "model": "openai/gpt-image-2",
+                    "prompt": "A ceramic teapot on a white studio background",
+                    "images": [
+                      {
+                        "fileKey": "openapi/files/reference-front.png"
+                      },
+                      {
+                        "url": "https://assets.example.com/reference-side.png"
+                      }
+                    ],
+                    "n": 1,
+                    "resolution": "1K",
+                    "aspect_ratio": "1:1",
+                    "extra_body": {
+                      "provider_option": "value"
+                    }
+                  }
+                },
+                "pixel_size": {
+                  "summary": "Use an explicit pixel size",
+                  "value": {
+                    "model": "openai/gpt-image-2",
+                    "prompt": "A ceramic teapot on a white studio background",
+                    "images": [
+                      {
+                        "fileKey": "openapi/files/reference-front.png"
+                      }
+                    ],
+                    "n": 1,
+                    "size": "2048x2048",
+                    "aspect_ratio": "1:1",
+                    "extra_body": {
+                      "provider_option": "value"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "202": {
+            "description": "Generation tasks accepted",
+            "headers": {
+              "x-ratelimit-limit-requests": {
+                "$ref": "#/components/headers/RateLimitLimitRequests"
+              },
+              "x-ratelimit-remaining-requests": {
+                "$ref": "#/components/headers/RateLimitRemainingRequests"
+              },
+              "x-ratelimit-reset-requests": {
+                "$ref": "#/components/headers/RateLimitResetRequests"
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TaskList"
+                },
+                "example": {
+                  "object": "list",
+                  "data": [
+                    {
+                      "id": "c6f5dc4e-61ac-4694-9a8b-6a95f3ac4457",
+                      "object": "task",
+                      "type": "image.generation",
+                      "status": "queued",
+                      "model": "provider/model-id",
+                      "created_at": 1784044800,
+                      "progress": 0
+                    }
+                  ],
+                  "usage": {
+                    "credits": 13
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalError"
+          }
+        },
+        "servers": [
+          {
+            "url": "https://api.neural4d.com",
+            "description": "Production server"
+          }
+        ],
+        "parameters": []
+      }
+    },
+    "/openapi/v1/videos/generations": {
+      "post": {
+        "tags": [
+          "Video generation"
+        ],
+        "summary": "Create video generation tasks",
+        "description": "Creates asynchronous video generation tasks. Reference images use HTTPS URLs or managed file keys. Named resolution and pixel size are mutually exclusive.",
+        "operationId": "createVideoGeneration",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/VideoGenerationJsonRequest"
+              },
+              "examples": {
+                "named_resolution": {
+                  "summary": "Use a named resolution and a URL reference",
+                  "value": {
+                    "model": "bytedance/seedance-2.0",
+                    "prompt": "A slow orbit around a ceramic teapot",
+                    "images": [
+                      {
+                        "url": "https://assets.example.com/first-frame.png"
+                      }
+                    ],
+                    "duration_seconds": 5,
+                    "n": 1,
+                    "resolution": "720p",
+                    "aspect_ratio": "16:9",
+                    "extra_body": {
+                      "provider_option": "value"
+                    }
+                  }
+                },
+                "pixel_size": {
+                  "summary": "Use an explicit pixel size and a managed file reference",
+                  "value": {
+                    "model": "bytedance/seedance-2.0",
+                    "prompt": "A slow orbit around a ceramic teapot",
+                    "images": [
+                      {
+                        "fileKey": "openapi/files/first-frame.png"
+                      }
+                    ],
+                    "duration_seconds": 5,
+                    "n": 1,
+                    "size": "1920x1080",
+                    "aspect_ratio": "16:9",
+                    "extra_body": {
+                      "provider_option": "value"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "202": {
+            "description": "Generation tasks accepted",
+            "headers": {
+              "x-ratelimit-limit-requests": {
+                "$ref": "#/components/headers/RateLimitLimitRequests"
+              },
+              "x-ratelimit-remaining-requests": {
+                "$ref": "#/components/headers/RateLimitRemainingRequests"
+              },
+              "x-ratelimit-reset-requests": {
+                "$ref": "#/components/headers/RateLimitResetRequests"
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TaskList"
+                },
+                "example": {
+                  "object": "list",
+                  "data": [
+                    {
+                      "id": "c50fe63e-699d-4d61-93f5-2099ab159d6d",
+                      "object": "task",
+                      "type": "video.generation",
+                      "status": "queued",
+                      "model": "provider/model-id",
+                      "created_at": 1784044800,
+                      "progress": 0
+                    }
+                  ],
+                  "usage": {
+                    "credits": 160
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalError"
+          }
+        },
+        "servers": [
+          {
+            "url": "https://api.neural4d.com",
+            "description": "Production server"
+          }
+        ],
+        "parameters": []
+      }
+    },
+    "/openapi/v1/3dmodels/generations": {
+      "post": {
+        "tags": [
+          "3D models"
+        ],
+        "summary": "Create 3D model generation tasks",
+        "description": "Creates asynchronous text-to-3D, image-to-3D, or styled 3D generation tasks. Image inputs use one HTTPS URL or managed file key.",
+        "operationId": "create3DModelGeneration",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ThreeDGenerationRequest"
+              },
+              "example": {
+                "model": "dreamtech/neural4d-2.5",
+                "prompt": "A stylized ceramic teapot",
+                "images": [
+                  {
+                    "fileKey": "openapi/files/teapot-reference.png"
+                  }
+                ],
+                "art_style": "chibi",
+                "target_polycount": 500000,
+                "mesh_quality": "high",
+                "with_texture": true,
+                "with_pbr": true,
+                "n": 1
+              }
+            }
+          }
+        },
+        "responses": {
+          "202": {
+            "description": "Generation tasks accepted",
+            "headers": {
+              "x-ratelimit-limit-requests": {
+                "$ref": "#/components/headers/RateLimitLimitRequests"
+              },
+              "x-ratelimit-remaining-requests": {
+                "$ref": "#/components/headers/RateLimitRemainingRequests"
+              },
+              "x-ratelimit-reset-requests": {
+                "$ref": "#/components/headers/RateLimitResetRequests"
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TaskList"
+                },
+                "example": {
+                  "object": "list",
+                  "data": [
+                    {
+                      "id": "72e30159-a242-4491-a67c-2ad0cfc9efb6",
+                      "object": "task",
+                      "type": "3dmodel.generation",
+                      "status": "queued",
+                      "model": "provider/model-id",
+                      "created_at": 1784044800,
+                      "progress": 0
+                    }
+                  ],
+                  "usage": {
+                    "credits": 30
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalError"
+          }
+        },
+        "servers": [
+          {
+            "url": "https://api.neural4d.com",
+            "description": "Production server"
+          }
+        ],
+        "parameters": []
+      }
+    },
+    "/openapi/v1/3dmodels/refine": {
+      "post": {
+        "tags": [
+          "3D models"
+        ],
+        "summary": "Refine a 3D model",
+        "description": "Creates a refine task for a completed 3D model.",
+        "operationId": "refine3DModel",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Refine3DModelRequest"
+              },
+              "example": {
+                "quality": "extra_high",
+                "id": "4d0f8188-3fdd-4596-9d31-ceb6eab831655"
+              }
+            }
+          }
+        },
+        "responses": {
+          "202": {
+            "description": "Refine task accepted",
+            "headers": {
+              "x-ratelimit-limit-requests": {
+                "$ref": "#/components/headers/RateLimitLimitRequests"
+              },
+              "x-ratelimit-remaining-requests": {
+                "$ref": "#/components/headers/RateLimitRemainingRequests"
+              },
+              "x-ratelimit-reset-requests": {
+                "$ref": "#/components/headers/RateLimitResetRequests"
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TaskList"
+                },
+                "example": {
+                  "object": "list",
+                  "data": [
+                    {
+                      "id": "22a3cb70-40af-4d38-8adf-bfd169d5646e",
+                      "object": "task",
+                      "type": "3dmodel.edit.refine",
+                      "status": "queued",
+                      "model": "provider/model-id",
+                      "created_at": 1784044800,
+                      "progress": 0
+                    }
+                  ],
+                  "usage": {
+                    "credits": 10
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalError"
+          }
+        },
+        "servers": [
+          {
+            "url": "https://api.neural4d.com",
+            "description": "Production server"
+          }
+        ],
+        "parameters": []
+      }
+    },
+    "/openapi/v1/3dmodels/texture": {
+      "post": {
+        "tags": [
+          "3D models"
+        ],
+        "summary": "Generate a texture for a 3D model",
+        "description": "Creates a texture task from a prompt or one reference image supplied by HTTPS URL or managed file key.",
+        "operationId": "texture3DModel",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Texture3DModelRequest"
+              },
+              "example": {
+                "id": "550e8400-e29b-41d4-a716-446655440000",
+                "image": {
+                  "url": "https://assets.example.com/texture-reference.png"
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "202": {
+            "description": "Texture task accepted",
+            "headers": {
+              "x-ratelimit-limit-requests": {
+                "$ref": "#/components/headers/RateLimitLimitRequests"
+              },
+              "x-ratelimit-remaining-requests": {
+                "$ref": "#/components/headers/RateLimitRemainingRequests"
+              },
+              "x-ratelimit-reset-requests": {
+                "$ref": "#/components/headers/RateLimitResetRequests"
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TaskList"
+                },
+                "example": {
+                  "object": "list",
+                  "data": [
+                    {
+                      "id": "3d397b20-ea20-4c89-b5b5-50656d930af9",
+                      "object": "task",
+                      "type": "3dmodel.edit.texture",
+                      "status": "queued",
+                      "model": "provider/model-id",
+                      "created_at": 1784044800,
+                      "progress": 0
+                    }
+                  ],
+                  "usage": {
+                    "credits": 10
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalError"
+          }
+        },
+        "servers": [
+          {
+            "url": "https://api.neural4d.com",
+            "description": "Production server"
+          }
+        ],
+        "parameters": []
+      }
+    },
+    "/openapi/v1/3dmodels/pbr": {
+      "post": {
+        "tags": [
+          "3D models"
+        ],
+        "summary": "Generate PBR materials for a 3D model",
+        "description": "Creates a PBR material task for a completed 3D model.",
+        "operationId": "generate3DModelPbr",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Pbr3DModelRequest"
+              },
+              "example": {
+                "id": "4d0f8188-3fdd-4596-9d31-ceb6eab831655"
+              }
+            }
+          }
+        },
+        "responses": {
+          "202": {
+            "description": "PBR task accepted",
+            "headers": {
+              "x-ratelimit-limit-requests": {
+                "$ref": "#/components/headers/RateLimitLimitRequests"
+              },
+              "x-ratelimit-remaining-requests": {
+                "$ref": "#/components/headers/RateLimitRemainingRequests"
+              },
+              "x-ratelimit-reset-requests": {
+                "$ref": "#/components/headers/RateLimitResetRequests"
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TaskList"
+                },
+                "example": {
+                  "object": "list",
+                  "data": [
+                    {
+                      "id": "04ff9123-f611-4384-b8a7-5313f521d82d",
+                      "object": "task",
+                      "type": "3dmodel.edit.pbr",
+                      "status": "queued",
+                      "model": "provider/model-id",
+                      "created_at": 1784044800,
+                      "progress": 0
+                    }
+                  ],
+                  "usage": {
+                    "credits": 10
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalError"
+          }
+        },
+        "servers": [
+          {
+            "url": "https://api.neural4d.com",
+            "description": "Production server"
+          }
+        ],
+        "parameters": []
+      }
+    },
+    "/openapi/v1/usage": {
+      "get": {
+        "tags": [
+          "Usage"
+        ],
+        "summary": "List credit usage",
+        "description": "Returns credit consumption records for the authenticated user, with optional filters for time, model, and task type.",
+        "operationId": "listUsage",
+        "responses": {
+          "200": {
+            "description": "Credit usage records",
+            "headers": {
+              "x-ratelimit-limit-requests": {
+                "$ref": "#/components/headers/RateLimitLimitRequests"
+              },
+              "x-ratelimit-remaining-requests": {
+                "$ref": "#/components/headers/RateLimitRemainingRequests"
+              },
+              "x-ratelimit-reset-requests": {
+                "$ref": "#/components/headers/RateLimitResetRequests"
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UsageList"
+                },
+                "example": {
+                  "object": "usage_list",
+                  "data": [
+                    {
+                      "id": "c6f5dc4e-61ac-4694-9a8b-6a95f3ac4457",
+                      "model": "provider/model-id",
+                      "type": "image.generation",
+                      "credits": 13,
+                      "created_at": 1784044800
+                    }
+                  ],
+                  "total_credits": 13,
+                  "page": 1,
+                  "has_more": false
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalError"
+          }
+        },
+        "servers": [
+          {
+            "url": "https://api.neural4d.com",
+            "description": "Production server"
+          }
+        ],
+        "parameters": [
+          {
+            "name": "start_time",
+            "in": "query",
+            "description": "Inclusive Unix timestamp in seconds.",
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          },
+          {
+            "name": "end_time",
+            "in": "query",
+            "description": "Exclusive Unix timestamp in seconds.",
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          },
+          {
+            "name": "model",
+            "in": "query",
+            "description": "Filter by public provider/model alias.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "type",
+            "in": "query",
+            "description": "Filter by public task type.",
+            "schema": {
+              "$ref": "#/components/schemas/TaskType"
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "default": 1
+            },
+            "description": "One-based page number."
+          },
+          {
+            "name": "page_size",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 20
+            },
+            "description": "Maximum number of usage records returned per page."
+          }
+        ]
+      }
+    },
+    "/openapi/v1/3dmodels/remesh": {
+      "post": {
+        "tags": [
+          "3D models"
+        ],
+        "summary": "Remesh a 3D model",
+        "description": "Creates a remesh task using the requested target face count.",
+        "operationId": "remesh3DModel",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Remesh3DModelRequest"
+              },
+              "example": {
+                "target_polycount": 100000,
+                "id": "4d0f8188-3fdd-4596-9d31-ceb6eab831655"
+              }
+            }
+          }
+        },
+        "responses": {
+          "202": {
+            "description": "Remesh task accepted",
+            "headers": {
+              "x-ratelimit-limit-requests": {
+                "$ref": "#/components/headers/RateLimitLimitRequests"
+              },
+              "x-ratelimit-remaining-requests": {
+                "$ref": "#/components/headers/RateLimitRemainingRequests"
+              },
+              "x-ratelimit-reset-requests": {
+                "$ref": "#/components/headers/RateLimitResetRequests"
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TaskList"
+                },
+                "example": {
+                  "object": "list",
+                  "data": [
+                    {
+                      "id": "f1a8c8c8-938a-4f91-b497-76071be434b2",
+                      "object": "task",
+                      "type": "3dmodel.edit.remesh",
+                      "status": "queued",
+                      "model": "provider/model-id",
+                      "created_at": 1784044800,
+                      "progress": 0
+                    }
+                  ],
+                  "usage": {
+                    "credits": 10
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalError"
+          }
+        },
+        "servers": [
+          {
+            "url": "https://api.neural4d.com",
+            "description": "Production server"
+          }
+        ],
+        "parameters": []
+      }
+    },
+    "/openapi/v1/tasks/{id}": {
+      "get": {
+        "tags": [
+          "Tasks"
+        ],
+        "summary": "Retrieve a task",
+        "description": "Returns the current task status, progress, result, usage, and error details by task ID.",
+        "operationId": "getTask",
+        "responses": {
+          "200": {
+            "description": "Task details",
+            "headers": {
+              "x-ratelimit-limit-requests": {
+                "$ref": "#/components/headers/RateLimitLimitRequests"
+              },
+              "x-ratelimit-remaining-requests": {
+                "$ref": "#/components/headers/RateLimitRemainingRequests"
+              },
+              "x-ratelimit-reset-requests": {
+                "$ref": "#/components/headers/RateLimitResetRequests"
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Task"
+                },
+                "example": {
+                  "id": "c6f5dc4e-61ac-4694-9a8b-6a95f3ac4457",
+                  "object": "task",
+                  "type": "image.generation",
+                  "status": "succeeded",
+                  "model": "provider/model-id",
+                  "created_at": 1784044800,
+                  "updated_at": 1784044842,
+                  "usage": {
+                    "credits": 13
+                  },
+                  "progress": 100,
+                  "result": {
+                    "images": [
+                      {
+                        "url": "https://cdn.neural4d.com/results/image.png",
+                        "format": "png"
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalError"
+          }
+        },
+        "servers": [
+          {
+            "url": "https://api.neural4d.com",
+            "description": "Production server"
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "Task ID.",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ]
+      }
+    },
+    "/openapi/v1/files": {
+      "get": {
+        "tags": [
+          "Files"
+        ],
+        "summary": "List managed files",
+        "description": "Returns managed input files recorded for the authenticated account.",
+        "operationId": "listFiles",
+        "servers": [
+          {
+            "url": "https://api.neural4d.com",
+            "description": "Production server"
+          }
+        ],
+        "parameters": [
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "Maximum number of files returned.",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 20
+            }
+          },
+          {
+            "name": "after",
+            "in": "query",
+            "description": "File ID used as the pagination cursor.",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Managed file list",
+            "headers": {
+              "x-ratelimit-limit-requests": {
+                "$ref": "#/components/headers/RateLimitLimitRequests"
+              },
+              "x-ratelimit-remaining-requests": {
+                "$ref": "#/components/headers/RateLimitRemainingRequests"
+              },
+              "x-ratelimit-reset-requests": {
+                "$ref": "#/components/headers/RateLimitResetRequests"
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ManagedFileList"
+                },
+                "example": {
+                  "object": "list",
+                  "data": [
+                    {
+                      "id": "550e8400-e29b-41d4-a716-446655440000",
+                      "object": "file",
+                      "fileKey": "openapi/files/550e8400-e29b-41d4-a716-446655440000/reference.png",
+                      "filename": "reference.png",
+                      "bytes": 245760,
+                      "mime_type": "image/png",
+                      "status": "processed",
+                      "created_at": 1784044800,
+                      "updated_at": 1784044800
+                    }
+                  ],
+                  "first_id": "550e8400-e29b-41d4-a716-446655440000",
+                  "last_id": "550e8400-e29b-41d4-a716-446655440000",
+                  "has_more": false
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalError"
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Files"
+        ],
+        "summary": "Create a managed file",
+        "description": "Uploads one local file to managed storage and records the resulting file key.",
+        "operationId": "createFile",
+        "servers": [
+          {
+            "url": "https://api.neural4d.com",
+            "description": "Production server"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateManagedFileRequest"
+              },
+              "example": {
+                "file": "<binary>"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Managed file created",
+            "headers": {
+              "x-ratelimit-limit-requests": {
+                "$ref": "#/components/headers/RateLimitLimitRequests"
+              },
+              "x-ratelimit-remaining-requests": {
+                "$ref": "#/components/headers/RateLimitRemainingRequests"
+              },
+              "x-ratelimit-reset-requests": {
+                "$ref": "#/components/headers/RateLimitResetRequests"
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ManagedFile"
+                },
+                "example": {
+                  "id": "550e8400-e29b-41d4-a716-446655440000",
+                  "object": "file",
+                  "fileKey": "openapi/files/550e8400-e29b-41d4-a716-446655440000/reference.png",
+                  "filename": "reference.png",
+                  "bytes": 245760,
+                  "mime_type": "image/png",
+                  "status": "processed",
+                  "created_at": 1784044800,
+                  "updated_at": 1784044800
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalError"
+          }
+        },
+        "parameters": []
+      }
+    },
+    "/openapi/v1/3dmodels/{id}/convert": {
+      "post": {
+        "tags": [
+          "3D models"
+        ],
+        "summary": "Convert a 3D model format",
+        "description": "Creates an asynchronous format conversion task for a completed 3D model.",
+        "operationId": "convert3DModel",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Convert3DModelRequest"
+              },
+              "example": {
+                "target_format": "obj",
+                "model_size": 2
+              }
+            }
+          }
+        },
+        "responses": {
+          "202": {
+            "description": "Conversion task accepted",
+            "headers": {
+              "x-ratelimit-limit-requests": {
+                "$ref": "#/components/headers/RateLimitLimitRequests"
+              },
+              "x-ratelimit-remaining-requests": {
+                "$ref": "#/components/headers/RateLimitRemainingRequests"
+              },
+              "x-ratelimit-reset-requests": {
+                "$ref": "#/components/headers/RateLimitResetRequests"
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TaskList"
+                },
+                "example": {
+                  "object": "list",
+                  "data": [
+                    {
+                      "id": "ad9372c6-6be6-4316-a1c5-31d3b2929bc9",
+                      "object": "task",
+                      "type": "file.convert",
+                      "status": "queued",
+                      "model": "provider/model-id",
+                      "created_at": 1784044800,
+                      "progress": 0
+                    }
+                  ],
+                  "usage": {
+                    "credits": 10
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalError"
+          }
+        },
+        "servers": [
+          {
+            "url": "https://api.neural4d.com",
+            "description": "Production server"
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "Completed 3D model ID.",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ]
+      }
+    },
+    "/openapi/v1/3dmodels/{id}/files": {
+      "get": {
+        "tags": [
+          "3D models"
+        ],
+        "summary": "Retrieve 3D model files",
+        "description": "Returns temporary signed URLs for files generated from a completed 3D model.",
+        "operationId": "get3DModelFiles",
+        "responses": {
+          "200": {
+            "description": "File URLs",
+            "headers": {
+              "x-ratelimit-limit-requests": {
+                "$ref": "#/components/headers/RateLimitLimitRequests"
+              },
+              "x-ratelimit-remaining-requests": {
+                "$ref": "#/components/headers/RateLimitRemainingRequests"
+              },
+              "x-ratelimit-reset-requests": {
+                "$ref": "#/components/headers/RateLimitResetRequests"
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FileResource"
+                },
+                "example": {
+                  "urls": [
+                    {
+                      "url": "https://cdn.neural4d.com/results/model.glb",
+                      "format": "glb"
+                    }
+                  ],
+                  "thumbnail_urls": [
+                    "https://cdn.neural4d.com/results/model.png"
+                  ],
+                  "expires_at": 1786636800,
+                  "id": "4d0f8188-3fdd-4596-9d31-ceb6eab831655"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "409": {
+            "$ref": "#/components/responses/TaskNotReady"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalError"
+          }
+        },
+        "servers": [
+          {
+            "url": "https://api.neural4d.com",
+            "description": "Production server"
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "Completed 3D model ID.",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ]
+      }
+    },
+    "/openapi/v1/credits": {
+      "get": {
+        "tags": [
+          "Credits"
+        ],
+        "summary": "Retrieve credits",
+        "description": "Returns the current credit balance using the account credit categories exposed by the existing points service.",
+        "operationId": "getCredits",
+        "servers": [
+          {
+            "url": "https://api.neural4d.com",
+            "description": "Production server"
+          }
+        ],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Current credits",
+            "headers": {
+              "x-ratelimit-limit-requests": {
+                "$ref": "#/components/headers/RateLimitLimitRequests"
+              },
+              "x-ratelimit-remaining-requests": {
+                "$ref": "#/components/headers/RateLimitRemainingRequests"
+              },
+              "x-ratelimit-reset-requests": {
+                "$ref": "#/components/headers/RateLimitResetRequests"
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CreditsResponse"
+                },
+                "example": {
+                  "data": {
+                    "total_credits": 3200,
+                    "monthly_bonus_credits": 1200,
+                    "permanent_credits": 2000,
+                    "annual_credits": 0,
+                    "expires_at": 1785542400,
+                    "updated_at": 1784044800
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalError"
+          }
+        }
+      }
+    },
+    "/openapi/v1/files/{id}": {
+      "get": {
+        "tags": [
+          "Files"
+        ],
+        "summary": "Retrieve a managed file",
+        "description": "Returns one managed input file record by ID.",
+        "operationId": "getFile",
+        "servers": [
+          {
+            "url": "https://api.neural4d.com",
+            "description": "Production server"
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "Managed file ID.",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Managed file details",
+            "headers": {
+              "x-ratelimit-limit-requests": {
+                "$ref": "#/components/headers/RateLimitLimitRequests"
+              },
+              "x-ratelimit-remaining-requests": {
+                "$ref": "#/components/headers/RateLimitRemainingRequests"
+              },
+              "x-ratelimit-reset-requests": {
+                "$ref": "#/components/headers/RateLimitResetRequests"
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ManagedFile"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalError"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "API key",
+        "description": "Neural4D API key using the Bearer scheme.",
+        "x-default": "${YOUR_API_KEY}"
+      }
+    },
+    "schemas": {
+      "ApiError": {
+        "type": "object",
+        "required": [
+          "type",
+          "code",
+          "message",
+          "request_id"
+        ],
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": [
+              "invalid_request_error",
+              "authentication_error",
+              "permission_error",
+              "not_found_error",
+              "rate_limit_error",
+              "content_policy_violation",
+              "api_error"
+            ],
+            "description": "High-level error category for programmatic handling."
+          },
+          "code": {
+            "type": "string",
+            "description": "Stable machine-readable error code.",
+            "example": "invalid_prompt"
+          },
+          "message": {
+            "type": "string",
+            "example": "prompt is required and must be a non-empty string",
+            "description": "Human-readable explanation of the error."
+          },
+          "param": {
+            "type": "string",
+            "nullable": true,
+            "example": "prompt",
+            "description": "Request field associated with the error, or null when the error is not field-specific."
+          },
+          "request_id": {
+            "type": "string",
+            "example": "req_01J2R6Y7F6Q8K9P0M1N2B3V4CX",
+            "description": "Request ID used to trace this error."
+          },
+          "doc_url": {
+            "type": "string",
+            "format": "uri",
+            "nullable": true,
+            "example": "https://api.neural4d.com/docs/errors#invalid_prompt",
+            "description": "Optional documentation URL with more information about the error."
+          }
+        }
+      },
+      "ErrorResponse": {
+        "type": "object",
+        "required": [
+          "error"
+        ],
+        "properties": {
+          "error": {
+            "$ref": "#/components/schemas/ApiError",
+            "description": "Structured error details."
+          }
+        }
+      },
+      "TaskUsage": {
+        "type": "object",
+        "required": [
+          "credits"
+        ],
+        "properties": {
+          "credits": {
+            "type": "number",
+            "format": "float",
+            "minimum": 0,
+            "description": "Credits charged for the task or submission.",
+            "example": 26
+          }
+        }
+      },
+      "ImageFile": {
+        "type": "object",
+        "required": [
+          "url"
+        ],
+        "properties": {
+          "url": {
+            "type": "string",
+            "format": "uri",
+            "description": "Temporary signed URL for downloading the generated image."
+          },
+          "format": {
+            "type": "string",
+            "nullable": true,
+            "example": "png",
+            "description": "Image file format when known, such as png."
+          }
+        }
+      },
+      "VideoFile": {
+        "type": "object",
+        "required": [
+          "url"
+        ],
+        "properties": {
+          "url": {
+            "type": "string",
+            "format": "uri",
+            "description": "Temporary signed URL for downloading the generated video."
+          },
+          "format": {
+            "type": "string",
+            "nullable": true,
+            "example": "mp4",
+            "description": "Video file format when known, such as mp4."
+          },
+          "duration_seconds": {
+            "type": "integer",
+            "nullable": true,
+            "minimum": 0,
+            "description": "Generated video duration in seconds when available."
+          },
+          "resolution": {
+            "type": "string",
+            "nullable": true,
+            "example": "720p",
+            "description": "Generated video resolution when available, such as 720p."
+          }
+        }
+      },
+      "ModelFile": {
+        "type": "object",
+        "required": [
+          "id",
+          "url"
+        ],
+        "properties": {
+          "url": {
+            "type": "string",
+            "format": "uri",
+            "description": "Temporary signed URL for downloading the generated 3D model."
+          },
+          "format": {
+            "type": "string",
+            "nullable": true,
+            "example": "glb",
+            "description": "3D model file format when known, such as glb."
+          },
+          "thumbnail_urls": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uri"
+            },
+            "description": "Temporary signed URLs for model preview images."
+          },
+          "polycount": {
+            "type": "integer",
+            "nullable": true,
+            "minimum": 0,
+            "description": "Number of polygon faces in the model when available."
+          },
+          "has_texture": {
+            "type": "boolean",
+            "nullable": true,
+            "description": "Whether the model includes texture data when known."
+          },
+          "has_pbr": {
+            "type": "boolean",
+            "nullable": true,
+            "description": "Whether the model includes PBR material data when known."
+          },
+          "id": {
+            "type": "string",
+            "description": "Generated 3D model resource ID.",
+            "format": "uuid"
+          }
+        }
+      },
+      "FileLink": {
+        "type": "object",
+        "required": [
+          "url",
+          "format"
+        ],
+        "properties": {
+          "url": {
+            "type": "string",
+            "format": "uri",
+            "description": "Temporary signed URL for downloading the file."
+          },
+          "format": {
+            "type": "string",
+            "example": "glb",
+            "description": "File format represented by this URL."
+          }
+        }
+      },
+      "ImageTaskOutput": {
+        "type": "object",
+        "required": [
+          "images"
+        ],
+        "properties": {
+          "images": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ImageFile"
+            },
+            "description": "Generated image files returned after the task succeeds."
+          }
+        }
+      },
+      "VideoTaskOutput": {
+        "type": "object",
+        "required": [
+          "videos"
+        ],
+        "properties": {
+          "videos": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/VideoFile"
+            },
+            "description": "Generated video files returned after the task succeeds."
+          }
+        }
+      },
+      "ModelTaskOutput": {
+        "type": "object",
+        "required": [
+          "models"
+        ],
+        "properties": {
+          "models": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ModelFile"
+            },
+            "description": "Generated 3D model files returned after the task succeeds."
+          }
+        }
+      },
+      "FileConversionTaskOutput": {
+        "type": "object",
+        "required": [
+          "files"
+        ],
+        "properties": {
+          "files": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/FileLink"
+            },
+            "description": "Converted files returned after the task succeeds."
+          }
+        }
+      },
+      "TaskOutput": {
+        "oneOf": [
+          {
+            "$ref": "#/components/schemas/ImageTaskOutput"
+          },
+          {
+            "$ref": "#/components/schemas/VideoTaskOutput"
+          },
+          {
+            "$ref": "#/components/schemas/ModelTaskOutput"
+          },
+          {
+            "$ref": "#/components/schemas/FileConversionTaskOutput"
+          }
+        ]
+      },
+      "Task": {
+        "type": "object",
+        "required": [
+          "id",
+          "object",
+          "type",
+          "status",
+          "created_at"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Public task ID.",
+            "format": "uuid"
+          },
+          "object": {
+            "type": "string",
+            "enum": [
+              "task"
+            ],
+            "description": "Object discriminator. Always task."
+          },
+          "type": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/TaskType"
+              }
+            ],
+            "description": "Operation type performed by the task."
+          },
+          "status": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/TaskStatus"
+              }
+            ],
+            "description": "Normalized task lifecycle status."
+          },
+          "model": {
+            "type": "string",
+            "nullable": true,
+            "description": "Public provider/model alias returned by GET /openapi/v1/models."
+          },
+          "created_at": {
+            "type": "integer",
+            "format": "int64",
+            "description": "Unix timestamp in seconds."
+          },
+          "updated_at": {
+            "type": "integer",
+            "format": "int64",
+            "description": "Unix timestamp in seconds."
+          },
+          "usage": {
+            "$ref": "#/components/schemas/TaskUsage",
+            "description": "Credits charged for this task when available."
+          },
+          "error": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/TaskError"
+              }
+            ],
+            "description": "Error details when the task fails."
+          },
+          "progress": {
+            "type": "number",
+            "format": "float",
+            "minimum": 0,
+            "maximum": 100,
+            "description": "Task completion percentage from 0 to 100."
+          },
+          "result": {
+            "$ref": "#/components/schemas/TaskOutput",
+            "description": "Task result returned after asynchronous processing completes."
+          }
+        }
+      },
+      "TaskList": {
+        "type": "object",
+        "required": [
+          "object",
+          "data"
+        ],
+        "properties": {
+          "object": {
+            "type": "string",
+            "enum": [
+              "list"
+            ],
+            "description": "Object discriminator. Always list."
+          },
+          "data": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "$ref": "#/components/schemas/TaskReceipt"
+            },
+            "description": "Tasks created by the request."
+          },
+          "usage": {
+            "$ref": "#/components/schemas/TaskUsage",
+            "description": "Total credits charged for the submitted tasks when available."
+          }
+        }
+      },
+      "Model": {
+        "type": "object",
+        "required": [
+          "id",
+          "object",
+          "created_at",
+          "updated_at",
+          "owned_by",
+          "architecture",
+          "supported_parameters",
+          "default_parameters"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Public model identifier used in generation requests."
+          },
+          "object": {
+            "type": "string",
+            "enum": [
+              "model"
+            ],
+            "description": "Object discriminator. Always model."
+          },
+          "created_at": {
+            "type": "integer",
+            "format": "int64",
+            "description": "Unix timestamp in seconds when the model entry was created."
+          },
+          "updated_at": {
+            "type": "integer",
+            "format": "int64",
+            "description": "Unix timestamp in seconds when the model entry was updated."
+          },
+          "owned_by": {
+            "type": "string",
+            "description": "Provider or organization that owns the model."
+          },
+          "name": {
+            "type": "string",
+            "description": "Display name of the model."
+          },
+          "description": {
+            "type": "string",
+            "description": "Model description maintained by the model registry."
+          },
+          "architecture": {
+            "$ref": "#/components/schemas/ModelArchitecture",
+            "description": "Input and output modalities maintained by the runtime model registry."
+          },
+          "supported_parameters": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Request parameter names maintained by the runtime model registry."
+          },
+          "default_parameters": {
+            "type": "object",
+            "additionalProperties": true,
+            "description": "Default request parameter values maintained by the runtime model registry."
+          }
+        }
+      },
+      "ModelList": {
+        "type": "object",
+        "required": [
+          "object",
+          "data"
+        ],
+        "properties": {
+          "object": {
+            "type": "string",
+            "enum": [
+              "list"
+            ],
+            "description": "Object discriminator. Always list."
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Model"
+            },
+            "description": "Models available to the authenticated account."
+          }
+        }
+      },
+      "ImageGenerationJsonRequest": {
+        "type": "object",
+        "required": [
+          "model",
+          "prompt"
+        ],
+        "additionalProperties": false,
+        "not": {
+          "required": [
+            "resolution",
+            "size"
+          ]
+        },
+        "properties": {
+          "model": {
+            "type": "string",
+            "minLength": 1,
+            "example": "provider/model-id",
+            "description": "Model identifier returned by GET /openapi/v1/models."
+          },
+          "prompt": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Text instruction describing the image to generate or edit."
+          },
+          "images": {
+            "type": "array",
+            "maxItems": 6,
+            "items": {
+              "$ref": "#/components/schemas/FileReference"
+            },
+            "description": "Reference images supplied by URL or managed file key."
+          },
+          "n": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 4,
+            "default": 1,
+            "description": "Number of image generation tasks to create."
+          },
+          "resolution": {
+            "type": "string",
+            "enum": [
+              "1K",
+              "2K"
+            ],
+            "example": "2K",
+            "description": "Named resolution published for the selected image model, currently 1K or 2K. Use this or size."
+          },
+          "size": {
+            "type": "string",
+            "pattern": "^[1-9][0-9]{1,4}x[1-9][0-9]{1,4}$",
+            "example": "2048x2048",
+            "description": "Pixel size in WIDTHxHEIGHT form. Use this or resolution."
+          },
+          "aspect_ratio": {
+            "type": "string",
+            "enum": [
+              "1:1",
+              "16:9",
+              "9:16",
+              "4:3",
+              "3:4"
+            ],
+            "example": "1:1",
+            "description": "Target image width-to-height ratio."
+          },
+          "extra_body": {
+            "$ref": "#/components/schemas/ExtraBody",
+            "description": "Provider parameters forwarded after key, size, depth, and payload validation."
+          }
+        }
+      },
+      "VideoGenerationJsonRequest": {
+        "type": "object",
+        "required": [
+          "model",
+          "prompt"
+        ],
+        "additionalProperties": false,
+        "not": {
+          "required": [
+            "resolution",
+            "size"
+          ]
+        },
+        "properties": {
+          "model": {
+            "type": "string",
+            "minLength": 1,
+            "example": "provider/model-id",
+            "description": "Model identifier returned by GET /openapi/v1/models."
+          },
+          "prompt": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Text instruction describing the video to generate."
+          },
+          "images": {
+            "type": "array",
+            "maxItems": 6,
+            "items": {
+              "$ref": "#/components/schemas/FileReference"
+            },
+            "description": "Reference images supplied by URL or managed file key."
+          },
+          "duration_seconds": {
+            "type": "integer",
+            "minimum": 4,
+            "maximum": 15,
+            "default": 5,
+            "description": "Target video duration in seconds."
+          },
+          "n": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 4,
+            "default": 1,
+            "description": "Number of video generation tasks to create."
+          },
+          "resolution": {
+            "type": "string",
+            "enum": [
+              "480p",
+              "720p",
+              "1080p",
+              "1K",
+              "2K"
+            ],
+            "example": "720p",
+            "description": "Named resolution published for the selected video model, currently 480p, 720p, 1080p, 1K, or 2K. Use this or size."
+          },
+          "size": {
+            "type": "string",
+            "pattern": "^[1-9][0-9]{1,4}x[1-9][0-9]{1,4}$",
+            "example": "2048x2048",
+            "description": "Pixel size in WIDTHxHEIGHT form. Use this or resolution."
+          },
+          "aspect_ratio": {
+            "type": "string",
+            "enum": [
+              "16:9",
+              "9:16",
+              "1:1",
+              "4:3",
+              "3:4"
+            ],
+            "example": "16:9",
+            "description": "Target video width-to-height ratio."
+          },
+          "extra_body": {
+            "$ref": "#/components/schemas/ExtraBody",
+            "description": "Provider parameters forwarded after key, size, depth, and payload validation."
+          }
+        }
+      },
+      "Refine3DModelRequest": {
+        "type": "object",
+        "required": [
+          "id"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "ID of a completed 3D model."
+          },
+          "quality": {
+            "type": "string",
+            "enum": [
+              "extra_high"
+            ],
+            "default": "extra_high",
+            "description": "Target mesh quality for the refine task."
+          }
+        }
+      },
+      "Texture3DModelRequest": {
+        "type": "object",
+        "required": [
+          "id"
+        ],
+        "additionalProperties": false,
+        "anyOf": [
+          {
+            "required": [
+              "prompt"
+            ]
+          },
+          {
+            "required": [
+              "image"
+            ]
+          }
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "ID of a completed 3D model."
+          },
+          "prompt": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Text instruction describing the texture to generate."
+          },
+          "image": {
+            "$ref": "#/components/schemas/FileReference",
+            "description": "One reference image supplied by URL or managed file key."
+          }
+        }
+      },
+      "Pbr3DModelRequest": {
+        "type": "object",
+        "required": [
+          "id"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "ID of a completed 3D model."
+          }
+        }
+      },
+      "FileResource": {
+        "type": "object",
+        "required": [
+          "id",
+          "urls"
+        ],
+        "properties": {
+          "urls": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/FileLink"
+            },
+            "description": "Temporary signed download URLs for available result files."
+          },
+          "thumbnail_urls": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uri"
+            },
+            "description": "Temporary signed URLs for available preview images."
+          },
+          "expires_at": {
+            "type": "integer",
+            "format": "int64",
+            "nullable": true,
+            "description": "Unix timestamp in seconds when the signed URLs expire."
+          },
+          "id": {
+            "type": "string",
+            "description": "Task or model ID associated with these files.",
+            "format": "uuid"
+          }
+        }
+      },
+      "UsageRecord": {
+        "type": "object",
+        "required": [
+          "id",
+          "type",
+          "credits",
+          "created_at"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "nullable": true,
+            "description": "Associated task ID.",
+            "format": "uuid"
+          },
+          "model": {
+            "type": "string",
+            "nullable": true,
+            "description": "Public model identifier when it can be resolved from the usage record."
+          },
+          "type": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/TaskType"
+              }
+            ],
+            "description": "Public task type."
+          },
+          "credits": {
+            "type": "number",
+            "format": "float",
+            "minimum": 0,
+            "description": "Credits charged by this usage record."
+          },
+          "created_at": {
+            "type": "integer",
+            "format": "int64",
+            "description": "Unix timestamp in seconds."
+          }
+        }
+      },
+      "UsageList": {
+        "type": "object",
+        "required": [
+          "object",
+          "data",
+          "total_credits",
+          "page",
+          "has_more"
+        ],
+        "properties": {
+          "object": {
+            "type": "string",
+            "enum": [
+              "usage_list"
+            ],
+            "description": "Object discriminator. Always usage_list."
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/UsageRecord"
+            },
+            "description": "Usage records on the current page."
+          },
+          "total_credits": {
+            "type": "number",
+            "format": "float",
+            "minimum": 0,
+            "description": "Total credits represented by the filtered result set."
+          },
+          "page": {
+            "type": "integer",
+            "minimum": 1,
+            "description": "Current one-based page number."
+          },
+          "has_more": {
+            "type": "boolean",
+            "description": "Whether another page of usage records is available."
+          }
+        }
+      },
+      "TaskType": {
+        "type": "string",
+        "enum": [
+          "image.generation",
+          "video.generation",
+          "3dmodel.generation",
+          "3dmodel.edit.refine",
+          "3dmodel.edit.texture",
+          "3dmodel.edit.pbr",
+          "3dmodel.edit.remesh",
+          "3dmodel.convert"
+        ],
+        "description": "Stable operation type assigned to an asynchronous task."
+      },
+      "TaskStatus": {
+        "type": "string",
+        "enum": [
+          "queued",
+          "processing",
+          "succeeded",
+          "failed"
+        ],
+        "description": "Normalized lifecycle status of an asynchronous task."
+      },
+      "TaskError": {
+        "type": "object",
+        "required": [
+          "code",
+          "message"
+        ],
+        "description": "Failure details recorded by asynchronous processing.",
+        "properties": {
+          "code": {
+            "type": "string",
+            "description": "Stable machine-readable task failure code."
+          },
+          "message": {
+            "type": "string",
+            "description": "Human-readable explanation of the task failure."
+          },
+          "failed_at": {
+            "type": "integer",
+            "format": "int64",
+            "description": "Unix timestamp in seconds when the task failed."
+          },
+          "retryable": {
+            "type": "boolean",
+            "description": "Whether retrying the same operation may succeed."
+          }
+        }
+      },
+      "Remesh3DModelRequest": {
+        "type": "object",
+        "required": [
+          "id",
+          "target_polycount"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "ID of a completed 3D model."
+          },
+          "target_polycount": {
+            "type": "integer",
+            "minimum": 1,
+            "description": "Target face count passed to the remesh pipeline."
+          }
+        }
+      },
+      "FileReferenceUrl": {
+        "type": "object",
+        "required": [
+          "url"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "url": {
+            "type": "string",
+            "format": "uri",
+            "pattern": "^https://",
+            "description": "HTTPS source URL. Every DNS result and redirect is checked for a public network address, then media type, size, and fetch time limits are applied."
+          }
+        }
+      },
+      "FileReferenceKey": {
+        "type": "object",
+        "required": [
+          "fileKey"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "fileKey": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 1024,
+            "description": "Managed file key returned by the file management endpoint."
+          }
+        }
+      },
+      "FileReference": {
+        "oneOf": [
+          {
+            "$ref": "#/components/schemas/FileReferenceUrl"
+          },
+          {
+            "$ref": "#/components/schemas/FileReferenceKey"
+          }
+        ],
+        "description": "A file reference containing one HTTPS URL or one managed file key."
+      },
+      "ExtraBody": {
+        "type": "object",
+        "maxProperties": 50,
+        "additionalProperties": true,
+        "description": "Provider parameters are validated against the selected model policy. Keys, nesting depth, property count, and serialized payload size are bounded before forwarding."
+      },
+      "ThreeDGenerationRequest": {
+        "type": "object",
+        "required": [
+          "model"
+        ],
+        "additionalProperties": false,
+        "anyOf": [
+          {
+            "required": [
+              "prompt"
+            ]
+          },
+          {
+            "required": [
+              "images"
+            ]
+          }
+        ],
+        "properties": {
+          "model": {
+            "type": "string",
+            "minLength": 1,
+            "example": "provider/model-id",
+            "description": "Model identifier returned by GET /openapi/v1/models."
+          },
+          "prompt": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Text instruction describing the 3D model to generate."
+          },
+          "images": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 1,
+            "items": {
+              "$ref": "#/components/schemas/FileReference"
+            },
+            "description": "One reference image supplied by URL or managed file key."
+          },
+          "with_texture": {
+            "type": "boolean",
+            "default": true,
+            "description": "Whether to generate texture data for the model."
+          },
+          "with_pbr": {
+            "type": "boolean",
+            "default": true,
+            "description": "Whether to generate PBR material data for the model."
+          },
+          "target_polycount": {
+            "type": "integer",
+            "minimum": 100000,
+            "maximum": 1000000,
+            "description": "Target face count. standard supports 100000 to 500000; high and extra_high support 500000 to 1000000."
+          },
+          "mesh_quality": {
+            "type": "string",
+            "enum": [
+              "standard",
+              "high",
+              "extra_high"
+            ],
+            "default": "high",
+            "description": "Target mesh quality level."
+          },
+          "art_style": {
+            "type": "string",
+            "enum": [
+              "standard",
+              "chibi"
+            ],
+            "default": "standard",
+            "example": "chibi",
+            "description": "Style instruction for the 3D output, including chibi-style generation."
+          },
+          "n": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 4,
+            "default": 1,
+            "description": "Number of 3D generation tasks to create."
+          }
+        }
+      },
+      "ManagedFile": {
+        "type": "object",
+        "required": [
+          "id",
+          "object",
+          "fileKey",
+          "status",
+          "created_at",
+          "updated_at"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Managed file ID."
+          },
+          "object": {
+            "type": "string",
+            "enum": [
+              "file"
+            ],
+            "description": "Object discriminator. Always file."
+          },
+          "fileKey": {
+            "type": "string",
+            "description": "Internal managed file key used by generation tasks."
+          },
+          "filename": {
+            "type": "string",
+            "description": "Stored file name when available."
+          },
+          "bytes": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 0,
+            "description": "Stored file size in bytes."
+          },
+          "mime_type": {
+            "type": "string",
+            "description": "Stored media type."
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "uploaded",
+              "processed",
+              "error"
+            ],
+            "description": "Current managed file status."
+          },
+          "created_at": {
+            "type": "integer",
+            "format": "int64",
+            "description": "Unix timestamp in seconds when the file was created."
+          },
+          "updated_at": {
+            "type": "integer",
+            "format": "int64",
+            "description": "Unix timestamp in seconds when the file was updated."
+          }
+        }
+      },
+      "ManagedFileList": {
+        "type": "object",
+        "required": [
+          "object",
+          "data",
+          "first_id",
+          "last_id",
+          "has_more"
+        ],
+        "properties": {
+          "object": {
+            "type": "string",
+            "enum": [
+              "list"
+            ],
+            "description": "Object discriminator. Always list."
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ManagedFile"
+            },
+            "description": "Managed files visible to the authenticated account."
+          },
+          "first_id": {
+            "type": "string",
+            "nullable": true,
+            "description": "ID of the first file in this page, or null when the page is empty."
+          },
+          "last_id": {
+            "type": "string",
+            "nullable": true,
+            "description": "ID of the last file in this page, or null when the page is empty."
+          },
+          "has_more": {
+            "type": "boolean",
+            "description": "Whether another page of managed files is available."
+          }
+        }
+      },
+      "CreateManagedFileRequest": {
+        "type": "object",
+        "required": [
+          "file"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "file": {
+            "type": "string",
+            "format": "binary",
+            "description": "Local file content uploaded to managed storage."
+          }
+        }
+      },
+      "Convert3DModelRequest": {
+        "type": "object",
+        "required": [
+          "target_format"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "target_format": {
+            "type": "string",
+            "enum": [
+              "glb",
+              "obj",
+              "fbx",
+              "stl",
+              "usdz",
+              "blend"
+            ],
+            "description": "Target 3D model format."
+          },
+          "model_size": {
+            "type": "number",
+            "minimum": 0,
+            "description": "Model size in millimeters."
+          }
+        }
+      },
+      "ModelArchitecture": {
+        "type": "object",
+        "required": [
+          "input_modalities",
+          "output_modalities"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "input_modalities": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Input modalities published for this model."
+          },
+          "output_modalities": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Output modalities published for this model."
+          }
+        }
+      },
+      "CreditBalance": {
+        "type": "object",
+        "required": [
+          "total_credits",
+          "monthly_bonus_credits",
+          "permanent_credits",
+          "annual_credits",
+          "updated_at"
+        ],
+        "properties": {
+          "total_credits": {
+            "type": "number",
+            "minimum": 0,
+            "description": "Total credits currently available to the account."
+          },
+          "monthly_bonus_credits": {
+            "type": "number",
+            "minimum": 0,
+            "description": "Monthly bonus credits currently available."
+          },
+          "permanent_credits": {
+            "type": "number",
+            "minimum": 0,
+            "description": "Permanent credits currently available."
+          },
+          "annual_credits": {
+            "type": "number",
+            "minimum": 0,
+            "description": "Annual-plan credits currently available."
+          },
+          "expires_at": {
+            "type": "integer",
+            "format": "int64",
+            "nullable": true,
+            "description": "Unix timestamp for the nearest expiring credit balance, or null when no balance expires."
+          },
+          "updated_at": {
+            "type": "integer",
+            "format": "int64",
+            "description": "Unix timestamp in seconds when the credit balance was updated."
+          }
+        }
+      },
+      "CreditsResponse": {
+        "type": "object",
+        "required": [
+          "data"
+        ],
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/CreditBalance",
+            "description": "Current credit balance details."
+          }
+        }
+      },
+      "TaskReceipt": {
+        "type": "object",
+        "required": [
+          "id",
+          "object",
+          "type",
+          "status",
+          "created_at"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Public task ID.",
+            "format": "uuid"
+          },
+          "object": {
+            "type": "string",
+            "enum": [
+              "task"
+            ],
+            "description": "Object discriminator. Always task."
+          },
+          "type": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/TaskType"
+              }
+            ],
+            "description": "Operation type performed by the task."
+          },
+          "status": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/TaskStatus"
+              }
+            ],
+            "description": "Normalized task lifecycle status."
+          },
+          "model": {
+            "type": "string",
+            "nullable": true,
+            "description": "Public provider/model alias returned by GET /openapi/v1/models."
+          },
+          "created_at": {
+            "type": "integer",
+            "format": "int64",
+            "description": "Unix timestamp in seconds."
+          },
+          "updated_at": {
+            "type": "integer",
+            "format": "int64",
+            "description": "Unix timestamp in seconds."
+          },
+          "usage": {
+            "$ref": "#/components/schemas/TaskUsage",
+            "description": "Credits charged for this task when available."
+          },
+          "error": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/TaskError"
+              }
+            ],
+            "description": "Error details when the task fails."
+          },
+          "progress": {
+            "type": "number",
+            "format": "float",
+            "minimum": 0,
+            "maximum": 100,
+            "description": "Task completion percentage from 0 to 100."
+          }
+        }
+      }
+    },
+    "headers": {
+      "RetryAfter": {
+        "description": "Seconds to wait before retrying.",
+        "schema": {
+          "type": "integer",
+          "minimum": 0
+        }
+      },
+      "RateLimitLimitRequests": {
+        "description": "Request limit for the current window.",
+        "schema": {
+          "type": "integer",
+          "format": "int32",
+          "minimum": 0
+        }
+      },
+      "RateLimitRemainingRequests": {
+        "description": "Requests remaining in the current window.",
+        "schema": {
+          "type": "integer",
+          "format": "int32",
+          "minimum": 0
+        }
+      },
+      "RateLimitResetRequests": {
+        "description": "Time until the request window resets, such as 1s.",
+        "schema": {
+          "type": "string",
+          "example": "1s"
+        }
+      }
+    },
+    "responses": {
+      "BadRequest": {
+        "description": "Invalid request",
+        "headers": {
+          "x-ratelimit-limit-requests": {
+            "$ref": "#/components/headers/RateLimitLimitRequests"
+          },
+          "x-ratelimit-remaining-requests": {
+            "$ref": "#/components/headers/RateLimitRemainingRequests"
+          },
+          "x-ratelimit-reset-requests": {
+            "$ref": "#/components/headers/RateLimitResetRequests"
+          }
+        },
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ErrorResponse"
+            },
+            "example": {
+              "error": {
+                "type": "invalid_request_error",
+                "code": "invalid_prompt",
+                "message": "prompt is required and must be a non-empty string",
+                "param": "prompt",
+                "request_id": "req_01J2R6Y7F6Q8K9P0M1N2B3V4CX"
+              }
+            }
+          }
+        }
+      },
+      "Unauthorized": {
+        "description": "Authentication failed",
+        "headers": {
+          "x-ratelimit-limit-requests": {
+            "$ref": "#/components/headers/RateLimitLimitRequests"
+          },
+          "x-ratelimit-remaining-requests": {
+            "$ref": "#/components/headers/RateLimitRemainingRequests"
+          },
+          "x-ratelimit-reset-requests": {
+            "$ref": "#/components/headers/RateLimitResetRequests"
+          }
+        },
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ErrorResponse"
+            },
+            "example": {
+              "error": {
+                "type": "authentication_error",
+                "code": "invalid_api_key",
+                "message": "The API key is invalid or expired",
+                "request_id": "req_01J2R6Y7F6Q8K9P0M1N2B3V4CX"
+              }
+            }
+          }
+        }
+      },
+      "Forbidden": {
+        "description": "The authenticated user cannot access this model or resource",
+        "headers": {
+          "x-ratelimit-limit-requests": {
+            "$ref": "#/components/headers/RateLimitLimitRequests"
+          },
+          "x-ratelimit-remaining-requests": {
+            "$ref": "#/components/headers/RateLimitRemainingRequests"
+          },
+          "x-ratelimit-reset-requests": {
+            "$ref": "#/components/headers/RateLimitResetRequests"
+          }
+        },
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ErrorResponse"
+            },
+            "example": {
+              "error": {
+                "type": "permission_error",
+                "code": "model_not_authorized",
+                "message": "Model access is restricted for this API key",
+                "param": "model",
+                "request_id": "req_01J2R6Y7F6Q8K9P0M1N2B3V4CX"
+              }
+            }
+          }
+        }
+      },
+      "NotFound": {
+        "description": "The requested resource was not found",
+        "headers": {
+          "x-ratelimit-limit-requests": {
+            "$ref": "#/components/headers/RateLimitLimitRequests"
+          },
+          "x-ratelimit-remaining-requests": {
+            "$ref": "#/components/headers/RateLimitRemainingRequests"
+          },
+          "x-ratelimit-reset-requests": {
+            "$ref": "#/components/headers/RateLimitResetRequests"
+          }
+        },
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ErrorResponse"
+            },
+            "example": {
+              "error": {
+                "type": "not_found_error",
+                "code": "task_not_found",
+                "message": "The requested task does not exist",
+                "request_id": "req_01J2R6Y7F6Q8K9P0M1N2B3V4CX"
+              }
+            }
+          }
+        }
+      },
+      "RateLimited": {
+        "description": "Request or quota limit exceeded",
+        "headers": {
+          "Retry-After": {
+            "$ref": "#/components/headers/RetryAfter"
+          },
+          "x-ratelimit-limit-requests": {
+            "$ref": "#/components/headers/RateLimitLimitRequests"
+          },
+          "x-ratelimit-remaining-requests": {
+            "$ref": "#/components/headers/RateLimitRemainingRequests"
+          },
+          "x-ratelimit-reset-requests": {
+            "$ref": "#/components/headers/RateLimitResetRequests"
+          }
+        },
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ErrorResponse"
+            },
+            "example": {
+              "error": {
+                "type": "rate_limit_error",
+                "code": "rate_limit_exceeded",
+                "message": "Too many requests. Retry after the indicated interval.",
+                "request_id": "req_01J2R6Y7F6Q8K9P0M1N2B3V4CX"
+              }
+            }
+          }
+        }
+      },
+      "InternalError": {
+        "description": "Internal or upstream service error",
+        "headers": {
+          "x-ratelimit-limit-requests": {
+            "$ref": "#/components/headers/RateLimitLimitRequests"
+          },
+          "x-ratelimit-remaining-requests": {
+            "$ref": "#/components/headers/RateLimitRemainingRequests"
+          },
+          "x-ratelimit-reset-requests": {
+            "$ref": "#/components/headers/RateLimitResetRequests"
+          }
+        },
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ErrorResponse"
+            },
+            "example": {
+              "error": {
+                "type": "api_error",
+                "code": "internal_error",
+                "message": "An internal error occurred",
+                "request_id": "req_01J2R6Y7F6Q8K9P0M1N2B3V4CX"
+              }
+            }
+          }
+        }
+      },
+      "TaskNotReady": {
+        "description": "The requested task has not produced files yet",
+        "headers": {
+          "x-ratelimit-limit-requests": {
+            "$ref": "#/components/headers/RateLimitLimitRequests"
+          },
+          "x-ratelimit-remaining-requests": {
+            "$ref": "#/components/headers/RateLimitRemainingRequests"
+          },
+          "x-ratelimit-reset-requests": {
+            "$ref": "#/components/headers/RateLimitResetRequests"
+          }
+        },
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ErrorResponse"
+            },
+            "example": {
+              "error": {
+                "type": "invalid_request_error",
+                "code": "task_not_ready",
+                "message": "The requested task has not produced downloadable files yet.",
+                "request_id": "req_01J2R6Y7F6Q8K9P0M1N2B3V4CX"
+              }
+            }
+          }
+        }
+      }
+    },
+    "parameters": {}
+  }
+}

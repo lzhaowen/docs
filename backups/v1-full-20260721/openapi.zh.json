@@ -1,0 +1,3213 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Neural4D API",
+    "description": "API v1 支持模型发现、托管输入文件、异步生成与 3D 处理任务、任务进度、点数流水和点数余额查询。",
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "https://api.neural4d.com",
+      "description": "生产环境"
+    }
+  ],
+  "security": [
+    {
+      "bearerAuth": []
+    }
+  ],
+  "tags": [
+    {
+      "name": "模型",
+      "description": "查询当前 API 密钥可用的模型及其能力。"
+    },
+    {
+      "name": "图片生成",
+      "description": "创建异步图片生成任务。"
+    },
+    {
+      "name": "视频生成",
+      "description": "创建异步视频生成任务。"
+    },
+    {
+      "name": "3D 模型",
+      "description": "创建并后处理 3D 模型。"
+    },
+    {
+      "name": "任务",
+      "description": "通过 ID 查询异步任务。"
+    },
+    {
+      "name": "文件",
+      "description": "创建和查询托管输入文件。"
+    },
+    {
+      "name": "用量",
+      "description": "查询点数消耗记录。"
+    },
+    {
+      "name": "点数",
+      "description": "查询当前点数余额。"
+    }
+  ],
+  "paths": {
+    "/openapi/v1/models": {
+      "get": {
+        "tags": [
+          "模型"
+        ],
+        "summary": "列出可用模型",
+        "description": "返回运行时模型注册表中已启用的条目。示例列出服务当前公布的模型和请求参数。",
+        "operationId": "listModels",
+        "responses": {
+          "200": {
+            "description": "可用模型列表",
+            "headers": {
+              "x-ratelimit-limit-requests": {
+                "$ref": "#/components/headers/RateLimitLimitRequests"
+              },
+              "x-ratelimit-remaining-requests": {
+                "$ref": "#/components/headers/RateLimitRemainingRequests"
+              },
+              "x-ratelimit-reset-requests": {
+                "$ref": "#/components/headers/RateLimitResetRequests"
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ModelList"
+                },
+                "example": {
+                  "object": "list",
+                  "data": [
+                    {
+                      "id": "openai/gpt-image-2",
+                      "object": "model",
+                      "created_at": 1784044800,
+                      "updated_at": 1784044800,
+                      "owned_by": "openai",
+                      "name": "GPT Image 2",
+                      "architecture": {
+                        "input_modalities": [
+                          "text",
+                          "image"
+                        ],
+                        "output_modalities": [
+                          "image"
+                        ]
+                      },
+                      "supported_parameters": [
+                        "prompt",
+                        "images",
+                        "n",
+                        "resolution",
+                        "size",
+                        "aspect_ratio",
+                        "extra_body"
+                      ],
+                      "default_parameters": {
+                        "n": 1,
+                        "resolution": "1K",
+                        "aspect_ratio": "1:1"
+                      }
+                    },
+                    {
+                      "id": "google/nano-banana-pro",
+                      "object": "model",
+                      "created_at": 1784044800,
+                      "updated_at": 1784044800,
+                      "owned_by": "google",
+                      "name": "Nano Banana Pro",
+                      "architecture": {
+                        "input_modalities": [
+                          "text",
+                          "image"
+                        ],
+                        "output_modalities": [
+                          "image"
+                        ]
+                      },
+                      "supported_parameters": [
+                        "prompt",
+                        "images",
+                        "n",
+                        "resolution",
+                        "size",
+                        "aspect_ratio",
+                        "extra_body"
+                      ],
+                      "default_parameters": {
+                        "n": 1,
+                        "resolution": "1K",
+                        "aspect_ratio": "1:1"
+                      }
+                    },
+                    {
+                      "id": "bytedance/seedance-2.0",
+                      "object": "model",
+                      "created_at": 1784044800,
+                      "updated_at": 1784044800,
+                      "owned_by": "bytedance",
+                      "name": "Seedance 2.0",
+                      "architecture": {
+                        "input_modalities": [
+                          "text",
+                          "image"
+                        ],
+                        "output_modalities": [
+                          "video"
+                        ]
+                      },
+                      "supported_parameters": [
+                        "prompt",
+                        "images",
+                        "duration_seconds",
+                        "n",
+                        "resolution",
+                        "size",
+                        "aspect_ratio",
+                        "extra_body"
+                      ],
+                      "default_parameters": {
+                        "duration_seconds": 5,
+                        "n": 1,
+                        "resolution": "720p",
+                        "aspect_ratio": "16:9"
+                      }
+                    },
+                    {
+                      "id": "dreamtech/neural4d-2.5",
+                      "object": "model",
+                      "created_at": 1784044800,
+                      "updated_at": 1784044800,
+                      "owned_by": "dreamtech",
+                      "name": "Neural4D 2.5",
+                      "architecture": {
+                        "input_modalities": [
+                          "text",
+                          "image"
+                        ],
+                        "output_modalities": [
+                          "3dmodel"
+                        ]
+                      },
+                      "supported_parameters": [
+                        "prompt",
+                        "images",
+                        "with_texture",
+                        "with_pbr",
+                        "target_polycount",
+                        "mesh_quality",
+                        "art_style",
+                        "n"
+                      ],
+                      "default_parameters": {
+                        "with_texture": true,
+                        "with_pbr": true,
+                        "mesh_quality": "high",
+                        "art_style": "standard",
+                        "n": 1
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalError"
+          }
+        },
+        "servers": [
+          {
+            "url": "https://api.neural4d.com",
+            "description": "生产环境"
+          }
+        ],
+        "parameters": []
+      }
+    },
+    "/openapi/v1/images/generations": {
+      "post": {
+        "tags": [
+          "图片生成"
+        ],
+        "summary": "创建图片生成任务",
+        "description": "创建异步图片生成任务。参考图片使用 HTTPS URL 或托管文件 key。命名分辨率与像素尺寸互斥。",
+        "operationId": "createImageGeneration",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ImageGenerationJsonRequest"
+              },
+              "examples": {
+                "named_resolution": {
+                  "summary": "使用命名分辨率和托管文件引用",
+                  "value": {
+                    "model": "openai/gpt-image-2",
+                    "prompt": "白色摄影棚背景中的陶瓷茶壶",
+                    "images": [
+                      {
+                        "fileKey": "openapi/files/reference-front.png"
+                      },
+                      {
+                        "url": "https://assets.example.com/reference-side.png"
+                      }
+                    ],
+                    "n": 1,
+                    "resolution": "1K",
+                    "aspect_ratio": "1:1",
+                    "extra_body": {
+                      "provider_option": "value"
+                    }
+                  }
+                },
+                "pixel_size": {
+                  "summary": "使用明确的像素尺寸",
+                  "value": {
+                    "model": "openai/gpt-image-2",
+                    "prompt": "白色摄影棚背景中的陶瓷茶壶",
+                    "images": [
+                      {
+                        "fileKey": "openapi/files/reference-front.png"
+                      }
+                    ],
+                    "n": 1,
+                    "size": "2048x2048",
+                    "aspect_ratio": "1:1",
+                    "extra_body": {
+                      "provider_option": "value"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "202": {
+            "description": "已接受生成任务",
+            "headers": {
+              "x-ratelimit-limit-requests": {
+                "$ref": "#/components/headers/RateLimitLimitRequests"
+              },
+              "x-ratelimit-remaining-requests": {
+                "$ref": "#/components/headers/RateLimitRemainingRequests"
+              },
+              "x-ratelimit-reset-requests": {
+                "$ref": "#/components/headers/RateLimitResetRequests"
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TaskList"
+                },
+                "example": {
+                  "object": "list",
+                  "data": [
+                    {
+                      "id": "c6f5dc4e-61ac-4694-9a8b-6a95f3ac4457",
+                      "object": "task",
+                      "type": "image.generation",
+                      "status": "queued",
+                      "model": "provider/model-id",
+                      "created_at": 1784044800,
+                      "progress": 0
+                    }
+                  ],
+                  "usage": {
+                    "credits": 13
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalError"
+          }
+        },
+        "servers": [
+          {
+            "url": "https://api.neural4d.com",
+            "description": "生产环境"
+          }
+        ],
+        "parameters": []
+      }
+    },
+    "/openapi/v1/videos/generations": {
+      "post": {
+        "tags": [
+          "视频生成"
+        ],
+        "summary": "创建视频生成任务",
+        "description": "创建异步视频生成任务。参考图片使用 HTTPS URL 或托管文件 key。命名分辨率与像素尺寸互斥。",
+        "operationId": "createVideoGeneration",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/VideoGenerationJsonRequest"
+              },
+              "examples": {
+                "named_resolution": {
+                  "summary": "使用命名分辨率和 URL 引用",
+                  "value": {
+                    "model": "bytedance/seedance-2.0",
+                    "prompt": "镜头缓慢环绕一个陶瓷茶壶",
+                    "images": [
+                      {
+                        "url": "https://assets.example.com/first-frame.png"
+                      }
+                    ],
+                    "duration_seconds": 5,
+                    "n": 1,
+                    "resolution": "720p",
+                    "aspect_ratio": "16:9",
+                    "extra_body": {
+                      "provider_option": "value"
+                    }
+                  }
+                },
+                "pixel_size": {
+                  "summary": "使用明确的像素尺寸和托管文件引用",
+                  "value": {
+                    "model": "bytedance/seedance-2.0",
+                    "prompt": "镜头缓慢环绕一个陶瓷茶壶",
+                    "images": [
+                      {
+                        "fileKey": "openapi/files/first-frame.png"
+                      }
+                    ],
+                    "duration_seconds": 5,
+                    "n": 1,
+                    "size": "1920x1080",
+                    "aspect_ratio": "16:9",
+                    "extra_body": {
+                      "provider_option": "value"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "202": {
+            "description": "已接受生成任务",
+            "headers": {
+              "x-ratelimit-limit-requests": {
+                "$ref": "#/components/headers/RateLimitLimitRequests"
+              },
+              "x-ratelimit-remaining-requests": {
+                "$ref": "#/components/headers/RateLimitRemainingRequests"
+              },
+              "x-ratelimit-reset-requests": {
+                "$ref": "#/components/headers/RateLimitResetRequests"
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TaskList"
+                },
+                "example": {
+                  "object": "list",
+                  "data": [
+                    {
+                      "id": "c50fe63e-699d-4d61-93f5-2099ab159d6d",
+                      "object": "task",
+                      "type": "video.generation",
+                      "status": "queued",
+                      "model": "provider/model-id",
+                      "created_at": 1784044800,
+                      "progress": 0
+                    }
+                  ],
+                  "usage": {
+                    "credits": 160
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalError"
+          }
+        },
+        "servers": [
+          {
+            "url": "https://api.neural4d.com",
+            "description": "生产环境"
+          }
+        ],
+        "parameters": []
+      }
+    },
+    "/openapi/v1/3dmodels/generations": {
+      "post": {
+        "tags": [
+          "3D 模型"
+        ],
+        "summary": "创建 3D 模型生成任务",
+        "description": "创建异步文生 3D、图生 3D 或风格化 3D 生成任务。图片输入使用一个 HTTPS URL 或托管文件 key。",
+        "operationId": "create3DModelGeneration",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ThreeDGenerationRequest"
+              },
+              "example": {
+                "model": "dreamtech/neural4d-2.5",
+                "prompt": "风格化的陶瓷茶壶",
+                "images": [
+                  {
+                    "fileKey": "openapi/files/teapot-reference.png"
+                  }
+                ],
+                "art_style": "chibi",
+                "target_polycount": 500000,
+                "mesh_quality": "high",
+                "with_texture": true,
+                "with_pbr": true,
+                "n": 1
+              }
+            }
+          }
+        },
+        "responses": {
+          "202": {
+            "description": "已接受生成任务",
+            "headers": {
+              "x-ratelimit-limit-requests": {
+                "$ref": "#/components/headers/RateLimitLimitRequests"
+              },
+              "x-ratelimit-remaining-requests": {
+                "$ref": "#/components/headers/RateLimitRemainingRequests"
+              },
+              "x-ratelimit-reset-requests": {
+                "$ref": "#/components/headers/RateLimitResetRequests"
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TaskList"
+                },
+                "example": {
+                  "object": "list",
+                  "data": [
+                    {
+                      "id": "72e30159-a242-4491-a67c-2ad0cfc9efb6",
+                      "object": "task",
+                      "type": "3dmodel.generation",
+                      "status": "queued",
+                      "model": "provider/model-id",
+                      "created_at": 1784044800,
+                      "progress": 0
+                    }
+                  ],
+                  "usage": {
+                    "credits": 30
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalError"
+          }
+        },
+        "servers": [
+          {
+            "url": "https://api.neural4d.com",
+            "description": "生产环境"
+          }
+        ],
+        "parameters": []
+      }
+    },
+    "/openapi/v1/3dmodels/refine": {
+      "post": {
+        "tags": [
+          "3D 模型"
+        ],
+        "summary": "精细化 3D 模型",
+        "description": "为已完成的 3D 模型创建精细化任务。",
+        "operationId": "refine3DModel",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Refine3DModelRequest"
+              },
+              "example": {
+                "quality": "extra_high",
+                "id": "4d0f8188-3fdd-4596-9d31-ceb6eab831655"
+              }
+            }
+          }
+        },
+        "responses": {
+          "202": {
+            "description": "已接受精细化任务",
+            "headers": {
+              "x-ratelimit-limit-requests": {
+                "$ref": "#/components/headers/RateLimitLimitRequests"
+              },
+              "x-ratelimit-remaining-requests": {
+                "$ref": "#/components/headers/RateLimitRemainingRequests"
+              },
+              "x-ratelimit-reset-requests": {
+                "$ref": "#/components/headers/RateLimitResetRequests"
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TaskList"
+                },
+                "example": {
+                  "object": "list",
+                  "data": [
+                    {
+                      "id": "22a3cb70-40af-4d38-8adf-bfd169d5646e",
+                      "object": "task",
+                      "type": "3dmodel.edit.refine",
+                      "status": "queued",
+                      "model": "provider/model-id",
+                      "created_at": 1784044800,
+                      "progress": 0
+                    }
+                  ],
+                  "usage": {
+                    "credits": 10
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalError"
+          }
+        },
+        "servers": [
+          {
+            "url": "https://api.neural4d.com",
+            "description": "生产环境"
+          }
+        ],
+        "parameters": []
+      }
+    },
+    "/openapi/v1/3dmodels/texture": {
+      "post": {
+        "tags": [
+          "3D 模型"
+        ],
+        "summary": "为 3D 模型生成纹理",
+        "description": "根据提示词或一个通过 HTTPS URL、托管文件 key 提供的参考图片创建纹理任务。",
+        "operationId": "texture3DModel",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Texture3DModelRequest"
+              },
+              "example": {
+                "id": "550e8400-e29b-41d4-a716-446655440000",
+                "image": {
+                  "url": "https://assets.example.com/texture-reference.png"
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "202": {
+            "description": "已接受纹理任务",
+            "headers": {
+              "x-ratelimit-limit-requests": {
+                "$ref": "#/components/headers/RateLimitLimitRequests"
+              },
+              "x-ratelimit-remaining-requests": {
+                "$ref": "#/components/headers/RateLimitRemainingRequests"
+              },
+              "x-ratelimit-reset-requests": {
+                "$ref": "#/components/headers/RateLimitResetRequests"
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TaskList"
+                },
+                "example": {
+                  "object": "list",
+                  "data": [
+                    {
+                      "id": "3d397b20-ea20-4c89-b5b5-50656d930af9",
+                      "object": "task",
+                      "type": "3dmodel.edit.texture",
+                      "status": "queued",
+                      "model": "provider/model-id",
+                      "created_at": 1784044800,
+                      "progress": 0
+                    }
+                  ],
+                  "usage": {
+                    "credits": 10
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalError"
+          }
+        },
+        "servers": [
+          {
+            "url": "https://api.neural4d.com",
+            "description": "生产环境"
+          }
+        ],
+        "parameters": []
+      }
+    },
+    "/openapi/v1/3dmodels/pbr": {
+      "post": {
+        "tags": [
+          "3D 模型"
+        ],
+        "summary": "为 3D 模型生成 PBR 材质",
+        "description": "为已完成的 3D 模型创建 PBR 材质任务。",
+        "operationId": "generate3DModelPbr",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Pbr3DModelRequest"
+              },
+              "example": {
+                "id": "4d0f8188-3fdd-4596-9d31-ceb6eab831655"
+              }
+            }
+          }
+        },
+        "responses": {
+          "202": {
+            "description": "已接受 PBR 任务",
+            "headers": {
+              "x-ratelimit-limit-requests": {
+                "$ref": "#/components/headers/RateLimitLimitRequests"
+              },
+              "x-ratelimit-remaining-requests": {
+                "$ref": "#/components/headers/RateLimitRemainingRequests"
+              },
+              "x-ratelimit-reset-requests": {
+                "$ref": "#/components/headers/RateLimitResetRequests"
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TaskList"
+                },
+                "example": {
+                  "object": "list",
+                  "data": [
+                    {
+                      "id": "04ff9123-f611-4384-b8a7-5313f521d82d",
+                      "object": "task",
+                      "type": "3dmodel.edit.pbr",
+                      "status": "queued",
+                      "model": "provider/model-id",
+                      "created_at": 1784044800,
+                      "progress": 0
+                    }
+                  ],
+                  "usage": {
+                    "credits": 10
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalError"
+          }
+        },
+        "servers": [
+          {
+            "url": "https://api.neural4d.com",
+            "description": "生产环境"
+          }
+        ],
+        "parameters": []
+      }
+    },
+    "/openapi/v1/usage": {
+      "get": {
+        "tags": [
+          "用量"
+        ],
+        "summary": "列出点数用量",
+        "description": "返回当前已认证用户的点数消耗记录，并支持按时间、模型和任务类型筛选。",
+        "operationId": "listUsage",
+        "responses": {
+          "200": {
+            "description": "点数用量记录",
+            "headers": {
+              "x-ratelimit-limit-requests": {
+                "$ref": "#/components/headers/RateLimitLimitRequests"
+              },
+              "x-ratelimit-remaining-requests": {
+                "$ref": "#/components/headers/RateLimitRemainingRequests"
+              },
+              "x-ratelimit-reset-requests": {
+                "$ref": "#/components/headers/RateLimitResetRequests"
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UsageList"
+                },
+                "example": {
+                  "object": "usage_list",
+                  "data": [
+                    {
+                      "id": "c6f5dc4e-61ac-4694-9a8b-6a95f3ac4457",
+                      "model": "provider/model-id",
+                      "type": "image.generation",
+                      "credits": 13,
+                      "created_at": 1784044800
+                    }
+                  ],
+                  "total_credits": 13,
+                  "page": 1,
+                  "has_more": false
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalError"
+          }
+        },
+        "servers": [
+          {
+            "url": "https://api.neural4d.com",
+            "description": "生产环境"
+          }
+        ],
+        "parameters": [
+          {
+            "name": "start_time",
+            "in": "query",
+            "description": "起始 Unix 时间戳（秒，包含该时刻）。",
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          },
+          {
+            "name": "end_time",
+            "in": "query",
+            "description": "结束 Unix 时间戳（秒，不包含该时刻）。",
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          },
+          {
+            "name": "model",
+            "in": "query",
+            "description": "按公开的供应商/模型别名筛选。",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "type",
+            "in": "query",
+            "description": "按公开任务类型筛选。",
+            "schema": {
+              "$ref": "#/components/schemas/TaskType"
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "default": 1
+            },
+            "description": "页码，从 1 开始。"
+          },
+          {
+            "name": "page_size",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 20
+            },
+            "description": "每页最多返回的用量记录数量。"
+          }
+        ]
+      }
+    },
+    "/openapi/v1/3dmodels/remesh": {
+      "post": {
+        "tags": [
+          "3D 模型"
+        ],
+        "summary": "重网格化 3D 模型",
+        "description": "使用请求的目标面数创建重网格任务。",
+        "operationId": "remesh3DModel",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Remesh3DModelRequest"
+              },
+              "example": {
+                "target_polycount": 100000,
+                "id": "4d0f8188-3fdd-4596-9d31-ceb6eab831655"
+              }
+            }
+          }
+        },
+        "responses": {
+          "202": {
+            "description": "已接受重网格任务",
+            "headers": {
+              "x-ratelimit-limit-requests": {
+                "$ref": "#/components/headers/RateLimitLimitRequests"
+              },
+              "x-ratelimit-remaining-requests": {
+                "$ref": "#/components/headers/RateLimitRemainingRequests"
+              },
+              "x-ratelimit-reset-requests": {
+                "$ref": "#/components/headers/RateLimitResetRequests"
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TaskList"
+                },
+                "example": {
+                  "object": "list",
+                  "data": [
+                    {
+                      "id": "f1a8c8c8-938a-4f91-b497-76071be434b2",
+                      "object": "task",
+                      "type": "3dmodel.edit.remesh",
+                      "status": "queued",
+                      "model": "provider/model-id",
+                      "created_at": 1784044800,
+                      "progress": 0
+                    }
+                  ],
+                  "usage": {
+                    "credits": 10
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalError"
+          }
+        },
+        "servers": [
+          {
+            "url": "https://api.neural4d.com",
+            "description": "生产环境"
+          }
+        ],
+        "parameters": []
+      }
+    },
+    "/openapi/v1/tasks/{id}": {
+      "get": {
+        "tags": [
+          "任务"
+        ],
+        "summary": "查询任务",
+        "description": "按任务 ID 返回当前状态、进度、结果、用量和错误详情。",
+        "operationId": "getTask",
+        "responses": {
+          "200": {
+            "description": "任务详情",
+            "headers": {
+              "x-ratelimit-limit-requests": {
+                "$ref": "#/components/headers/RateLimitLimitRequests"
+              },
+              "x-ratelimit-remaining-requests": {
+                "$ref": "#/components/headers/RateLimitRemainingRequests"
+              },
+              "x-ratelimit-reset-requests": {
+                "$ref": "#/components/headers/RateLimitResetRequests"
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Task"
+                },
+                "example": {
+                  "id": "c6f5dc4e-61ac-4694-9a8b-6a95f3ac4457",
+                  "object": "task",
+                  "type": "image.generation",
+                  "status": "succeeded",
+                  "model": "provider/model-id",
+                  "created_at": 1784044800,
+                  "updated_at": 1784044842,
+                  "usage": {
+                    "credits": 13
+                  },
+                  "progress": 100,
+                  "result": {
+                    "images": [
+                      {
+                        "url": "https://cdn.neural4d.com/results/image.png",
+                        "format": "png"
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalError"
+          }
+        },
+        "servers": [
+          {
+            "url": "https://api.neural4d.com",
+            "description": "生产环境"
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "任务 ID。",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ]
+      }
+    },
+    "/openapi/v1/files": {
+      "get": {
+        "tags": [
+          "文件"
+        ],
+        "summary": "列出托管文件",
+        "description": "返回当前认证账户记录的托管输入文件。",
+        "operationId": "listFiles",
+        "servers": [
+          {
+            "url": "https://api.neural4d.com",
+            "description": "生产环境"
+          }
+        ],
+        "parameters": [
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "最多返回的文件数量。",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 20
+            }
+          },
+          {
+            "name": "after",
+            "in": "query",
+            "description": "用作分页游标的文件 ID。",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "托管文件列表",
+            "headers": {
+              "x-ratelimit-limit-requests": {
+                "$ref": "#/components/headers/RateLimitLimitRequests"
+              },
+              "x-ratelimit-remaining-requests": {
+                "$ref": "#/components/headers/RateLimitRemainingRequests"
+              },
+              "x-ratelimit-reset-requests": {
+                "$ref": "#/components/headers/RateLimitResetRequests"
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ManagedFileList"
+                },
+                "example": {
+                  "object": "list",
+                  "data": [
+                    {
+                      "id": "550e8400-e29b-41d4-a716-446655440000",
+                      "object": "file",
+                      "fileKey": "openapi/files/550e8400-e29b-41d4-a716-446655440000/reference.png",
+                      "filename": "reference.png",
+                      "bytes": 245760,
+                      "mime_type": "image/png",
+                      "status": "processed",
+                      "created_at": 1784044800,
+                      "updated_at": 1784044800
+                    }
+                  ],
+                  "first_id": "550e8400-e29b-41d4-a716-446655440000",
+                  "last_id": "550e8400-e29b-41d4-a716-446655440000",
+                  "has_more": false
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalError"
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "文件"
+        ],
+        "summary": "创建托管文件",
+        "description": "将一个本地文件上传到托管存储，并记录生成的文件 key。",
+        "operationId": "createFile",
+        "servers": [
+          {
+            "url": "https://api.neural4d.com",
+            "description": "生产环境"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateManagedFileRequest"
+              },
+              "example": {
+                "file": "<binary>"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "托管文件已创建",
+            "headers": {
+              "x-ratelimit-limit-requests": {
+                "$ref": "#/components/headers/RateLimitLimitRequests"
+              },
+              "x-ratelimit-remaining-requests": {
+                "$ref": "#/components/headers/RateLimitRemainingRequests"
+              },
+              "x-ratelimit-reset-requests": {
+                "$ref": "#/components/headers/RateLimitResetRequests"
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ManagedFile"
+                },
+                "example": {
+                  "id": "550e8400-e29b-41d4-a716-446655440000",
+                  "object": "file",
+                  "fileKey": "openapi/files/550e8400-e29b-41d4-a716-446655440000/reference.png",
+                  "filename": "reference.png",
+                  "bytes": 245760,
+                  "mime_type": "image/png",
+                  "status": "processed",
+                  "created_at": 1784044800,
+                  "updated_at": 1784044800
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalError"
+          }
+        },
+        "parameters": []
+      }
+    },
+    "/openapi/v1/3dmodels/{id}/convert": {
+      "post": {
+        "tags": [
+          "3D 模型"
+        ],
+        "summary": "转换 3D 模型格式",
+        "description": "为已完成的 3D 模型创建异步格式转换任务。",
+        "operationId": "convert3DModel",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Convert3DModelRequest"
+              },
+              "example": {
+                "target_format": "obj",
+                "model_size": 2
+              }
+            }
+          }
+        },
+        "responses": {
+          "202": {
+            "description": "已接受转换任务",
+            "headers": {
+              "x-ratelimit-limit-requests": {
+                "$ref": "#/components/headers/RateLimitLimitRequests"
+              },
+              "x-ratelimit-remaining-requests": {
+                "$ref": "#/components/headers/RateLimitRemainingRequests"
+              },
+              "x-ratelimit-reset-requests": {
+                "$ref": "#/components/headers/RateLimitResetRequests"
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TaskList"
+                },
+                "example": {
+                  "object": "list",
+                  "data": [
+                    {
+                      "id": "ad9372c6-6be6-4316-a1c5-31d3b2929bc9",
+                      "object": "task",
+                      "type": "file.convert",
+                      "status": "queued",
+                      "model": "provider/model-id",
+                      "created_at": 1784044800,
+                      "progress": 0
+                    }
+                  ],
+                  "usage": {
+                    "credits": 10
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalError"
+          }
+        },
+        "servers": [
+          {
+            "url": "https://api.neural4d.com",
+            "description": "生产环境"
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "已完成 3D 模型的 ID。",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ]
+      }
+    },
+    "/openapi/v1/3dmodels/{id}/files": {
+      "get": {
+        "tags": [
+          "3D 模型"
+        ],
+        "summary": "查询 3D 模型文件",
+        "description": "返回已完成 3D 模型生成文件的临时签名 URL。",
+        "operationId": "get3DModelFiles",
+        "responses": {
+          "200": {
+            "description": "文件 URL",
+            "headers": {
+              "x-ratelimit-limit-requests": {
+                "$ref": "#/components/headers/RateLimitLimitRequests"
+              },
+              "x-ratelimit-remaining-requests": {
+                "$ref": "#/components/headers/RateLimitRemainingRequests"
+              },
+              "x-ratelimit-reset-requests": {
+                "$ref": "#/components/headers/RateLimitResetRequests"
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FileResource"
+                },
+                "example": {
+                  "urls": [
+                    {
+                      "url": "https://cdn.neural4d.com/results/model.glb",
+                      "format": "glb"
+                    }
+                  ],
+                  "thumbnail_urls": [
+                    "https://cdn.neural4d.com/results/model.png"
+                  ],
+                  "expires_at": 1786636800,
+                  "id": "4d0f8188-3fdd-4596-9d31-ceb6eab831655"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "409": {
+            "$ref": "#/components/responses/TaskNotReady"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalError"
+          }
+        },
+        "servers": [
+          {
+            "url": "https://api.neural4d.com",
+            "description": "生产环境"
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "已完成 3D 模型的 ID。",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ]
+      }
+    },
+    "/openapi/v1/credits": {
+      "get": {
+        "tags": [
+          "点数"
+        ],
+        "summary": "查询点数",
+        "description": "按现有点数服务提供的账户点数分类返回当前点数余额。",
+        "operationId": "getCredits",
+        "servers": [
+          {
+            "url": "https://api.neural4d.com",
+            "description": "生产环境"
+          }
+        ],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "当前点数",
+            "headers": {
+              "x-ratelimit-limit-requests": {
+                "$ref": "#/components/headers/RateLimitLimitRequests"
+              },
+              "x-ratelimit-remaining-requests": {
+                "$ref": "#/components/headers/RateLimitRemainingRequests"
+              },
+              "x-ratelimit-reset-requests": {
+                "$ref": "#/components/headers/RateLimitResetRequests"
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CreditsResponse"
+                },
+                "example": {
+                  "data": {
+                    "total_credits": 3200,
+                    "monthly_bonus_credits": 1200,
+                    "permanent_credits": 2000,
+                    "annual_credits": 0,
+                    "expires_at": 1785542400,
+                    "updated_at": 1784044800
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalError"
+          }
+        }
+      }
+    },
+    "/openapi/v1/files/{id}": {
+      "get": {
+        "tags": [
+          "文件"
+        ],
+        "summary": "查询托管文件",
+        "description": "按 ID 返回一个托管输入文件记录。",
+        "operationId": "getFile",
+        "servers": [
+          {
+            "url": "https://api.neural4d.com",
+            "description": "生产环境"
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "托管文件 ID。",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "托管文件详情",
+            "headers": {
+              "x-ratelimit-limit-requests": {
+                "$ref": "#/components/headers/RateLimitLimitRequests"
+              },
+              "x-ratelimit-remaining-requests": {
+                "$ref": "#/components/headers/RateLimitRemainingRequests"
+              },
+              "x-ratelimit-reset-requests": {
+                "$ref": "#/components/headers/RateLimitResetRequests"
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ManagedFile"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalError"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "API key",
+        "description": "使用 Bearer 方式发送的 Neural4D API 密钥。",
+        "x-default": "${YOUR_API_KEY}"
+      }
+    },
+    "schemas": {
+      "ApiError": {
+        "type": "object",
+        "required": [
+          "type",
+          "code",
+          "message",
+          "request_id"
+        ],
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": [
+              "invalid_request_error",
+              "authentication_error",
+              "permission_error",
+              "not_found_error",
+              "rate_limit_error",
+              "content_policy_violation",
+              "api_error"
+            ],
+            "description": "用于程序处理的高层错误类别。"
+          },
+          "code": {
+            "type": "string",
+            "description": "稳定且可供程序读取的错误码。",
+            "example": "invalid_prompt"
+          },
+          "message": {
+            "type": "string",
+            "example": "prompt 为必填项，且必须是非空字符串",
+            "description": "便于阅读的错误说明。"
+          },
+          "param": {
+            "type": "string",
+            "nullable": true,
+            "example": "prompt",
+            "description": "与错误相关的请求字段；错误不针对特定字段时为 null。"
+          },
+          "request_id": {
+            "type": "string",
+            "example": "req_01J2R6Y7F6Q8K9P0M1N2B3V4CX",
+            "description": "用于追踪此错误的请求 ID。"
+          },
+          "doc_url": {
+            "type": "string",
+            "format": "uri",
+            "nullable": true,
+            "example": "https://api.neural4d.com/docs/errors#invalid_prompt",
+            "description": "包含此错误更多信息的可选文档 URL。"
+          }
+        }
+      },
+      "ErrorResponse": {
+        "type": "object",
+        "required": [
+          "error"
+        ],
+        "properties": {
+          "error": {
+            "$ref": "#/components/schemas/ApiError",
+            "description": "结构化错误详情。"
+          }
+        }
+      },
+      "TaskUsage": {
+        "type": "object",
+        "required": [
+          "credits"
+        ],
+        "properties": {
+          "credits": {
+            "type": "number",
+            "format": "float",
+            "minimum": 0,
+            "description": "该任务或请求扣除的点数。",
+            "example": 26
+          }
+        }
+      },
+      "ImageFile": {
+        "type": "object",
+        "required": [
+          "url"
+        ],
+        "properties": {
+          "url": {
+            "type": "string",
+            "format": "uri",
+            "description": "用于下载生成图片的临时签名 URL。"
+          },
+          "format": {
+            "type": "string",
+            "nullable": true,
+            "example": "png",
+            "description": "已知时返回图片文件格式，例如 png。"
+          }
+        }
+      },
+      "VideoFile": {
+        "type": "object",
+        "required": [
+          "url"
+        ],
+        "properties": {
+          "url": {
+            "type": "string",
+            "format": "uri",
+            "description": "用于下载生成视频的临时签名 URL。"
+          },
+          "format": {
+            "type": "string",
+            "nullable": true,
+            "example": "mp4",
+            "description": "已知时返回视频文件格式，例如 mp4。"
+          },
+          "duration_seconds": {
+            "type": "integer",
+            "nullable": true,
+            "minimum": 0,
+            "description": "可用时返回生成视频的时长，单位为秒。"
+          },
+          "resolution": {
+            "type": "string",
+            "nullable": true,
+            "example": "720p",
+            "description": "可用时返回生成视频的分辨率，例如 720p。"
+          }
+        }
+      },
+      "ModelFile": {
+        "type": "object",
+        "required": [
+          "id",
+          "url"
+        ],
+        "properties": {
+          "url": {
+            "type": "string",
+            "format": "uri",
+            "description": "用于下载生成 3D 模型的临时签名 URL。"
+          },
+          "format": {
+            "type": "string",
+            "nullable": true,
+            "example": "glb",
+            "description": "已知时返回 3D 模型文件格式，例如 glb。"
+          },
+          "thumbnail_urls": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uri"
+            },
+            "description": "模型预览图片的临时签名 URL 列表。"
+          },
+          "polycount": {
+            "type": "integer",
+            "nullable": true,
+            "minimum": 0,
+            "description": "可用时返回模型的多边形面数。"
+          },
+          "has_texture": {
+            "type": "boolean",
+            "nullable": true,
+            "description": "已知时表示模型是否包含纹理数据。"
+          },
+          "has_pbr": {
+            "type": "boolean",
+            "nullable": true,
+            "description": "已知时表示模型是否包含 PBR 材质数据。"
+          },
+          "id": {
+            "type": "string",
+            "description": "已生成 3D 模型资源 ID。",
+            "format": "uuid"
+          }
+        }
+      },
+      "FileLink": {
+        "type": "object",
+        "required": [
+          "url",
+          "format"
+        ],
+        "properties": {
+          "url": {
+            "type": "string",
+            "format": "uri",
+            "description": "用于下载文件的临时签名 URL。"
+          },
+          "format": {
+            "type": "string",
+            "example": "glb",
+            "description": "此 URL 对应的文件格式。"
+          }
+        }
+      },
+      "ImageTaskOutput": {
+        "type": "object",
+        "required": [
+          "images"
+        ],
+        "properties": {
+          "images": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ImageFile"
+            },
+            "description": "任务成功后返回的生成图片文件列表。"
+          }
+        }
+      },
+      "VideoTaskOutput": {
+        "type": "object",
+        "required": [
+          "videos"
+        ],
+        "properties": {
+          "videos": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/VideoFile"
+            },
+            "description": "任务成功后返回的生成视频文件列表。"
+          }
+        }
+      },
+      "ModelTaskOutput": {
+        "type": "object",
+        "required": [
+          "models"
+        ],
+        "properties": {
+          "models": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ModelFile"
+            },
+            "description": "任务成功后返回的生成 3D 模型文件列表。"
+          }
+        }
+      },
+      "FileConversionTaskOutput": {
+        "type": "object",
+        "required": [
+          "files"
+        ],
+        "properties": {
+          "files": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/FileLink"
+            },
+            "description": "任务成功后返回的转换文件列表。"
+          }
+        }
+      },
+      "TaskOutput": {
+        "oneOf": [
+          {
+            "$ref": "#/components/schemas/ImageTaskOutput"
+          },
+          {
+            "$ref": "#/components/schemas/VideoTaskOutput"
+          },
+          {
+            "$ref": "#/components/schemas/ModelTaskOutput"
+          },
+          {
+            "$ref": "#/components/schemas/FileConversionTaskOutput"
+          }
+        ]
+      },
+      "Task": {
+        "type": "object",
+        "required": [
+          "id",
+          "object",
+          "type",
+          "status",
+          "created_at"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "公开任务 ID。",
+            "format": "uuid"
+          },
+          "object": {
+            "type": "string",
+            "enum": [
+              "task"
+            ],
+            "description": "对象类型标识，固定为 task。"
+          },
+          "type": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/TaskType"
+              }
+            ],
+            "description": "任务执行的操作类型。"
+          },
+          "status": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/TaskStatus"
+              }
+            ],
+            "description": "标准化后的任务生命周期状态。"
+          },
+          "model": {
+            "type": "string",
+            "nullable": true,
+            "description": "GET /openapi/v1/models 返回的公开供应商/模型别名。"
+          },
+          "created_at": {
+            "type": "integer",
+            "format": "int64",
+            "description": "Unix 时间戳（秒）。"
+          },
+          "updated_at": {
+            "type": "integer",
+            "format": "int64",
+            "description": "Unix 时间戳（秒）。"
+          },
+          "usage": {
+            "$ref": "#/components/schemas/TaskUsage",
+            "description": "可用时返回此任务扣除的点数。"
+          },
+          "error": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/TaskError"
+              }
+            ],
+            "description": "任务失败时返回的错误详情。"
+          },
+          "progress": {
+            "type": "number",
+            "format": "float",
+            "minimum": 0,
+            "maximum": 100,
+            "description": "任务完成进度百分比，范围为 0 到 100。"
+          },
+          "result": {
+            "$ref": "#/components/schemas/TaskOutput",
+            "description": "异步处理完成后返回的任务结果。"
+          }
+        }
+      },
+      "TaskList": {
+        "type": "object",
+        "required": [
+          "object",
+          "data"
+        ],
+        "properties": {
+          "object": {
+            "type": "string",
+            "enum": [
+              "list"
+            ],
+            "description": "对象类型标识，固定为 list。"
+          },
+          "data": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "$ref": "#/components/schemas/TaskReceipt"
+            },
+            "description": "本次请求创建的任务列表。"
+          },
+          "usage": {
+            "$ref": "#/components/schemas/TaskUsage",
+            "description": "可用时返回本次提交任务扣除的总点数。"
+          }
+        }
+      },
+      "Model": {
+        "type": "object",
+        "required": [
+          "id",
+          "object",
+          "created_at",
+          "updated_at",
+          "owned_by",
+          "architecture",
+          "supported_parameters",
+          "default_parameters"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "生成请求中使用的公开模型标识。"
+          },
+          "object": {
+            "type": "string",
+            "enum": [
+              "model"
+            ],
+            "description": "对象类型标识，固定为 model。"
+          },
+          "created_at": {
+            "type": "integer",
+            "format": "int64",
+            "description": "模型条目创建时间的 Unix 时间戳，单位为秒。"
+          },
+          "updated_at": {
+            "type": "integer",
+            "format": "int64",
+            "description": "模型条目更新时间的 Unix 时间戳，单位为秒。"
+          },
+          "owned_by": {
+            "type": "string",
+            "description": "拥有该模型的供应商或组织。"
+          },
+          "name": {
+            "type": "string",
+            "description": "模型显示名称。"
+          },
+          "description": {
+            "type": "string",
+            "description": "模型注册表维护的模型说明。"
+          },
+          "architecture": {
+            "$ref": "#/components/schemas/ModelArchitecture",
+            "description": "运行时模型注册表维护的输入和输出模态。"
+          },
+          "supported_parameters": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "运行时模型注册表维护的请求参数名称。"
+          },
+          "default_parameters": {
+            "type": "object",
+            "additionalProperties": true,
+            "description": "运行时模型注册表维护的请求参数默认值。"
+          }
+        }
+      },
+      "ModelList": {
+        "type": "object",
+        "required": [
+          "object",
+          "data"
+        ],
+        "properties": {
+          "object": {
+            "type": "string",
+            "enum": [
+              "list"
+            ],
+            "description": "对象类型标识，固定为 list。"
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Model"
+            },
+            "description": "当前已认证账户可用的模型列表。"
+          }
+        }
+      },
+      "ImageGenerationJsonRequest": {
+        "type": "object",
+        "required": [
+          "model",
+          "prompt"
+        ],
+        "additionalProperties": false,
+        "not": {
+          "required": [
+            "resolution",
+            "size"
+          ]
+        },
+        "properties": {
+          "model": {
+            "type": "string",
+            "minLength": 1,
+            "example": "provider/model-id",
+            "description": "GET /openapi/v1/models 返回的模型标识。"
+          },
+          "prompt": {
+            "type": "string",
+            "minLength": 1,
+            "description": "描述待生成或编辑图片的文本提示词。"
+          },
+          "images": {
+            "type": "array",
+            "maxItems": 6,
+            "items": {
+              "$ref": "#/components/schemas/FileReference"
+            },
+            "description": "通过 URL 或托管文件 key 提供的参考图片。"
+          },
+          "n": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 4,
+            "default": 1,
+            "description": "需要创建的图片生成任务数量。"
+          },
+          "resolution": {
+            "type": "string",
+            "enum": [
+              "1K",
+              "2K"
+            ],
+            "example": "2K",
+            "description": "所选图片模型公布的命名分辨率，当前为 1K 或 2K。与 size 二选一。"
+          },
+          "size": {
+            "type": "string",
+            "pattern": "^[1-9][0-9]{1,4}x[1-9][0-9]{1,4}$",
+            "example": "2048x2048",
+            "description": "像素尺寸，格式为 WIDTHxHEIGHT。与 resolution 二选一。"
+          },
+          "aspect_ratio": {
+            "type": "string",
+            "enum": [
+              "1:1",
+              "16:9",
+              "9:16",
+              "4:3",
+              "3:4"
+            ],
+            "example": "1:1",
+            "description": "目标图片宽高比。"
+          },
+          "extra_body": {
+            "$ref": "#/components/schemas/ExtraBody",
+            "description": "经过 key、大小、深度和载荷校验后透传的供应商参数。"
+          }
+        }
+      },
+      "VideoGenerationJsonRequest": {
+        "type": "object",
+        "required": [
+          "model",
+          "prompt"
+        ],
+        "additionalProperties": false,
+        "not": {
+          "required": [
+            "resolution",
+            "size"
+          ]
+        },
+        "properties": {
+          "model": {
+            "type": "string",
+            "minLength": 1,
+            "example": "provider/model-id",
+            "description": "GET /openapi/v1/models 返回的模型标识。"
+          },
+          "prompt": {
+            "type": "string",
+            "minLength": 1,
+            "description": "描述待生成视频内容的文本提示词。"
+          },
+          "images": {
+            "type": "array",
+            "maxItems": 6,
+            "items": {
+              "$ref": "#/components/schemas/FileReference"
+            },
+            "description": "通过 URL 或托管文件 key 提供的参考图片。"
+          },
+          "duration_seconds": {
+            "type": "integer",
+            "minimum": 4,
+            "maximum": 15,
+            "default": 5,
+            "description": "目标视频时长，单位为秒。"
+          },
+          "n": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 4,
+            "default": 1,
+            "description": "需要创建的视频生成任务数量。"
+          },
+          "resolution": {
+            "type": "string",
+            "enum": [
+              "480p",
+              "720p",
+              "1080p",
+              "1K",
+              "2K"
+            ],
+            "example": "720p",
+            "description": "所选视频模型公布的命名分辨率，当前为 480p、720p、1080p、1K 或 2K。与 size 二选一。"
+          },
+          "size": {
+            "type": "string",
+            "pattern": "^[1-9][0-9]{1,4}x[1-9][0-9]{1,4}$",
+            "example": "2048x2048",
+            "description": "像素尺寸，格式为 WIDTHxHEIGHT。与 resolution 二选一。"
+          },
+          "aspect_ratio": {
+            "type": "string",
+            "enum": [
+              "16:9",
+              "9:16",
+              "1:1",
+              "4:3",
+              "3:4"
+            ],
+            "example": "16:9",
+            "description": "目标视频宽高比。"
+          },
+          "extra_body": {
+            "$ref": "#/components/schemas/ExtraBody",
+            "description": "经过 key、大小、深度和载荷校验后透传的供应商参数。"
+          }
+        }
+      },
+      "Refine3DModelRequest": {
+        "type": "object",
+        "required": [
+          "id"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "已完成 3D 模型的 ID。"
+          },
+          "quality": {
+            "type": "string",
+            "enum": [
+              "extra_high"
+            ],
+            "default": "extra_high",
+            "description": "精细化任务的目标网格质量。"
+          }
+        }
+      },
+      "Texture3DModelRequest": {
+        "type": "object",
+        "required": [
+          "id"
+        ],
+        "additionalProperties": false,
+        "anyOf": [
+          {
+            "required": [
+              "prompt"
+            ]
+          },
+          {
+            "required": [
+              "image"
+            ]
+          }
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "已完成 3D 模型的 ID。"
+          },
+          "prompt": {
+            "type": "string",
+            "minLength": 1,
+            "description": "描述待生成纹理的文本提示词。"
+          },
+          "image": {
+            "$ref": "#/components/schemas/FileReference",
+            "description": "通过 URL 或托管文件 key 提供的一张参考图片。"
+          }
+        }
+      },
+      "Pbr3DModelRequest": {
+        "type": "object",
+        "required": [
+          "id"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "已完成 3D 模型的 ID。"
+          }
+        }
+      },
+      "FileResource": {
+        "type": "object",
+        "required": [
+          "id",
+          "urls"
+        ],
+        "properties": {
+          "urls": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/FileLink"
+            },
+            "description": "可用结果文件的临时签名下载 URL 列表。"
+          },
+          "thumbnail_urls": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uri"
+            },
+            "description": "可用预览图片的临时签名 URL 列表。"
+          },
+          "expires_at": {
+            "type": "integer",
+            "format": "int64",
+            "nullable": true,
+            "description": "签名 URL 到期时的 Unix 时间戳（秒）。"
+          },
+          "id": {
+            "type": "string",
+            "description": "与这些文件关联的任务或模型 ID。",
+            "format": "uuid"
+          }
+        }
+      },
+      "UsageRecord": {
+        "type": "object",
+        "required": [
+          "id",
+          "type",
+          "credits",
+          "created_at"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "nullable": true,
+            "description": "关联任务 ID。",
+            "format": "uuid"
+          },
+          "model": {
+            "type": "string",
+            "nullable": true,
+            "description": "可从用量记录解析时返回公开模型标识。"
+          },
+          "type": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/TaskType"
+              }
+            ],
+            "description": "公开任务类型。"
+          },
+          "credits": {
+            "type": "number",
+            "format": "float",
+            "minimum": 0,
+            "description": "此条用量记录扣除的点数。"
+          },
+          "created_at": {
+            "type": "integer",
+            "format": "int64",
+            "description": "Unix 时间戳（秒）。"
+          }
+        }
+      },
+      "UsageList": {
+        "type": "object",
+        "required": [
+          "object",
+          "data",
+          "total_credits",
+          "page",
+          "has_more"
+        ],
+        "properties": {
+          "object": {
+            "type": "string",
+            "enum": [
+              "usage_list"
+            ],
+            "description": "对象类型标识，固定为 usage_list。"
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/UsageRecord"
+            },
+            "description": "当前页的用量记录。"
+          },
+          "total_credits": {
+            "type": "number",
+            "format": "float",
+            "minimum": 0,
+            "description": "筛选结果集合对应的总点数。"
+          },
+          "page": {
+            "type": "integer",
+            "minimum": 1,
+            "description": "当前页码，从 1 开始。"
+          },
+          "has_more": {
+            "type": "boolean",
+            "description": "是否还有下一页用量记录。"
+          }
+        }
+      },
+      "TaskType": {
+        "type": "string",
+        "enum": [
+          "image.generation",
+          "video.generation",
+          "3dmodel.generation",
+          "3dmodel.edit.refine",
+          "3dmodel.edit.texture",
+          "3dmodel.edit.pbr",
+          "3dmodel.edit.remesh",
+          "3dmodel.convert"
+        ],
+        "description": "异步任务对应的稳定操作类型。"
+      },
+      "TaskStatus": {
+        "type": "string",
+        "enum": [
+          "queued",
+          "processing",
+          "succeeded",
+          "failed"
+        ],
+        "description": "异步任务的标准化生命周期状态。"
+      },
+      "TaskError": {
+        "type": "object",
+        "required": [
+          "code",
+          "message"
+        ],
+        "description": "异步处理记录的失败详情。",
+        "properties": {
+          "code": {
+            "type": "string",
+            "description": "稳定且可供程序读取的任务失败代码。"
+          },
+          "message": {
+            "type": "string",
+            "description": "便于阅读的任务失败说明。"
+          },
+          "failed_at": {
+            "type": "integer",
+            "format": "int64",
+            "description": "任务失败时的 Unix 时间戳（秒）。"
+          },
+          "retryable": {
+            "type": "boolean",
+            "description": "重试相同操作是否可能成功。"
+          }
+        }
+      },
+      "Remesh3DModelRequest": {
+        "type": "object",
+        "required": [
+          "id",
+          "target_polycount"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "已完成 3D 模型的 ID。"
+          },
+          "target_polycount": {
+            "type": "integer",
+            "minimum": 1,
+            "description": "传递给重网格流程的目标面数。"
+          }
+        }
+      },
+      "FileReferenceUrl": {
+        "type": "object",
+        "required": [
+          "url"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "url": {
+            "type": "string",
+            "format": "uri",
+            "pattern": "^https://",
+            "description": "HTTPS 源 URL。每次 DNS 解析结果和重定向都会校验为公网地址，并应用媒体类型、大小和抓取时长限制。"
+          }
+        }
+      },
+      "FileReferenceKey": {
+        "type": "object",
+        "required": [
+          "fileKey"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "fileKey": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 1024,
+            "description": "文件管理接口返回的托管文件 key。"
+          }
+        }
+      },
+      "FileReference": {
+        "oneOf": [
+          {
+            "$ref": "#/components/schemas/FileReferenceUrl"
+          },
+          {
+            "$ref": "#/components/schemas/FileReferenceKey"
+          }
+        ],
+        "description": "包含一个 HTTPS URL 或一个托管文件 key 的文件引用。"
+      },
+      "ExtraBody": {
+        "type": "object",
+        "maxProperties": 50,
+        "additionalProperties": true,
+        "description": "供应商参数会按所选模型策略校验，并在透传前限制 key、嵌套深度、属性数量和序列化载荷大小。"
+      },
+      "ThreeDGenerationRequest": {
+        "type": "object",
+        "required": [
+          "model"
+        ],
+        "additionalProperties": false,
+        "anyOf": [
+          {
+            "required": [
+              "prompt"
+            ]
+          },
+          {
+            "required": [
+              "images"
+            ]
+          }
+        ],
+        "properties": {
+          "model": {
+            "type": "string",
+            "minLength": 1,
+            "example": "provider/model-id",
+            "description": "GET /openapi/v1/models 返回的模型标识。"
+          },
+          "prompt": {
+            "type": "string",
+            "minLength": 1,
+            "description": "描述待生成 3D 模型的文本提示词。"
+          },
+          "images": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 1,
+            "items": {
+              "$ref": "#/components/schemas/FileReference"
+            },
+            "description": "通过 URL 或托管文件 key 提供的一张参考图片。"
+          },
+          "with_texture": {
+            "type": "boolean",
+            "default": true,
+            "description": "是否为模型生成纹理数据。"
+          },
+          "with_pbr": {
+            "type": "boolean",
+            "default": true,
+            "description": "是否为模型生成 PBR 材质数据。"
+          },
+          "target_polycount": {
+            "type": "integer",
+            "minimum": 100000,
+            "maximum": 1000000,
+            "description": "目标面数。standard 支持 100000 到 500000；high 和 extra_high 支持 500000 到 1000000。"
+          },
+          "mesh_quality": {
+            "type": "string",
+            "enum": [
+              "standard",
+              "high",
+              "extra_high"
+            ],
+            "default": "high",
+            "description": "目标网格质量等级。"
+          },
+          "art_style": {
+            "type": "string",
+            "enum": [
+              "standard",
+              "chibi"
+            ],
+            "default": "standard",
+            "example": "chibi",
+            "description": "3D 输出的风格指令，包括 chibi 风格生成。"
+          },
+          "n": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 4,
+            "default": 1,
+            "description": "需要创建的 3D 生成任务数量。"
+          }
+        }
+      },
+      "ManagedFile": {
+        "type": "object",
+        "required": [
+          "id",
+          "object",
+          "fileKey",
+          "status",
+          "created_at",
+          "updated_at"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "托管文件 ID。"
+          },
+          "object": {
+            "type": "string",
+            "enum": [
+              "file"
+            ],
+            "description": "对象类型标识，固定为 file。"
+          },
+          "fileKey": {
+            "type": "string",
+            "description": "生成任务使用的内部托管文件 key。"
+          },
+          "filename": {
+            "type": "string",
+            "description": "可用时返回的存储文件名。"
+          },
+          "bytes": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 0,
+            "description": "存储文件大小，单位为字节。"
+          },
+          "mime_type": {
+            "type": "string",
+            "description": "存储文件的媒体类型。"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "uploaded",
+              "processed",
+              "error"
+            ],
+            "description": "当前托管文件状态。"
+          },
+          "created_at": {
+            "type": "integer",
+            "format": "int64",
+            "description": "文件创建时间的 Unix 时间戳，单位为秒。"
+          },
+          "updated_at": {
+            "type": "integer",
+            "format": "int64",
+            "description": "文件更新时间的 Unix 时间戳，单位为秒。"
+          }
+        }
+      },
+      "ManagedFileList": {
+        "type": "object",
+        "required": [
+          "object",
+          "data",
+          "first_id",
+          "last_id",
+          "has_more"
+        ],
+        "properties": {
+          "object": {
+            "type": "string",
+            "enum": [
+              "list"
+            ],
+            "description": "对象类型标识，固定为 list。"
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ManagedFile"
+            },
+            "description": "当前认证账户可见的托管文件。"
+          },
+          "first_id": {
+            "type": "string",
+            "nullable": true,
+            "description": "本页第一条文件的 ID；页面为空时返回 null。"
+          },
+          "last_id": {
+            "type": "string",
+            "nullable": true,
+            "description": "本页最后一条文件的 ID；页面为空时返回 null。"
+          },
+          "has_more": {
+            "type": "boolean",
+            "description": "是否还有下一页托管文件。"
+          }
+        }
+      },
+      "CreateManagedFileRequest": {
+        "type": "object",
+        "required": [
+          "file"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "file": {
+            "type": "string",
+            "format": "binary",
+            "description": "上传到托管存储的本地文件内容。"
+          }
+        }
+      },
+      "Convert3DModelRequest": {
+        "type": "object",
+        "required": [
+          "target_format"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "target_format": {
+            "type": "string",
+            "enum": [
+              "glb",
+              "obj",
+              "fbx",
+              "stl",
+              "usdz",
+              "blend"
+            ],
+            "description": "目标 3D 模型格式。"
+          },
+          "model_size": {
+            "type": "number",
+            "minimum": 0,
+            "description": "模型尺寸，单位为毫米。"
+          }
+        }
+      },
+      "ModelArchitecture": {
+        "type": "object",
+        "required": [
+          "input_modalities",
+          "output_modalities"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "input_modalities": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "该模型公布的输入模态。"
+          },
+          "output_modalities": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "该模型公布的输出模态。"
+          }
+        }
+      },
+      "CreditBalance": {
+        "type": "object",
+        "required": [
+          "total_credits",
+          "monthly_bonus_credits",
+          "permanent_credits",
+          "annual_credits",
+          "updated_at"
+        ],
+        "properties": {
+          "total_credits": {
+            "type": "number",
+            "minimum": 0,
+            "description": "账户当前可用的总点数。"
+          },
+          "monthly_bonus_credits": {
+            "type": "number",
+            "minimum": 0,
+            "description": "当前可用的月度赠送点数。"
+          },
+          "permanent_credits": {
+            "type": "number",
+            "minimum": 0,
+            "description": "当前可用的永久点数。"
+          },
+          "annual_credits": {
+            "type": "number",
+            "minimum": 0,
+            "description": "当前可用的年付套餐点数。"
+          },
+          "expires_at": {
+            "type": "integer",
+            "format": "int64",
+            "nullable": true,
+            "description": "最近到期点数的 Unix 时间戳；没有到期点数时返回 null。"
+          },
+          "updated_at": {
+            "type": "integer",
+            "format": "int64",
+            "description": "点数余额更新时间的 Unix 时间戳，单位为秒。"
+          }
+        }
+      },
+      "CreditsResponse": {
+        "type": "object",
+        "required": [
+          "data"
+        ],
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/CreditBalance",
+            "description": "当前点数余额详情。"
+          }
+        }
+      },
+      "TaskReceipt": {
+        "type": "object",
+        "required": [
+          "id",
+          "object",
+          "type",
+          "status",
+          "created_at"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "公开任务 ID。",
+            "format": "uuid"
+          },
+          "object": {
+            "type": "string",
+            "enum": [
+              "task"
+            ],
+            "description": "对象类型标识，固定为 task。"
+          },
+          "type": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/TaskType"
+              }
+            ],
+            "description": "任务执行的操作类型。"
+          },
+          "status": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/TaskStatus"
+              }
+            ],
+            "description": "标准化后的任务生命周期状态。"
+          },
+          "model": {
+            "type": "string",
+            "nullable": true,
+            "description": "GET /openapi/v1/models 返回的公开供应商/模型别名。"
+          },
+          "created_at": {
+            "type": "integer",
+            "format": "int64",
+            "description": "Unix 时间戳（秒）。"
+          },
+          "updated_at": {
+            "type": "integer",
+            "format": "int64",
+            "description": "Unix 时间戳（秒）。"
+          },
+          "usage": {
+            "$ref": "#/components/schemas/TaskUsage",
+            "description": "可用时返回此任务扣除的点数。"
+          },
+          "error": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/TaskError"
+              }
+            ],
+            "description": "任务失败时返回的错误详情。"
+          },
+          "progress": {
+            "type": "number",
+            "format": "float",
+            "minimum": 0,
+            "maximum": 100,
+            "description": "任务完成进度百分比，范围为 0 到 100。"
+          }
+        }
+      }
+    },
+    "headers": {
+      "RetryAfter": {
+        "description": "重试前需要等待的秒数。",
+        "schema": {
+          "type": "integer",
+          "minimum": 0
+        }
+      },
+      "RateLimitLimitRequests": {
+        "description": "当前时间窗口的请求上限。",
+        "schema": {
+          "type": "integer",
+          "format": "int32",
+          "minimum": 0
+        }
+      },
+      "RateLimitRemainingRequests": {
+        "description": "当前时间窗口内的剩余请求次数。",
+        "schema": {
+          "type": "integer",
+          "format": "int32",
+          "minimum": 0
+        }
+      },
+      "RateLimitResetRequests": {
+        "description": "请求时间窗口距离重置的时长，例如 1s。",
+        "schema": {
+          "type": "string",
+          "example": "1s"
+        }
+      }
+    },
+    "responses": {
+      "BadRequest": {
+        "description": "请求无效",
+        "headers": {
+          "x-ratelimit-limit-requests": {
+            "$ref": "#/components/headers/RateLimitLimitRequests"
+          },
+          "x-ratelimit-remaining-requests": {
+            "$ref": "#/components/headers/RateLimitRemainingRequests"
+          },
+          "x-ratelimit-reset-requests": {
+            "$ref": "#/components/headers/RateLimitResetRequests"
+          }
+        },
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ErrorResponse"
+            },
+            "example": {
+              "error": {
+                "type": "invalid_request_error",
+                "code": "invalid_prompt",
+                "message": "prompt is required and must be a non-empty string",
+                "param": "prompt",
+                "request_id": "req_01J2R6Y7F6Q8K9P0M1N2B3V4CX"
+              }
+            }
+          }
+        }
+      },
+      "Unauthorized": {
+        "description": "认证失败",
+        "headers": {
+          "x-ratelimit-limit-requests": {
+            "$ref": "#/components/headers/RateLimitLimitRequests"
+          },
+          "x-ratelimit-remaining-requests": {
+            "$ref": "#/components/headers/RateLimitRemainingRequests"
+          },
+          "x-ratelimit-reset-requests": {
+            "$ref": "#/components/headers/RateLimitResetRequests"
+          }
+        },
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ErrorResponse"
+            },
+            "example": {
+              "error": {
+                "type": "authentication_error",
+                "code": "invalid_api_key",
+                "message": "The API key is invalid or expired",
+                "request_id": "req_01J2R6Y7F6Q8K9P0M1N2B3V4CX"
+              }
+            }
+          }
+        }
+      },
+      "Forbidden": {
+        "description": "当前已认证用户无权访问该模型或资源",
+        "headers": {
+          "x-ratelimit-limit-requests": {
+            "$ref": "#/components/headers/RateLimitLimitRequests"
+          },
+          "x-ratelimit-remaining-requests": {
+            "$ref": "#/components/headers/RateLimitRemainingRequests"
+          },
+          "x-ratelimit-reset-requests": {
+            "$ref": "#/components/headers/RateLimitResetRequests"
+          }
+        },
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ErrorResponse"
+            },
+            "example": {
+              "error": {
+                "type": "permission_error",
+                "code": "model_not_authorized",
+                "message": "Model access is restricted for this API key",
+                "param": "model",
+                "request_id": "req_01J2R6Y7F6Q8K9P0M1N2B3V4CX"
+              }
+            }
+          }
+        }
+      },
+      "NotFound": {
+        "description": "未找到请求的资源",
+        "headers": {
+          "x-ratelimit-limit-requests": {
+            "$ref": "#/components/headers/RateLimitLimitRequests"
+          },
+          "x-ratelimit-remaining-requests": {
+            "$ref": "#/components/headers/RateLimitRemainingRequests"
+          },
+          "x-ratelimit-reset-requests": {
+            "$ref": "#/components/headers/RateLimitResetRequests"
+          }
+        },
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ErrorResponse"
+            },
+            "example": {
+              "error": {
+                "type": "not_found_error",
+                "code": "task_not_found",
+                "message": "The requested task does not exist",
+                "request_id": "req_01J2R6Y7F6Q8K9P0M1N2B3V4CX"
+              }
+            }
+          }
+        }
+      },
+      "RateLimited": {
+        "description": "已超过请求或配额限制",
+        "headers": {
+          "Retry-After": {
+            "$ref": "#/components/headers/RetryAfter"
+          },
+          "x-ratelimit-limit-requests": {
+            "$ref": "#/components/headers/RateLimitLimitRequests"
+          },
+          "x-ratelimit-remaining-requests": {
+            "$ref": "#/components/headers/RateLimitRemainingRequests"
+          },
+          "x-ratelimit-reset-requests": {
+            "$ref": "#/components/headers/RateLimitResetRequests"
+          }
+        },
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ErrorResponse"
+            },
+            "example": {
+              "error": {
+                "type": "rate_limit_error",
+                "code": "rate_limit_exceeded",
+                "message": "Too many requests. Retry after the indicated interval.",
+                "request_id": "req_01J2R6Y7F6Q8K9P0M1N2B3V4CX"
+              }
+            }
+          }
+        }
+      },
+      "InternalError": {
+        "description": "内部或上游服务错误",
+        "headers": {
+          "x-ratelimit-limit-requests": {
+            "$ref": "#/components/headers/RateLimitLimitRequests"
+          },
+          "x-ratelimit-remaining-requests": {
+            "$ref": "#/components/headers/RateLimitRemainingRequests"
+          },
+          "x-ratelimit-reset-requests": {
+            "$ref": "#/components/headers/RateLimitResetRequests"
+          }
+        },
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ErrorResponse"
+            },
+            "example": {
+              "error": {
+                "type": "api_error",
+                "code": "internal_error",
+                "message": "An internal error occurred",
+                "request_id": "req_01J2R6Y7F6Q8K9P0M1N2B3V4CX"
+              }
+            }
+          }
+        }
+      },
+      "TaskNotReady": {
+        "description": "所请求的任务尚未生成文件",
+        "headers": {
+          "x-ratelimit-limit-requests": {
+            "$ref": "#/components/headers/RateLimitLimitRequests"
+          },
+          "x-ratelimit-remaining-requests": {
+            "$ref": "#/components/headers/RateLimitRemainingRequests"
+          },
+          "x-ratelimit-reset-requests": {
+            "$ref": "#/components/headers/RateLimitResetRequests"
+          }
+        },
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ErrorResponse"
+            },
+            "example": {
+              "error": {
+                "type": "invalid_request_error",
+                "code": "task_not_ready",
+                "message": "The requested task has not produced downloadable files yet.",
+                "request_id": "req_01J2R6Y7F6Q8K9P0M1N2B3V4CX"
+              }
+            }
+          }
+        }
+      }
+    },
+    "parameters": {}
+  }
+}

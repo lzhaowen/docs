@@ -1,0 +1,29 @@
+---
+title: "通用请求头"
+description: "API v1 接口共用的认证、请求追踪和限流响应头。"
+---
+
+## 认证
+
+每个请求都需要使用 Bearer 方式发送 API 密钥。
+
+```http
+Authorization: Bearer ${YOUR_API_KEY}
+```
+
+## 请求追踪
+
+`X-Request-Id` 为可选字段。需要关联客户端日志、Neural4D 支持记录或服务端日志时，请发送唯一值。未提供时由服务生成，并在响应中返回最终使用的值。
+
+```http
+X-Request-Id: req_01J2R6Y7F6Q8K9P0M1N2B3V4CX
+```
+
+| 请求头 | 方向 | 说明 |
+| --- | --- | --- |
+| `Authorization` | 请求 | 必填，使用 Bearer 方式发送 API 密钥。 |
+| `X-Request-Id` | 请求和响应 | 可选的客户端追踪 ID；未提供时由服务生成。 |
+| `x-ratelimit-limit-requests` | 响应 | 当前时间窗口的请求上限。 |
+| `x-ratelimit-remaining-requests` | 响应 | 当前时间窗口内剩余的请求数。 |
+| `x-ratelimit-reset-requests` | 响应 | 当前时间窗口距离重置的时长，例如 `1s`。 |
+| `Retry-After` | 429 响应 | 重试前需要等待的秒数。 |

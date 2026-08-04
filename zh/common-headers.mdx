@@ -1,9 +1,9 @@
 ---
 title: "通用请求头"
-description: "API v1 接口共用的认证、请求追踪和限流响应头。"
+description: "API v1 接口共用的认证和请求追踪请求头。"
 ---
 
-## 认证
+## Authorization
 
 每个请求都需要使用 Bearer 方式发送 API 密钥。
 
@@ -11,9 +11,9 @@ description: "API v1 接口共用的认证、请求追踪和限流响应头。"
 Authorization: Bearer ${YOUR_API_KEY}
 ```
 
-## 请求追踪
+## X-Request-Id
 
-`X-Request-Id` 为可选字段。需要关联客户端日志、Neural4D 支持记录或服务端日志时，请发送唯一值。未提供时由服务生成，并在响应中返回最终使用的值。
+`X-Request-Id` 为可选请求头，用于关联客户端日志和 Neural4D 日志。未提供时，服务会生成该值并在响应中返回。
 
 ```http
 X-Request-Id: req_01J2R6Y7F6Q8K9P0M1N2B3V4CX
@@ -22,7 +22,4 @@ X-Request-Id: req_01J2R6Y7F6Q8K9P0M1N2B3V4CX
 | 请求头 | 方向 | 说明 |
 | --- | --- | --- |
 | `Authorization` | 请求 | 必填，使用 Bearer 方式发送 API 密钥。 |
-| `X-Request-Id` | 请求和响应 | 可选的客户端追踪 ID；未提供时由服务生成。 |
-| `X-RateLimit-Limit` | 响应 | 当前时间窗口的请求上限。 |
-| `X-RateLimit-Remaining` | 响应 | 当前时间窗口内剩余的请求数。 |
-| `X-RateLimit-Reset` | 响应 | 当前时间窗口重置时的 Unix 时间戳。 |
+| `X-Request-Id` | 请求和响应 | 可选的请求追踪 ID；未提供时由服务生成。 |

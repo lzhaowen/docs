@@ -112,7 +112,7 @@
   },
   "api": {
     "playground": {
-      "display": "simple",
+      "display": "none",
       "proxy": true,
       "credentials": false
     },

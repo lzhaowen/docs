@@ -9,73 +9,6 @@ const currentEnglishPath = path.join(rootDir, 'openapi.json');
 const currentChinesePath = path.join(rootDir, 'openapi.zh.json');
 const oldEnglishPath = path.join(rootDir, 'openapi.old.json');
 const oldChinesePath = path.join(rootDir, 'openapi.old.zh.json');
-const fullV1BackupPath = path.join(rootDir, 'backups', 'v1-full-20260721', 'openapi.json');
-
-const publicVideoModelCapabilities = {
-    'bytedance/seedance-2.0': {
-        resolutions: ['480p', '720p', '1080p', '4K'],
-        aspectRatios: ['1:1', '16:9', '9:16', '4:3', '3:4'],
-        durations: [4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15],
-        defaults: { resolution: '720p', aspectRatio: '16:9', duration: 5 }
-    },
-    'bytedance/seedance-2.0-fast': {
-        resolutions: ['480p', '720p'],
-        aspectRatios: ['1:1', '16:9', '9:16', '4:3', '3:4'],
-        durations: [4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15],
-        defaults: { resolution: '720p', aspectRatio: '16:9', duration: 5 }
-    },
-    'google/veo-3.1': {
-        resolutions: ['720p', '1080p', '4K'],
-        aspectRatios: ['16:9', '9:16'],
-        durations: [4, 5, 6, 7, 8],
-        defaults: { resolution: '720p', aspectRatio: '16:9', duration: 8 }
-    },
-    'xai/grok-imagine': {
-        resolutions: ['480p', '720p'],
-        aspectRatios: ['1:1', '16:9', '9:16', '2:3', '3:2'],
-        durations: [
-            6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18,
-            19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30
-        ],
-        defaults: { resolution: '720p', aspectRatio: '16:9', duration: 6 }
-    }
-};
-const publicVideoModels = Object.keys(publicVideoModelCapabilities);
-const publicVideoResolutions = [...new Set(
-    Object.values(publicVideoModelCapabilities).flatMap(({ resolutions }) => resolutions)
-)];
-const publicVideoAspectRatios = [...new Set(
-    Object.values(publicVideoModelCapabilities).flatMap(({ aspectRatios }) => aspectRatios)
-)];
-const videoModelFieldDescriptions = {
-    model: [
-        'Video generation model identifier. Parameter defaults and allowed values depend on the selected model.',
-        '视频生成模型标识。参数默认值和可选值取决于所选模型。'
-    ],
-    resolution: [
-        'Resolution allowed by the selected video model.',
-        '所选视频模型允许的分辨率。'
-    ],
-    aspect_ratio: [
-        'Aspect ratio allowed by the selected video model.',
-        '所选视频模型允许的宽高比。'
-    ],
-    duration: [
-        'Duration allowed by the selected video model, in seconds.',
-        '所选视频模型允许的时长，单位为秒。'
-    ],
-    input_references: [
-        'Uploaded image, video, and audio reference assets. The endpoint accepts up to six images, four videos, and two audio files. Audio must be accompanied by at least one image or video. Every item declares its media type and requires file_id.',
-        '已上传的图片、视频和音频参考素材。接口最多接受六张图片、四个视频和两个音频；音频必须与至少一个图片或视频同时使用。每项声明媒体类型，并且必须提供 file_id。'
-    ]
-};
-const publicVideoModes = [
-    'text_to_video',
-    'first_frame_image_to_video',
-    'first_last_frame_image_to_video',
-    'reference_to_video'
-];
-const fileIdPattern = '^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$';
 
 const v1Tags = [
     {
@@ -106,7 +39,7 @@ const v1Tags = [
     {
         name: 'Files',
         aliases: ['open-platform-files'],
-        description: 'Upload input files for reuse in generation requests.'
+        description: 'Create and inspect managed input files.'
     },
     {
         name: 'Usage',
@@ -122,31 +55,27 @@ const v1Tags = [
 
 const schemaFieldDescriptions = {
     ApiError: {
+        type: ['High-level error category for programmatic handling.', '用于程序处理的高层错误类别。'],
         message: ['Human-readable explanation of the error.', '便于阅读的错误说明。'],
+        param: ['Request field associated with the error, or null when the error is not field-specific.', '与错误相关的请求字段；错误不针对特定字段时为 null。'],
+        request_id: ['Request ID used to trace this error.', '用于追踪此错误的请求 ID。'],
         doc_url: ['Optional documentation URL with more information about the error.', '包含此错误更多信息的可选文档 URL。']
     },
     ErrorResponse: {
         error: ['Structured error details.', '结构化错误详情。']
     },
     ImageFile: {
-        uuid: ['Generated image child UUID.', '生成图片子项 UUID。'],
         url: ['Temporary signed URL for downloading the generated image.', '用于下载生成图片的临时签名 URL。'],
         format: ['Image file format when known, such as png.', '已知时返回图片文件格式，例如 png。']
     },
     VideoFile: {
-        uuid: ['Generated video child UUID.', '生成视频子项 UUID。'],
-        url: ['Temporary signed URL for downloading the generated video when available.', '生成视频可用时用于下载的临时签名 URL。'],
+        url: ['Temporary signed URL for downloading the generated video.', '用于下载生成视频的临时签名 URL。'],
         format: ['Video file format when known, such as mp4.', '已知时返回视频文件格式，例如 mp4。'],
-        duration: ['Generated video duration in seconds when available.', '可用时返回生成视频的时长，单位为秒。'],
-        resolution: ['Generated video resolution when available, such as 720p.', '可用时返回生成视频的分辨率，例如 720p。'],
-        aspect_ratio: ['Generated video aspect ratio when available, such as 16:9.', '可用时返回生成视频的宽高比，例如 16:9。'],
-        mode: ['Generation mode used for this video.', '此视频使用的生成模式。'],
-        status: ['Current status of this generated video.', '此生成视频的当前状态。'],
-        created_at: ['Unix timestamp in seconds when this generated video was created.', '此生成视频的创建时间，Unix 时间戳，单位为秒。'],
-        updated_at: ['Unix timestamp in seconds when this generated video was last updated.', '此生成视频的最后更新时间，Unix 时间戳，单位为秒。']
+        duration_seconds: ['Generated video duration in seconds when available.', '可用时返回生成视频的时长，单位为秒。'],
+        resolution: ['Generated video resolution when available, such as 720p.', '可用时返回生成视频的分辨率，例如 720p。']
     },
     ModelFile: {
-        uuid: ['Generated 3D model child UUID.', '生成 3D 模型子项 UUID。'],
+        id: ['Generated 3D model resource ID.', '已生成 3D 模型资源 ID。'],
         url: ['Temporary signed URL for downloading the generated 3D model.', '用于下载生成 3D 模型的临时签名 URL。'],
         format: ['3D model file format when known, such as glb.', '已知时返回 3D 模型文件格式，例如 glb。'],
         thumbnail_urls: ['Temporary signed URLs for model preview images.', '模型预览图片的临时签名 URL 列表。'],
@@ -163,7 +92,7 @@ const schemaFieldDescriptions = {
         images: ['Generated image files returned after the task succeeds.', '任务成功后返回的生成图片文件列表。']
     },
     VideoTaskOutput: {
-        videos: ['Child video tasks and their current output information.', '子视频任务及其当前输出信息。']
+        videos: ['Generated video files returned after the task succeeds.', '任务成功后返回的生成视频文件列表。']
     },
     ModelTaskOutput: {
         models: ['Generated 3D model files returned after the task succeeds.', '任务成功后返回的生成 3D 模型文件列表。']
@@ -172,33 +101,27 @@ const schemaFieldDescriptions = {
         files: ['Converted files returned after the task succeeds.', '任务成功后返回的转换文件列表。']
     },
     Task: {
-        id: ['Batch task ID returned by a generation request.', '生成请求返回的批次任务 ID。'],
+        id: ['Public task ID.', '公开任务 ID。'],
         object: ['Object discriminator. Always task.', '对象类型标识，固定为 task。'],
         type: ['Operation type performed by the task.', '任务执行的操作类型。'],
         status: ['Normalized task lifecycle status.', '标准化后的任务生命周期状态。'],
-        mode: ['Video generation mode used by the task.', '任务使用的视频生成模式。'],
-        output: ['Generated output returned after asynchronous processing completes.', '异步处理完成后返回的生成结果。'],
+        result: ['Task result returned after asynchronous processing completes.', '异步处理完成后返回的任务结果。'],
         usage: ['Credits charged for this task when available.', '可用时返回此任务扣除的点数。'],
         error: ['Error details when the task fails.', '任务失败时返回的错误详情。'],
         progress: ['Task completion percentage from 0 to 100.', '任务完成进度百分比，范围为 0 到 100。']
     },
     TaskReceipt: {
-        uuid: ['Generated child item UUID.', '生成结果子项 UUID。'],
+        id: ['Public task ID.', '公开任务 ID。'],
         object: ['Object discriminator. Always task.', '对象类型标识，固定为 task。'],
-        mode: ['Video generation mode used for this child item.', '此视频生成子项使用的生成模式。'],
+        type: ['Operation type performed by the task.', '任务执行的操作类型。'],
         status: ['Normalized task lifecycle status.', '标准化后的任务生命周期状态。'],
         usage: ['Credits charged for this task when available.', '可用时返回此任务扣除的点数。'],
         error: ['Error details when the task fails.', '任务失败时返回的错误详情。'],
         progress: ['Task completion percentage from 0 to 100.', '任务完成进度百分比，范围为 0 到 100。']
     },
     TaskList: {
-        id: ['Batch task ID returned by the generation request.', '生成请求返回的批次任务 ID。'],
         object: ['Object discriminator. Always list.', '对象类型标识，固定为 list。'],
-        status: ['Current status shared by the submitted video tasks.', '本次提交的视频任务的当前状态。'],
-        created_at: ['Unix timestamp in seconds when the batch task was created.', '批次任务创建时间的 Unix 时间戳，单位为秒。'],
-        mode: ['Video generation mode shared by the submitted tasks.', '本次提交任务使用的视频生成模式。'],
-        model: ['Video generation model used by the submitted tasks.', '本次提交任务使用的视频生成模型。'],
-        data: ['Generated child items created by the request.', '本次请求创建的生成结果子项。'],
+        data: ['Tasks created by the request.', '本次请求创建的任务列表。'],
         usage: ['Total credits charged for the submitted tasks when available.', '可用时返回本次提交任务扣除的总点数。']
     },
     ModelArchitecture: {
@@ -241,7 +164,7 @@ const schemaFieldDescriptions = {
     },
     VideoGenerationJsonRequest: {
         prompt: ['Text instruction describing the video to generate.', '描述待生成视频内容的文本提示词。'],
-        mode: ['Video generation mode. Use text-to-video without images or image-to-video with images.', '视频生成模式。不传图片时使用 text-to-video，传入图片时使用 image-to-video。'],
+        mode: ['Video generation mode. JSON requests support text-to-video.', '视频生成模式。JSON 请求支持 text-to-video。'],
         duration_seconds: ['Target video duration in seconds.', '目标视频时长，单位为秒。'],
         resolution: ['Target video resolution.', '目标视频分辨率。'],
         aspect_ratio: ['Target video width-to-height ratio.', '目标视频宽高比。'],
@@ -275,17 +198,17 @@ const schemaFieldDescriptions = {
         n: ['Number of 3D models to generate.', '需要生成的 3D 模型数量。']
     },
     Texture3DModelRequest: {
-        uuid: ['UUID of the completed 3D model to edit.', '待编辑的已完成 3D 模型 UUID。'],
+        id: ['ID of a completed 3D model, in UUID format.', '已完成 3D 模型的 ID，格式为 UUID。'],
         prompt: ['Text instruction describing the texture to generate.', '描述待生成纹理的文本提示词。']
     },
     Refine3DModelRequest: {
-        uuid: ['UUID of the completed 3D model to edit.', '待编辑的已完成 3D 模型 UUID。']
+        id: ['ID of a completed 3D model, in UUID format.', '已完成 3D 模型的 ID，格式为 UUID。']
     },
     Pbr3DModelRequest: {
-        uuid: ['UUID of the completed 3D model to edit.', '待编辑的已完成 3D 模型 UUID。']
+        id: ['ID of a completed 3D model, in UUID format.', '已完成 3D 模型的 ID，格式为 UUID。']
     },
     Remesh3DModelRequest: {
-        uuid: ['UUID of the completed 3D model to edit.', '待编辑的已完成 3D 模型 UUID。'],
+        id: ['ID of a completed 3D model, in UUID format.', '已完成 3D 模型的 ID，格式为 UUID。'],
         target_polycount: ['Target face count passed to the remesh pipeline.', '传递给重网格流程的目标面数。']
     },
     ConvertFileRequest: {
@@ -312,11 +235,8 @@ const schemaFieldDescriptions = {
     FileReferenceUrl: {
         url: ['HTTPS source URL. Every DNS result and redirect is checked for a public network address, then media type, size, and fetch time limits are applied.', 'HTTPS 源 URL。每次 DNS 解析结果和重定向都会校验为公网地址，并应用媒体类型、大小和抓取时长限制。']
     },
-    FileReferenceId: {
-        file_id: ['File ID returned by the file upload endpoint.', '文件上传接口返回的文件 ID。']
-    },
     FileReferenceKey: {
-        fileKey: ['Managed file key issued by Neural4D.', 'Neural4D 签发的托管文件 key。']
+        fileKey: ['Managed file key returned by the file management endpoint.', '文件管理接口返回的托管文件 key。']
     },
     ImageGenerationJsonRequest: {
         model: ['Model identifier returned by GET /openapi/v1/models.', 'GET /openapi/v1/models 返回的模型标识。'],
@@ -329,32 +249,15 @@ const schemaFieldDescriptions = {
         extra_body: ['Provider parameters forwarded after key, size, depth, and payload validation.', '经过 key、大小、深度和载荷校验后透传的供应商参数。']
     },
     VideoGenerationJsonRequest: {
-        model: ['Video generation model identifier.', '视频生成模型标识。'],
-        prompt: ['Required text instruction describing the video to generate.', '描述待生成视频内容的必填文本提示词。'],
-        frame_images: ['First-frame and last-frame images uploaded through POST /openapi/v1/files. Each frame_type may appear at most once, and every item requires file_id.', '通过 POST /openapi/v1/files 上传的首帧和尾帧图片。每个 frame_type 最多出现一次，每项都必须提供 file_id。'],
-        input_references: ['Uploaded image, video, and audio reference assets. The endpoint accepts up to six images, four videos, and two audio files. Audio must be accompanied by at least one image or video. Every item declares its media type and requires file_id.', '已上传的图片、视频和音频参考素材。接口最多接受六张图片、四个视频和两个音频；音频必须与至少一个图片或视频同时使用。每项声明媒体类型，并且必须提供 file_id。'],
-        duration: ['Target video duration in seconds.', '目标视频时长，单位为秒。'],
+        model: ['Model identifier returned by GET /openapi/v1/models.', 'GET /openapi/v1/models 返回的模型标识。'],
+        prompt: ['Text instruction describing the video to generate.', '描述待生成视频内容的文本提示词。'],
+        images: ['Reference images supplied by URL or managed file key.', '通过 URL 或托管文件 key 提供的参考图片。'],
+        duration_seconds: ['Target video duration in seconds.', '目标视频时长，单位为秒。'],
         n: ['Number of video generation tasks to create.', '需要创建的视频生成任务数量。'],
-        resolution: ['Named resolution published for the selected video model, currently 480p, 720p, 1080p, 1K, or 2K.', '所选视频模型公布的命名分辨率，当前为 480p、720p、1080p、1K 或 2K。'],
+        resolution: ['Named resolution published for the selected video model, currently 480p, 720p, 1080p, 1K, or 2K. Use this or size.', '所选视频模型公布的命名分辨率，当前为 480p、720p、1080p、1K 或 2K。与 size 二选一。'],
+        size: ['Pixel size in WIDTHxHEIGHT form. Use this or resolution.', '像素尺寸，格式为 WIDTHxHEIGHT。与 resolution 二选一。'],
         aspect_ratio: ['Target video width-to-height ratio.', '目标视频宽高比。'],
-        extra_body: ['Provider parameters forwarded after key, nesting depth, property count, and payload validation.', '经过键名、嵌套深度、属性数量和载荷校验后透传的供应商参数。']
-    },
-    VideoFrameImage: {
-        type: ['Media type of the frame asset. Always image.', '帧素材的媒体类型，固定为 image。'],
-        frame_type: ['Position represented by this image: first_frame or last_frame.', '此图片表示的帧位置：first_frame 或 last_frame。'],
-        file_id: ['File ID returned by the file upload endpoint.', '文件上传接口返回的文件 ID。']
-    },
-    VideoImageReference: {
-        type: ['Media type of this reference. Always image.', '此参考素材的媒体类型，固定为 image。'],
-        file_id: ['File ID returned by the file upload endpoint.', '文件上传接口返回的文件 ID。']
-    },
-    VideoVideoReference: {
-        type: ['Media type of this reference. Always video.', '此参考素材的媒体类型，固定为 video。'],
-        file_id: ['File ID returned by the file upload endpoint.', '文件上传接口返回的文件 ID。']
-    },
-    VideoAudioReference: {
-        type: ['Media type of this reference. Always audio.', '此参考素材的媒体类型，固定为 audio。'],
-        file_id: ['File ID returned by the file upload endpoint.', '文件上传接口返回的文件 ID。']
+        extra_body: ['Provider parameters forwarded after key, size, depth, and payload validation.', '经过 key、大小、深度和载荷校验后透传的供应商参数。']
     },
     ThreeDGenerationRequest: {
         model: ['Model identifier returned by GET /openapi/v1/models.', 'GET /openapi/v1/models 返回的模型标识。'],
@@ -368,19 +271,19 @@ const schemaFieldDescriptions = {
         n: ['Number of 3D generation tasks to create.', '需要创建的 3D 生成任务数量。']
     },
     Texture3DModelRequest: {
-        uuid: ['UUID of the completed 3D model to edit.', '待编辑的已完成 3D 模型 UUID。'],
+        id: ['ID of a completed 3D model.', '已完成 3D 模型的 ID。'],
         prompt: ['Text instruction describing the texture to generate.', '描述待生成纹理的文本提示词。'],
         image: ['One reference image supplied by URL or managed file key.', '通过 URL 或托管文件 key 提供的一张参考图片。']
     },
     Refine3DModelRequest: {
-        uuid: ['UUID of the completed 3D model to edit.', '待编辑的已完成 3D 模型 UUID。'],
+        id: ['ID of a completed 3D model.', '已完成 3D 模型的 ID。'],
         quality: ['Target mesh quality for the refine task.', '精细化任务的目标网格质量。']
     },
     Pbr3DModelRequest: {
-        uuid: ['UUID of the completed 3D model to edit.', '待编辑的已完成 3D 模型 UUID。']
+        id: ['ID of a completed 3D model.', '已完成 3D 模型的 ID。']
     },
     Remesh3DModelRequest: {
-        uuid: ['UUID of the completed 3D model to edit.', '待编辑的已完成 3D 模型 UUID。'],
+        id: ['ID of a completed 3D model.', '已完成 3D 模型的 ID。'],
         target_polycount: ['Target face count passed to the remesh pipeline.', '传递给重网格流程的目标面数。']
     },
     Convert3DModelRequest: {
@@ -388,11 +291,15 @@ const schemaFieldDescriptions = {
         model_size: ['Model size in millimeters.', '模型尺寸，单位为毫米。']
     },
     ManagedFile: {
-        id: ['File ID used by generation requests.', '生成请求使用的文件 ID。'],
-        filename: ['Original name of the uploaded file.', '上传文件的原始名称。'],
-        bytes: ['Uploaded file size in bytes.', '上传文件大小，单位为字节。'],
-        mime_type: ['Media type detected for the uploaded file.', '检测到的上传文件媒体类型。'],
-        created_at: ['Unix timestamp in seconds when the file was created.', '文件创建时间的 Unix 时间戳，单位为秒。']
+        id: ['Managed file ID.', '托管文件 ID。'],
+        object: ['Object discriminator. Always file.', '对象类型标识，固定为 file。'],
+        fileKey: ['Internal managed file key used by generation tasks.', '生成任务使用的内部托管文件 key。'],
+        filename: ['Stored file name when available.', '可用时返回的存储文件名。'],
+        bytes: ['Stored file size in bytes.', '存储文件大小，单位为字节。'],
+        mime_type: ['Stored media type.', '存储文件的媒体类型。'],
+        status: ['Current managed file status.', '当前托管文件状态。'],
+        created_at: ['Unix timestamp in seconds when the file was created.', '文件创建时间的 Unix 时间戳，单位为秒。'],
+        updated_at: ['Unix timestamp in seconds when the file was updated.', '文件更新时间的 Unix 时间戳，单位为秒。']
     },
     ManagedFileList: {
         object: ['Object discriminator. Always list.', '对象类型标识，固定为 list。'],
@@ -402,7 +309,7 @@ const schemaFieldDescriptions = {
         has_more: ['Whether another page of managed files is available.', '是否还有下一页托管文件。']
     },
     CreateManagedFileRequest: {
-        file: ['Image or video uploaded from the local filesystem. Images may be JPG, JPEG, PNG, GIF, WEBP, BMP, HEIC, or HEIF up to 10 MB. Videos may be MP4, MOV, WEBM, M4V, OGG, or OGV up to 100 MB.', '从本地文件系统上传的图片或视频。图片支持不超过 10 MB 的 JPG、JPEG、PNG、GIF、WEBP、BMP、HEIC 或 HEIF；视频支持不超过 100 MB 的 MP4、MOV、WEBM、M4V、OGG 或 OGV。']
+        file: ['Local file content uploaded to managed storage.', '上传到托管存储的本地文件内容。']
     },
     CreditBalance: {
         total_credits: ['Total credits currently available to the account.', '账户当前可用的总点数。'],
@@ -418,8 +325,6 @@ const schemaFieldDescriptions = {
 };
 
 const queryParameterDescriptions = {
-    id: ['Batch task ID returned by a generation request. Provide this or uuid, but not both.', '生成请求返回的批次任务 ID。与 uuid 二选一，不能同时传入。'],
-    uuid: ['Child video UUID returned in the generation response. Provide this or id, but not both.', '生成响应返回的视频子项 UUID。与 id 二选一，不能同时传入。'],
     page: ['One-based page number.', '页码，从 1 开始。'],
     page_size: ['Maximum number of usage records returned per page.', '每页最多返回的用量记录数量。'],
     limit: ['Maximum number of files returned.', '最多返回的文件数量。'],
@@ -941,49 +846,13 @@ const translations = new Map([
     ['Credits', '点数'],
     ['Poll asynchronous tasks by ID.', '通过 ID 查询异步任务。'],
     ['Create and inspect managed input files.', '创建和查询托管输入文件。'],
-    ['Upload input files for reuse in generation requests.', '上传可在生成请求中复用的输入文件。'],
     ['Query the current credit balance.', '查询当前点数余额。'],
     ['Returns enabled model registry entries and runtime capabilities maintained by the service.', '返回由服务维护的已启用模型注册信息和运行时能力。'],
     ['Returns enabled entries from the runtime model registry. The example lists the models and request parameters currently published by the service.', '返回运行时模型注册表中已启用的条目。示例列出服务当前公布的模型和请求参数。'],
     ['A file reference containing one HTTPS URL or one managed file key.', '包含一个 HTTPS URL 或一个托管文件 key 的文件引用。'],
-    ['One input reference using either an uploaded file ID or an HTTPS URL.', '一个使用已上传文件 ID 或 HTTPS URL 的输入素材引用。'],
     ['Provider parameters are validated against the selected model policy. Keys, nesting depth, property count, and serialized payload size are bounded before forwarding.', '供应商参数会按所选模型策略校验，并在透传前限制 key、嵌套深度、属性数量和序列化载荷大小。'],
     ['Creates asynchronous image generation tasks. Reference images use HTTPS URLs or managed file keys. Named resolution and pixel size are mutually exclusive.', '创建异步图片生成任务。参考图片使用 HTTPS URL 或托管文件 key。命名分辨率与像素尺寸互斥。'],
     ['Creates asynchronous video generation tasks. Reference images use HTTPS URLs or managed file keys. Named resolution and pixel size are mutually exclusive.', '创建异步视频生成任务。参考图片使用 HTTPS URL 或托管文件 key。命名分辨率与像素尺寸互斥。'],
-    ['Creates asynchronous video generation tasks. Image inputs use HTTPS URLs. Named resolution and pixel size are mutually exclusive.', '创建异步视频生成任务。图片输入使用 HTTPS URL。命名分辨率与像素尺寸互斥。'],
-    ['Creates asynchronous video generation tasks. Image inputs use HTTPS URLs.', '创建异步视频生成任务。图片输入使用 HTTPS URL。'],
-    ['Creates asynchronous video generation tasks. Input assets use HTTPS URLs and must match the selected mode.', '创建异步视频生成任务。输入素材使用 HTTPS URL，并且必须与所选模式匹配。'],
-    ['Creates asynchronous video generation tasks. Input references use an uploaded file ID or HTTPS URL and must match the selected mode.', '创建异步视频生成任务。输入素材使用已上传文件的 ID 或 HTTPS URL，并且必须与所选模式匹配。'],
-    ['Creates asynchronous video generation tasks. Generation behavior is inferred from the prompt, frame images, and typed reference assets.', '创建异步视频生成任务。生成方式根据提示词、帧图片和带类型的参考素材推断。'],
-    ['Creates asynchronous video generation tasks. Generation behavior is inferred from the required prompt, frame images, and typed reference assets.', '创建异步视频生成任务。生成方式根据必填提示词、帧图片和带类型的参考素材推断。'],
-    ['One typed image, video, or audio reference using a file ID returned by the file upload endpoint.', '一个带媒体类型的图片、视频或音频参考素材，使用文件上传接口返回的文件 ID。'],
-    ['Video generation model identifier.', '视频生成模型标识。'],
-    ['Optional ordered HTTPS image references. Omit for text-to-video; provide one image as the first frame, two images as the first and last frames, or three to six reference images.', '可选的有序 HTTPS 图片引用。不传图片表示文生视频；传一张图片表示首帧，传两张图片依次表示首帧和尾帧，传三至六张图片表示参考图。'],
-    ['Generate a video from text', '通过文本生成视频'],
-    ['Animate an HTTPS image reference', '使用 HTTPS 图片引用生成视频'],
-    ['Animate a first-frame image', '使用首帧图片生成视频'],
-    ['Animate first and last frames', '使用首尾帧图片生成视频'],
-    ['Generate from reference assets', '使用参考素材生成视频'],
-    ['Animate an uploaded first-frame image', '使用已上传的首帧图片生成视频'],
-    ['Use an HTTPS image and explicit pixel size', '使用 HTTPS 图片和明确的像素尺寸'],
-    ['A cinematic tracking shot through a neon-lit street at night', '夜晚穿行霓虹街道的电影感跟拍镜头'],
-    ['The camera slowly pushes in while soft wind moves the leaves', '镜头缓慢推进，微风轻轻吹动树叶'],
-    ['Turn the still frame into a smooth product reveal', '将静态画面转化为流畅的产品展示镜头'],
-    ['Video generation model used by the task.', '任务使用的视频生成模型。'],
-    ['Generated video result returned after asynchronous processing completes.', '异步处理完成后返回的生成视频结果。'],
-    ['Managed file key issued by Neural4D.', 'Neural4D 签发的托管文件 key。'],
-    ['Returns the current status, progress, generated video result, usage, and error details for a video generation task.', '返回视频生成任务的当前状态、进度、生成视频结果、用量和错误详情。'],
-    ['Returns the current status, generated video result, usage, and error details for a video generation task.', '返回视频生成任务的当前状态、生成视频结果、用量和错误详情。'],
-    ['Returns task status and output by batch task ID.', '按批次任务 ID 返回任务状态和输出。'],
-    ['Returns task status and output by batch task ID or child video UUID. Provide exactly one of the id or uuid query parameters.', '按批次任务 ID 或视频子项 UUID 返回任务状态和输出。id 与 uuid 必须且只能传入一个。'],
-    ['Video generation mode used by the task.', '任务使用的视频生成模式。'],
-    ['Batch task ID returned by a generation request.', '生成请求返回的批次任务 ID。'],
-    ['API v1 creates videos asynchronously and retrieves task progress and results.', 'API v1 用于异步创建视频并查询任务进度和结果。'],
-    ['API v1 creates videos asynchronously and retrieves task status and results.', 'API v1 用于异步创建视频并查询任务状态和结果。'],
-    ['API v1 uploads reusable input files, creates videos asynchronously, and retrieves task status and results.', 'API v1 用于上传可复用的输入文件、异步创建视频并查询任务状态和结果。'],
-    ['Target video duration in seconds.', '目标视频时长，单位为秒。'],
-    ['Named resolution published for the selected video model, currently 480p, 720p, 1080p, 1K, or 2K.', '所选视频模型公布的命名分辨率，当前为 480p、720p、1080p、1K 或 2K。'],
-    ['Provider parameters forwarded after key, nesting depth, property count, and payload validation.', '经过键名、嵌套深度、属性数量和载荷校验后透传的供应商参数。'],
     ['Creates asynchronous text-to-3D, image-to-3D, or styled 3D generation tasks. Image inputs use one HTTPS URL or managed file key.', '创建异步文生 3D、图生 3D 或风格化 3D 生成任务。图片输入使用一个 HTTPS URL 或托管文件 key。'],
     ['Creates a texture task from a prompt or one reference image supplied by HTTPS URL or managed file key.', '根据提示词或一个通过 HTTPS URL、托管文件 key 提供的参考图片创建纹理任务。'],
     ['Creates a refine task for a completed 3D model.', '为已完成的 3D 模型创建精细化任务。'],
@@ -995,12 +864,9 @@ const translations = new Map([
     ['Returns managed input files recorded for the authenticated account.', '返回当前认证账户记录的托管输入文件。'],
     ['Managed file list', '托管文件列表'],
     ['Create a managed file', '创建托管文件'],
-    ['Upload a file', '上传文件'],
     ['Imports an HTTPS URL into managed storage, validates every resolved address and redirect, verifies media type and size, and records the resulting file key.', '将 HTTPS URL 导入托管存储，校验每次地址解析和重定向，验证媒体类型与大小，并记录生成的文件 key。'],
     ['Uploads one local file to managed storage and records the resulting file key.', '将一个本地文件上传到托管存储，并记录生成的文件 key。'],
-    ['Uploads one local image or video and returns a reusable file ID.', '上传一个本地图片或视频，并返回可复用的文件 ID。'],
     ['Managed file created', '托管文件已创建'],
-    ['File uploaded', '文件已上传'],
     ['Retrieve a managed file', '查询托管文件'],
     ['Returns one managed input file record by ID.', '按 ID 返回一个托管输入文件记录。'],
     ['Managed file ID, in UUID format.', '托管文件 ID，格式为 UUID。'],
@@ -2660,744 +2526,6 @@ function applyV1ProductDecisions(paths, components) {
     }
 }
 
-function renameSchemaProperty(schema, from, to, description) {
-    if (!schema?.properties?.[from]) {
-        return;
-    }
-
-    const renamed = {
-        ...schema.properties[from],
-        description
-    };
-    schema.properties = Object.fromEntries(
-        Object.entries(schema.properties).map(([name, value]) => (
-            name === from ? [to, renamed] : [name, value]
-        ))
-    );
-    schema.required = (schema.required || []).map((name) => (name === from ? to : name));
-}
-
-function applyTaskIdentityContract(paths, components) {
-    const taskIdExample = 'normal-video-c50fe63e-699d-4d61-93f5-2099ab159d6d';
-    const childUuidExample = '7d1fa4bb-41e6-4a5d-88d8-1851f5342e87';
-
-    for (const [schemaName, description] of [
-        ['ImageFile', 'Generated image child UUID.'],
-        ['VideoFile', 'Generated video child UUID.'],
-        ['ModelFile', 'Generated 3D model child UUID.']
-    ]) {
-        const schema = components.schemas[schemaName];
-        if (!schema) {
-            continue;
-        }
-        const source = schema.properties.uuid || schema.properties.id || {};
-        const remainingProperties = Object.fromEntries(
-            Object.entries(schema.properties).filter(([name]) => !['id', 'uuid'].includes(name))
-        );
-        schema.properties = {
-            uuid: {
-                ...source,
-                type: 'string',
-                format: 'uuid',
-                example: childUuidExample,
-                description
-            },
-            ...remainingProperties
-        };
-        schema.required = [
-            'uuid',
-            ...(schema.required || []).filter((name) => !['id', 'uuid'].includes(name))
-        ];
-    }
-
-    const task = components.schemas.Task;
-    task.properties.id = {
-        type: 'string',
-        example: taskIdExample,
-        description: 'Batch task ID returned by a generation request.'
-    };
-    renameSchemaProperty(
-        task,
-        'result',
-        'output',
-        'Generated output returned after asynchronous processing completes.'
-    );
-
-    renameSchemaProperty(
-        components.schemas.TaskReceipt,
-        'id',
-        'uuid',
-        'Generated child item UUID.'
-    );
-
-    const taskList = components.schemas.TaskList;
-    taskList.properties = {
-        id: {
-            type: 'string',
-            example: taskIdExample,
-            description: 'Batch task ID returned by the generation request.'
-        },
-        ...taskList.properties
-    };
-    taskList.required = ['id', ...(taskList.required || []).filter((name) => name !== 'id')];
-    taskList.properties.data.description = 'Generated child items created by the request.';
-
-    for (const schemaName of [
-        'Refine3DModelRequest',
-        'Texture3DModelRequest',
-        'Pbr3DModelRequest',
-        'Remesh3DModelRequest'
-    ]) {
-        renameSchemaProperty(
-            components.schemas[schemaName],
-            'id',
-            'uuid',
-            'UUID of the completed 3D model to edit.'
-        );
-    }
-
-    for (const route of [
-        '/openapi/v1/3dmodels/refine',
-        '/openapi/v1/3dmodels/texture',
-        '/openapi/v1/3dmodels/pbr',
-        '/openapi/v1/3dmodels/remesh'
-    ]) {
-        const media = paths[route]?.post?.requestBody?.content?.['application/json'];
-        const examples = [media?.example, ...Object.values(media?.examples || {}).map((item) => item.value)];
-        for (const example of examples) {
-            if (example?.id) {
-                example.uuid = example.id;
-                delete example.id;
-            }
-        }
-    }
-
-    for (const [route, pathItem] of Object.entries(paths)) {
-        for (const operation of Object.values(pathItem)) {
-            const response = operation?.responses?.['202'];
-            const media = response?.content?.['application/json'];
-            if (media?.schema?.$ref !== '#/components/schemas/TaskList' || !media.example) {
-                continue;
-            }
-            const prefix = route.includes('/images/')
-                ? 'normal-image'
-                : (route.includes('/videos/') ? 'normal-video' : '3d-task');
-            media.example.id = `${prefix}-c50fe63e-699d-4d61-93f5-2099ab159d6d`;
-            for (const item of media.example.data || []) {
-                item.uuid = item.id || childUuidExample;
-                delete item.id;
-            }
-        }
-    }
-
-    const oldTaskPath = '/openapi/v1/tasks/{id}';
-    const taskInfoPath = '/openapi/v1/tasks/task-info';
-    const taskOperation = paths[oldTaskPath]?.get;
-    if (!taskOperation) {
-        throw new Error('The full v1 backup must contain task retrieval');
-    }
-    delete paths[oldTaskPath];
-    paths[taskInfoPath] = { get: taskOperation };
-    taskOperation.operationId = 'getTaskInfo';
-    taskOperation.description = 'Returns task status and output by batch task ID.';
-    taskOperation.parameters = [
-        {
-            name: 'id',
-            in: 'query',
-            required: true,
-            description: 'Batch task ID returned by a generation request.',
-            schema: {
-                type: 'string',
-                example: taskIdExample
-            }
-        }
-    ];
-    const taskExample = taskOperation.responses['200']?.content?.['application/json']?.example;
-    if (taskExample) {
-        taskExample.id = taskIdExample;
-        if (taskExample.result !== undefined && taskExample.output === undefined) {
-            taskExample.output = taskExample.result;
-        }
-        delete taskExample.result;
-        for (const collectionName of ['images', 'videos', 'models']) {
-            for (const item of taskExample.output?.[collectionName] || []) {
-                item.uuid = item.uuid || item.id || childUuidExample;
-                delete item.id;
-            }
-        }
-    }
-
-    for (const schemaName of ['ImageFile', 'VideoFile', 'ModelFile', 'TaskReceipt']) {
-        const schema = components.schemas[schemaName];
-        if (!schema?.properties?.uuid || schema.properties.id) {
-            throw new Error(`${schemaName} must expose uuid and must not expose id`);
-        }
-    }
-    for (const schemaName of [
-        'Refine3DModelRequest',
-        'Texture3DModelRequest',
-        'Pbr3DModelRequest',
-        'Remesh3DModelRequest'
-    ]) {
-        const schema = components.schemas[schemaName];
-        if (!schema?.properties?.uuid || schema.properties.id || !schema.required?.includes('uuid')) {
-            throw new Error(`${schemaName} must use uuid as the 3D edit handle`);
-        }
-    }
-}
-
-function exposeVideoOnlyV1(paths, components) {
-    const filePath = '/openapi/v1/files';
-    const videoPath = '/openapi/v1/videos/generations';
-    const taskPath = '/openapi/v1/tasks/task-info';
-    const fileOperation = paths[filePath]?.post;
-    const videoOperation = paths[videoPath]?.post;
-    const taskOperation = paths[taskPath]?.get;
-
-    if (!fileOperation || !videoOperation || !taskOperation) {
-        throw new Error('The full v1 backup must contain file upload, video generation, and task retrieval');
-    }
-
-    const videoRequest = components.schemas.VideoGenerationJsonRequest;
-    delete videoRequest.properties.type;
-    delete videoRequest.properties.mode;
-    videoRequest.required = ['model', 'prompt'];
-    delete videoRequest.anyOf;
-    videoRequest.properties.model = {
-        type: 'string',
-        enum: publicVideoModels,
-        example: publicVideoModels[0],
-        description: 'Video generation model identifier.'
-    };
-    const fileIdProperty = {
-        type: 'string',
-        pattern: fileIdPattern,
-        example: '550e8400-e29b-41d4-a716-446655440000',
-        description: 'File ID returned by the file upload endpoint.'
-    };
-    const createTypedReferenceSchema = (mediaType) => ({
-        type: 'object',
-        required: ['type', 'file_id'],
-        additionalProperties: false,
-        properties: {
-            type: {
-                type: 'string',
-                enum: [mediaType],
-                description: `Media type of this reference. Always ${mediaType}.`
-            },
-            file_id: { ...fileIdProperty }
-        }
-    });
-
-    components.schemas.VideoFrameImage = {
-        type: 'object',
-        required: ['type', 'frame_type', 'file_id'],
-        additionalProperties: false,
-        properties: {
-            type: {
-                type: 'string',
-                enum: ['image'],
-                description: 'Media type of the frame asset. Always image.'
-            },
-            frame_type: {
-                type: 'string',
-                enum: ['first_frame', 'last_frame'],
-                description: 'Position represented by this image: first_frame or last_frame.'
-            },
-            file_id: { ...fileIdProperty }
-        }
-    };
-    components.schemas.VideoImageReference = createTypedReferenceSchema('image');
-    components.schemas.VideoVideoReference = createTypedReferenceSchema('video');
-    components.schemas.VideoAudioReference = createTypedReferenceSchema('audio');
-    components.schemas.VideoInputReference = {
-        oneOf: [
-            { $ref: '#/components/schemas/VideoImageReference' },
-            { $ref: '#/components/schemas/VideoVideoReference' },
-            { $ref: '#/components/schemas/VideoAudioReference' }
-        ],
-        discriminator: {
-            propertyName: 'type',
-            mapping: {
-                image: '#/components/schemas/VideoImageReference',
-                video: '#/components/schemas/VideoVideoReference',
-                audio: '#/components/schemas/VideoAudioReference'
-            }
-        },
-        description: 'One typed image, video, or audio reference using a file ID returned by the file upload endpoint.'
-    };
-    delete videoRequest.properties.images;
-    delete videoRequest.properties.asset_refs;
-    videoRequest.properties.frame_images = {
-        type: 'array',
-        minItems: 1,
-        maxItems: 2,
-        items: { $ref: '#/components/schemas/VideoFrameImage' },
-        description: 'First-frame and last-frame images uploaded through POST /openapi/v1/files. Each frame_type may appear at most once, and every item requires file_id.'
-    };
-    videoRequest.properties.input_references = {
-        type: 'array',
-        minItems: 1,
-        maxItems: 12,
-        items: { $ref: '#/components/schemas/VideoInputReference' },
-        description: videoModelFieldDescriptions.input_references[0]
-    };
-    videoRequest.properties.duration = {
-        type: 'integer',
-        minimum: 1,
-        description: 'Optional duration in seconds. Allowed values and the default are defined by the selected model.'
-    };
-    videoRequest.properties.resolution.enum = publicVideoResolutions;
-    videoRequest.properties.resolution.description = videoModelFieldDescriptions.resolution[0];
-    videoRequest.properties.aspect_ratio.enum = publicVideoAspectRatios;
-    videoRequest.properties.aspect_ratio.description = videoModelFieldDescriptions.aspect_ratio[0];
-    videoRequest.properties.model.description = videoModelFieldDescriptions.model[0];
-    delete videoRequest.properties.extra_body;
-    delete videoRequest.properties.duration_seconds;
-    delete videoRequest.properties.size;
-    delete videoRequest.not;
-    const videoParameterSchemaNames = {
-        'bytedance/seedance-2.0': 'Seedance20VideoParameters',
-        'bytedance/seedance-2.0-fast': 'Seedance20FastVideoParameters',
-        'google/veo-3.1': 'Veo31VideoParameters',
-        'xai/grok-imagine': 'GrokImagineVideoParameters'
-    };
-    for (const [model, capability] of Object.entries(publicVideoModelCapabilities)) {
-        components.schemas[videoParameterSchemaNames[model]] = {
-            type: 'object',
-            required: ['model'],
-            properties: {
-                model: {
-                    type: 'string',
-                    enum: [model],
-                    description: videoModelFieldDescriptions.model[0]
-                },
-                resolution: {
-                    type: 'string',
-                    enum: capability.resolutions,
-                    default: capability.defaults.resolution,
-                    description: videoModelFieldDescriptions.resolution[0]
-                },
-                aspect_ratio: {
-                    type: 'string',
-                    enum: capability.aspectRatios,
-                    default: capability.defaults.aspectRatio,
-                    description: videoModelFieldDescriptions.aspect_ratio[0]
-                },
-                duration: {
-                    type: 'integer',
-                    minimum: capability.durations[0],
-                    maximum: capability.durations[capability.durations.length - 1],
-                    enum: capability.durations,
-                    default: capability.defaults.duration,
-                    description: videoModelFieldDescriptions.duration[0]
-                }
-            }
-        };
-    }
-    videoRequest.allOf = [{
-        oneOf: publicVideoModels.map((model) => ({
-            $ref: `#/components/schemas/${videoParameterSchemaNames[model]}`
-        })),
-        discriminator: {
-            propertyName: 'model',
-            mapping: Object.fromEntries(publicVideoModels.map((model) => [
-                model,
-                `#/components/schemas/${videoParameterSchemaNames[model]}`
-            ]))
-        }
-    }];
-
-    videoOperation.description = 'Creates asynchronous video generation tasks. Generation behavior is inferred from the required prompt, frame images, and typed reference assets.';
-    videoOperation.requestBody.content['application/json'].examples = {
-        text_to_video: {
-            summary: 'Generate a video from text',
-            value: {
-                model: 'xai/grok-imagine',
-                prompt: 'A cinematic tracking shot through a neon-lit street at night',
-                duration: 6,
-                n: 1,
-                resolution: '720p',
-                aspect_ratio: '16:9'
-            }
-        },
-        first_frame_image_to_video: {
-            summary: 'Animate an uploaded first-frame image',
-            value: {
-                model: 'bytedance/seedance-2.0',
-                prompt: 'The camera slowly pushes in while soft wind moves the leaves',
-                frame_images: [
-                    {
-                        type: 'image',
-                        frame_type: 'first_frame',
-                        file_id: '550e8400-e29b-41d4-a716-446655440000'
-                    }
-                ],
-                duration: 5,
-                n: 1,
-                resolution: '720p',
-                aspect_ratio: '16:9'
-            }
-        },
-        first_last_frame_image_to_video: {
-            summary: 'Animate first and last frames',
-            value: {
-                model: 'bytedance/seedance-2.0-fast',
-                prompt: 'Move naturally from the opening frame to the closing frame',
-                frame_images: [
-                    {
-                        type: 'image',
-                        frame_type: 'first_frame',
-                        file_id: '550e8400-e29b-41d4-a716-446655440000'
-                    },
-                    {
-                        type: 'image',
-                        frame_type: 'last_frame',
-                        file_id: '6ba7b810-9dad-11d1-80b4-00c04fd430c8'
-                    }
-                ],
-                duration: 5,
-                n: 1,
-                resolution: '720p',
-                aspect_ratio: '16:9'
-            }
-        },
-        reference_to_video: {
-            summary: 'Generate from reference assets',
-            value: {
-                model: 'google/veo-3.1',
-                prompt: 'Create a cohesive cinematic sequence using the supplied references',
-                input_references: [
-                    { type: 'image', file_id: '550e8400-e29b-41d4-a716-446655440000' },
-                    { type: 'video', file_id: '6ba7b810-9dad-11d1-80b4-00c04fd430c8' },
-                    { type: 'audio', file_id: '7d1fa4bb-41e6-4a5d-88d8-1851f5342e87' }
-                ],
-                duration: 8,
-                n: 1,
-                resolution: '720p',
-                aspect_ratio: '16:9'
-            }
-        }
-    };
-    videoOperation.responses['202'].content['application/json'].example = {
-        id: 'normal-video-c50fe63e-699d-4d61-93f5-2099ab159d6d',
-        status: 'queued',
-        created_at: 1784044800,
-        mode: 'text_to_video',
-        model: 'xai/grok-imagine',
-        data: [
-            {
-                uuid: '7d1fa4bb-41e6-4a5d-88d8-1851f5342e87',
-                status: 'queued',
-                created_at: 1784044800
-            }
-        ],
-        usage: { credits: 90 }
-    };
-
-    components.schemas.CreateManagedFileRequest = {
-        type: 'object',
-        required: ['file'],
-        additionalProperties: false,
-        properties: {
-            file: {
-                type: 'string',
-                format: 'binary',
-                description: 'Image or video uploaded from the local filesystem. Images may be JPG, JPEG, PNG, GIF, WEBP, BMP, HEIC, or HEIF up to 10 MB. Videos may be MP4, MOV, WEBM, M4V, OGG, or OGV up to 100 MB.'
-            }
-        }
-    };
-    components.schemas.ManagedFile = {
-        type: 'object',
-        required: ['id', 'filename', 'bytes', 'mime_type', 'created_at'],
-        additionalProperties: false,
-        properties: {
-            id: {
-                type: 'string',
-                pattern: fileIdPattern,
-                example: '550e8400-e29b-41d4-a716-446655440000',
-                description: 'File ID used by generation requests.'
-            },
-            filename: {
-                type: 'string',
-                example: 'first-frame.png',
-                description: 'Original name of the uploaded file.'
-            },
-            bytes: {
-                type: 'integer',
-                format: 'int64',
-                minimum: 0,
-                example: 245760,
-                description: 'Uploaded file size in bytes.'
-            },
-            mime_type: {
-                type: 'string',
-                example: 'image/png',
-                description: 'Media type detected for the uploaded file.'
-            },
-            created_at: {
-                type: 'integer',
-                format: 'int64',
-                description: 'Unix timestamp in seconds when the file was created.'
-            }
-        }
-    };
-    fileOperation.tags = ['Files'];
-    fileOperation.summary = 'Upload a file';
-    fileOperation.description = 'Uploads one local image or video and returns a reusable file ID.';
-    fileOperation.operationId = 'uploadFile';
-    fileOperation.requestBody = {
-        required: true,
-        content: {
-            'multipart/form-data': {
-                schema: { $ref: '#/components/schemas/CreateManagedFileRequest' }
-            }
-        }
-    };
-    const fileErrorResponses = Object.fromEntries(
-        Object.entries(fileOperation.responses || {}).filter(([status]) => status !== '201')
-    );
-    fileOperation.responses = {
-        '201': {
-            description: 'File uploaded',
-            content: {
-                'application/json': {
-                    schema: { $ref: '#/components/schemas/ManagedFile' },
-                    example: {
-                        id: '550e8400-e29b-41d4-a716-446655440000',
-                        filename: 'first-frame.png',
-                        bytes: 245760,
-                        mime_type: 'image/png',
-                        created_at: 1784044800
-                    }
-                }
-            }
-        },
-        ...fileErrorResponses
-    };
-
-    const taskListSchema = components.schemas.TaskList;
-    taskListSchema.properties.status = {
-        allOf: [{ $ref: '#/components/schemas/TaskStatus' }],
-        description: 'Current status shared by the submitted video tasks.'
-    };
-    taskListSchema.properties.created_at = {
-        type: 'integer',
-        format: 'int64',
-        description: 'Unix timestamp in seconds when the batch task was created.'
-    };
-    taskListSchema.properties.mode = {
-        type: 'string',
-        enum: publicVideoModes,
-        description: 'Video generation mode shared by the submitted tasks.'
-    };
-    taskListSchema.properties.model = {
-        type: 'string',
-        enum: publicVideoModels,
-        description: 'Video generation model used by the submitted tasks.'
-    };
-    taskListSchema.required = [
-        'id',
-        'status',
-        'created_at',
-        'mode',
-        'model',
-        ...(taskListSchema.required || []).filter(
-            (field) => !['id', 'status', 'created_at', 'mode', 'model'].includes(field)
-        )
-    ];
-
-    const taskSchema = components.schemas.Task;
-    taskSchema.required = (taskSchema.required || []).filter(
-        (field) => !['object', 'type', 'progress'].includes(field)
-    );
-    for (const field of ['object', 'type', 'progress']) {
-        delete taskSchema.properties[field];
-    }
-
-    const taskReceiptSchema = components.schemas.TaskReceipt;
-    taskReceiptSchema.required = (taskReceiptSchema.required || []).filter(
-        (field) => !['object', 'type', 'progress'].includes(field)
-    );
-    for (const field of ['object', 'type', 'progress']) {
-        delete taskReceiptSchema.properties[field];
-    }
-    delete taskReceiptSchema.properties.mode;
-    delete taskReceiptSchema.properties.model;
-    taskReceiptSchema.required = taskReceiptSchema.required.filter(
-        (field) => !['mode', 'model'].includes(field)
-    );
-
-    taskSchema.properties.model = {
-        type: 'string',
-        enum: publicVideoModels,
-        nullable: true,
-        description: 'Video generation model used by the task.'
-    };
-    taskSchema.properties.mode = {
-        type: 'string',
-        enum: publicVideoModes,
-        description: 'Video generation mode used by the task.'
-    };
-    taskSchema.required = ['mode', ...(taskSchema.required || []).filter((field) => field !== 'mode')];
-    components.schemas.TaskList.required = (components.schemas.TaskList.required || []).filter(
-        (field) => field !== 'object'
-    );
-    components.schemas.TaskList.required = components.schemas.TaskList.required.filter(
-        (field) => field !== 'type'
-    );
-    delete components.schemas.TaskList.properties.type;
-    delete components.schemas.TaskList.properties.object;
-
-    components.schemas.ApiError.required = (components.schemas.ApiError.required || []).filter(
-        (field) => !['type', 'request_id', 'param'].includes(field)
-    );
-    delete components.schemas.ApiError.properties.type;
-    delete components.schemas.ApiError.properties.request_id;
-    delete components.schemas.ApiError.properties.param;
-
-    function removeErrorTraceFields(value) {
-        if (!value || typeof value !== 'object') {
-            return;
-        }
-        if (value.error && typeof value.error === 'object' && !Array.isArray(value.error)) {
-            delete value.error.type;
-            delete value.error.request_id;
-            delete value.error.param;
-        }
-        Object.values(value).forEach(removeErrorTraceFields);
-    }
-    removeErrorTraceFields(paths);
-    removeErrorTraceFields(components);
-
-    components.schemas.Task.properties.output = {
-        $ref: '#/components/schemas/VideoTaskOutput',
-        description: 'Current child video task output, including entries that are still queued or processing.'
-    };
-    renameSchemaProperty(
-        components.schemas.VideoFile,
-        'duration_seconds',
-        'duration',
-        'Generated video duration in seconds when available.'
-    );
-    const videoFileSchema = components.schemas.VideoFile;
-    videoFileSchema.properties.url.nullable = true;
-    videoFileSchema.properties.aspect_ratio = {
-        type: 'string',
-        nullable: true,
-        example: '16:9',
-        description: 'Generated video aspect ratio when available, such as 16:9.'
-    };
-    videoFileSchema.properties.mode = {
-        type: 'string',
-        enum: publicVideoModes,
-        description: 'Generation mode used for this video.'
-    };
-    videoFileSchema.properties.status = {
-        allOf: [{ $ref: '#/components/schemas/TaskStatus' }],
-        description: 'Current status of this generated video.'
-    };
-    videoFileSchema.properties.created_at = {
-        type: 'integer',
-        format: 'int64',
-        description: 'Unix timestamp in seconds when this generated video was created.'
-    };
-    videoFileSchema.properties.updated_at = {
-        type: 'integer',
-        format: 'int64',
-        description: 'Unix timestamp in seconds when this generated video was last updated.'
-    };
-    videoFileSchema.required = [
-        'uuid',
-        'url',
-        'format',
-        'duration',
-        'resolution',
-        'aspect_ratio',
-        'mode',
-        'status',
-        'created_at',
-        'updated_at',
-        ...(videoFileSchema.required || []).filter(
-            (field) => ![
-                'uuid',
-                'url',
-                'format',
-                'duration',
-                'resolution',
-                'aspect_ratio',
-                'mode',
-                'status',
-                'created_at',
-                'updated_at'
-            ].includes(field)
-        )
-    ];
-    components.schemas.VideoTaskOutput.properties.videos.description =
-        'All child video tasks and their current output information. url and format are null until a result file is available.';
-    delete components.schemas.Task.properties.result;
-    taskOperation.description = 'Returns task status and output by batch task ID or child video UUID. Provide exactly one of the id or uuid query parameters.';
-    taskOperation.parameters = [
-        {
-            name: 'id',
-            in: 'query',
-            required: false,
-            description: 'Batch task ID returned by a generation request. Provide this or uuid, but not both.',
-            schema: {
-                type: 'string',
-                example: 'normal-video-c50fe63e-699d-4d61-93f5-2099ab159d6d'
-            }
-        },
-        {
-            name: 'uuid',
-            in: 'query',
-            required: false,
-            description: 'Child video UUID returned in the generation response. Provide this or id, but not both.',
-            schema: {
-                type: 'string',
-                format: 'uuid',
-                example: '7d1fa4bb-41e6-4a5d-88d8-1851f5342e87'
-            }
-        }
-    ];
-    taskOperation.responses['200'].content['application/json'].example = {
-        id: 'normal-video-c50fe63e-699d-4d61-93f5-2099ab159d6d',
-        status: 'succeeded',
-        mode: 'first_frame_image_to_video',
-        model: 'bytedance/seedance-2.0-fast',
-        created_at: 1784044800,
-        updated_at: 1784044842,
-        usage: { credits: 26 },
-        output: {
-            videos: [
-                {
-                    uuid: '7d1fa4bb-41e6-4a5d-88d8-1851f5342e87',
-                    url: 'https://cdn.neural4d.com/results/video.mp4',
-                    format: 'mp4',
-                    duration: 5,
-                    resolution: '720p',
-                    aspect_ratio: '16:9',
-                    mode: 'first_frame_image_to_video',
-                    status: 'succeeded',
-                    created_at: 1784044800,
-                    updated_at: 1784044842
-                }
-            ]
-        }
-    };
-
-    const publicPaths = {
-        [filePath]: { post: fileOperation },
-        [videoPath]: paths[videoPath],
-        [taskPath]: paths[taskPath]
-    };
-
-    return {
-        paths: publicPaths,
-        components: collectReferencedComponents(publicPaths, components)
-    };
-}
-
 function buildV1Spec(source) {
     const paths = JSON.parse(JSON.stringify(Object.fromEntries(
         Object.entries(source.paths).filter(([route]) => route.startsWith('/openapi/v1'))
@@ -3444,14 +2572,12 @@ function buildV1Spec(source) {
         applyV1ContractAdjustments(paths, components);
     }
     applyV1ProductDecisions(paths, components);
-    applyTaskIdentityContract(paths, components);
-    const publicSpec = exposeVideoOnlyV1(paths, components);
 
     return {
         openapi: source.openapi,
         info: {
             title: 'Neural4D API',
-            description: 'API v1 uploads reusable input files, creates videos asynchronously, and retrieves task status and results.',
+            description: 'API v1 provides model discovery, managed input files, asynchronous generation and 3D processing tasks, task progress, credit usage, and credit balance.',
             version: '1.0.0'
         },
         servers: [
@@ -3461,11 +2587,9 @@ function buildV1Spec(source) {
             }
         ],
         security: [{ bearerAuth: [] }],
-        tags: v1Tags
-            .filter(({ name }) => ['Video generation', 'Tasks', 'Files'].includes(name))
-            .map(({ name, description }) => ({ name, description })),
-        paths: publicSpec.paths,
-        components: publicSpec.components
+        tags: v1Tags.map(({ name, description }) => ({ name, description })),
+        paths,
+        components
     };
 }
 
@@ -3663,39 +2787,10 @@ function preserveLegacySpecs() {
 
 preserveLegacySpecs();
 
-if (!fs.existsSync(fullV1BackupPath)) {
-    throw new Error(`Full v1 backup not found: ${fullV1BackupPath}`);
-}
-
-function applyVideoModelFieldDescriptions(spec, languageIndex) {
-    const schema = spec.components.schemas.VideoGenerationJsonRequest;
-    if (!schema) {
-        return;
-    }
-
-    for (const [fieldName, descriptions] of Object.entries(videoModelFieldDescriptions)) {
-        if (schema.properties?.[fieldName]) {
-            schema.properties[fieldName].description = descriptions[languageIndex];
-        }
-    }
-    for (const branch of schema.allOf?.[0]?.oneOf || []) {
-        const properties = branch.$ref
-            ? spec.components.schemas[branch.$ref.split('/').pop()]?.properties
-            : branch.properties;
-        for (const fieldName of ['model', 'resolution', 'aspect_ratio', 'duration']) {
-            if (properties?.[fieldName]) {
-                properties[fieldName].description = videoModelFieldDescriptions[fieldName][languageIndex];
-            }
-        }
-    }
-}
-
-const v1English = buildV1Spec(readJson(fullV1BackupPath));
+const v1English = buildV1Spec(readJson(currentEnglishPath));
 applyFieldDescriptions(v1English, 0);
-applyVideoModelFieldDescriptions(v1English, 0);
 const v1Chinese = localize(v1English);
 applyFieldDescriptions(v1Chinese, 1);
-applyVideoModelFieldDescriptions(v1Chinese, 1);
 preserveEnglishMessageValues(v1English, v1Chinese);
 
 assertAllFieldsDocumented(v1English);

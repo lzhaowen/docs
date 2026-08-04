@@ -1,45 +1,33 @@
 ---
-title: "Neural4D API docs"
-description: "Browse Neural4D management APIs for 3D generation, media generation, model conversion, and balance queries."
+title: "Quickstart"
+description: "Authenticate, create asynchronous video tasks, and retrieve their results."
 keywords:
   - Neural4D
   - API
-  - management API
-  - text-to-3d
-  - image generation
+  - quickstart
 ---
 
-This site documents the available Neural4D management APIs. Browse the API reference to view endpoint paths, parameters, response fields, and request examples.
+Use `https://api.neural4d.com/openapi/v1` as the base path and send your API key as `Authorization: Bearer ${YOUR_API_KEY}`.
 
 <Note>
-All endpoints use `Bearer token` authentication and the `https://alb.neural4d.com:3000` base URL. Most generation endpoints return a `uuid` or `uuids` first, which you then use to query the final result.
+Video generation requests use JSON. Put first-frame and last-frame images in `frame_images`, and put typed image, video, or audio references in `input_references`. Upload every input first and use the returned `file_id`.
 </Note>
 
-## Included capabilities
+## Request flow
 
-- Text-to-3D model generation
-- Image-to-3D model generation and chibi-style model generation
-- Picture generation and video generation
-- Generation result lookup and job progress lookup
-- Model format conversion and download
-- Portrait image detection and points balance queries
-
-## Get started
+1. Upload each reusable input with `POST /openapi/v1/files` and store the returned `file_id`.
+2. Submit `POST /openapi/v1/videos/generations` and store the returned task `id`.
+3. Poll `GET /openapi/v1/tasks/task-info?id={id}` until the task reaches a terminal status.
+4. Read the child `uuid`, `aspect_ratio`, `mode`, and generated video URL from `output.videos`.
 
 <Columns cols={3}>
-  <Card title="Quickstart" icon="rocket" href="/en/quickstart">
-    Review authentication, async job flow, and the minimum request pattern.
+  <Card title="Request examples" icon="rocket" href="/en/v1-overview">
+    View cURL, Python, Node.js, and Go examples.
   </Card>
-  <Card title="Request flow" icon="workflow" href="/en/quickstart#request-flow">
-    Review the standard sequence for creating tasks, querying results, and downloading models.
+  <Card title="Common headers" icon="brackets" href="/en/common-headers">
+    Review authentication and request tracing headers.
   </Card>
-  <Card title="OpenAPI reference" icon="code" href="/en-api-reference">
-    Browse the generated English OpenAPI reference.
+  <Card title="API reference" icon="code" href="/en-v1-api-reference/video-generation/create-video-generation-tasks">
+    Browse the video generation API reference.
   </Card>
 </Columns>
-
-## Usage tips
-
-- Start with `/en/quickstart` to confirm authentication and the async result flow.
-- Open `API reference` in the left navigation to review each endpoint's fields and examples.
-- Use the contextual `download-spec` action on an API reference page when you need the OpenAPI document.

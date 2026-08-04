@@ -1,35 +1,33 @@
 ---
-title: "Neural4D API docs"
-description: "Browse Neural4D management APIs for 3D generation, media generation, model conversion, and balance queries."
+title: "Quickstart"
+description: "Authenticate, create asynchronous video tasks, and retrieve their results."
 keywords:
   - Neural4D
   - API
-  - management API
+  - quickstart
 ---
 
-This site documents the currently available Neural4D management APIs. Browse the API reference to view endpoint paths, parameters, response fields, and request examples.
+Use `https://api.neural4d.com/openapi/v1` as the base path and send your API key as `Authorization: Bearer ${YOUR_API_KEY}`.
 
 <Note>
-  Open the generated English API reference from the left navigation. Switch to Chinese to view the localized API reference.
+  Video generation requests use JSON. Put first-frame and last-frame images in `frame_images`, and put typed image, video, or audio references in `input_references`. Upload every input first and use the returned `file_id`.
 </Note>
 
-## Included capabilities
+## Request flow
 
-- Text-to-3D model generation
-- Image-to-3D model generation and chibi-style model generation
-- Picture generation and video generation
-- Generation result lookup and job progress lookup
-- Model format conversion and download
-- Portrait image detection and points balance queries
+1. Upload each reusable input with `POST /openapi/v1/files` and store the returned `file_id`.
+2. Submit `POST /openapi/v1/videos/generations` and store the returned task `id`.
+3. Poll `GET /openapi/v1/tasks/task-info?id={id}` until the task reaches a terminal status.
+4. Read the child `uuid`, `aspect_ratio`, `mode`, and generated video URL from `output.videos`.
 
 <Columns cols={3}>
-  <Card title="Quickstart" icon="rocket" href="/en/quickstart">
-    Review authentication, async job flow, and the minimum request pattern.
+  <Card title="Request examples" icon="rocket" href="/en/v1-overview">
+    View cURL, Python, Node.js, and Go examples.
   </Card>
-  <Card title="OpenAPI reference" icon="code" href="/en-api-reference">
-    Browse the generated English OpenAPI reference.
+  <Card title="Common headers" icon="brackets" href="/en/common-headers">
+    Review authentication and request tracing headers.
   </Card>
-  <Card title="Chinese API reference" icon="globe" href="/zh-api-reference">
-    Browse the generated Chinese OpenAPI reference.
+  <Card title="API reference" icon="code" href="/en-v1-api-reference/video-generation/create-video-generation-tasks">
+    Browse the video generation API reference.
   </Card>
 </Columns>
