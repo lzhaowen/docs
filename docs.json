@@ -21,10 +21,9 @@
         "versions": [
           {
             "version": "v1",
-            "default": true,
             "groups": [
               {
-                "group": "Quickstart",
+                "group": "Get started",
                 "pages": [
                   "en/v1-overview",
                   "en/common-headers"
@@ -41,12 +40,13 @@
           },
           {
             "version": "old",
+            "default": true,
             "groups": [
               {
                 "group": "Get started",
                 "pages": [
-                  "en/old-overview",
-                  "en/quickstart"
+                  "en/quickstart",
+                  "en/old-overview"
                 ]
               },
               {
@@ -65,10 +65,9 @@
         "versions": [
           {
             "version": "v1",
-            "default": true,
             "groups": [
               {
-                "group": "快速开始",
+                "group": "开始使用",
                 "pages": [
                   "zh/v1-overview",
                   "zh/common-headers"
@@ -85,12 +84,13 @@
           },
           {
             "version": "old",
+            "default": true,
             "groups": [
               {
                 "group": "开始使用",
                 "pages": [
-                  "zh/old-overview",
-                  "zh/quickstart"
+                  "zh/quickstart",
+                  "zh/old-overview"
                 ]
               },
               {
@@ -108,7 +108,8 @@
   },
   "logo": {
     "light": "/logo/n4d-black.png",
-    "dark": "/logo/n4d-white.png"
+    "dark": "/logo/n4d-white.png",
+    "href": "/en/quickstart"
   },
   "api": {
     "playground": {
@@ -147,15 +148,15 @@
   "redirects": [
     {
       "source": "/",
-      "destination": "/en/v1-overview"
+      "destination": "/en/quickstart"
     },
     {
       "source": "/en",
-      "destination": "/en/v1-overview"
+      "destination": "/en/quickstart"
     },
     {
       "source": "/zh",
-      "destination": "/zh/v1-overview"
+      "destination": "/zh/quickstart"
     }
   ]
 }

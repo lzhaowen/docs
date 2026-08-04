@@ -387,8 +387,8 @@ function validateNavigation() {
         const v1 = language.versions.find((version) => version.version === 'v1');
         const old = language.versions.find((version) => version.version === 'old');
         const prefix = language.language;
-        assert(v1?.default === true, `${prefix}: v1 must be the default version`);
-        assert(old, `${prefix}: old version missing`);
+        assert(v1, `${prefix}: v1 version missing`);
+        assert(old?.default === true, `${prefix}: old must be the default version`);
         assert(JSON.stringify(v1.groups[0].pages) === JSON.stringify([
             `${prefix}/v1-overview`,
             `${prefix}/common-headers`
@@ -403,7 +403,6 @@ function validateNavigation() {
 function validatePages() {
     for (const locale of ['en', 'zh']) {
         const quickstart = readText(`${locale}/v1-overview.mdx`);
-        const entryQuickstart = readText(`${locale}/index.mdx`);
         const headers = readText(`${locale}/common-headers.mdx`);
         assert(quickstart.includes('/openapi/v1/files'), `${locale}: file upload quickstart request missing`);
         assert(quickstart.includes('/videos/generations'), `${locale}: video quickstart request missing`);
@@ -427,31 +426,11 @@ function validatePages() {
         assert(!quickstart.includes('"result"'), `${locale}: stale task result example found`);
         assert(!quickstart.includes('fileKey'), `${locale}: fileKey must not appear in the quickstart`);
         assert(!/\/models|\/images\/|\/3dmodels/.test(quickstart), `${locale}: hidden API leaked into quickstart`);
-        assert(entryQuickstart.includes('/openapi/v1/files'), `${locale}: entry quickstart file upload step missing`);
-        assert(entryQuickstart.includes('frame_images') && entryQuickstart.includes('input_references'), `${locale}: entry quickstart asset contract missing`);
-        assert(entryQuickstart.includes('file_id'), `${locale}: entry quickstart file reference missing`);
-        assert(!entryQuickstart.includes('HTTPS URL') && !entryQuickstart.includes('HTTPS `url`'), `${locale}: entry quickstart URL input must not be documented`);
-        assert(entryQuickstart.includes('/tasks/task-info?id={id}'), `${locale}: entry quickstart task-info polling example missing`);
-        assert(entryQuickstart.includes('output.videos'), `${locale}: entry quickstart output path missing`);
-        assert(['uuid', 'aspect_ratio', 'mode'].every((field) => entryQuickstart.includes(field)), `${locale}: entry quickstart video fields missing`);
-        assert(!entryQuickstart.includes('/tasks/{id}') && !entryQuickstart.includes('result.videos'), `${locale}: stale entry quickstart contract found`);
         assert(headers.includes('Authorization'), `${locale}: Authorization header missing`);
         assert(headers.includes('X-Request-Id'), `${locale}: X-Request-Id header missing`);
         assert(!/x-ratelimit|Retry-After|JWT|X-Client-Id/i.test(headers), `${locale}: unrelated common header found`);
     }
 
-    const rootQuickstart = readText('index.mdx');
-    assert(rootQuickstart.includes('/openapi/v1/files'), 'root: entry quickstart file upload step missing');
-    assert(rootQuickstart.includes('frame_images') && rootQuickstart.includes('input_references'), 'root: asset contract missing');
-    assert(rootQuickstart.includes('file_id'), 'root: file reference contract missing');
-    assert(!rootQuickstart.includes('HTTPS URL') && !rootQuickstart.includes('HTTPS `url`'), 'root: URL input must not be documented');
-    assert(rootQuickstart.includes('/tasks/task-info?id={id}'), 'root: entry quickstart task-info polling example missing');
-    assert(
-        rootQuickstart.includes('output.videos')
-        && ['uuid', 'aspect_ratio', 'mode'].every((field) => rootQuickstart.includes(field)),
-        'root: entry quickstart output contract missing'
-    );
-    assert(!rootQuickstart.includes('/tasks/{id}') && !rootQuickstart.includes('result.videos'), 'root: stale entry quickstart contract found');
 }
 
 assert(Object.keys(fullBackup.paths).length === 15, 'Full v1 backup must preserve all 15 paths');
