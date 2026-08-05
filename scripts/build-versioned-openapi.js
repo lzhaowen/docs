@@ -17,7 +17,7 @@ const publicVideoModelCapabilities = {
         aspectRatios: ['1:1', '16:9', '9:16', '4:3', '3:4'],
         durations: [4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15],
         supportsOutputWithAudio: true,
-        defaults: { resolution: '720p', aspectRatio: '16:9', duration: 5, outputWithAudio: false }
+        defaults: { resolution: '720p', aspectRatio: '16:9', duration: 5, outputWithAudio: true }
     },
     'bytedance/seedance-2.0-fast': {
         resolutions: ['480p', '720p'],
@@ -79,8 +79,8 @@ const videoModelFieldDescriptions = {
 };
 const videoModelOutputWithAudioDescriptions = {
     'bytedance/seedance-2.0': [
-        'Whether to generate native audio with the video. Disabled by default for Seedance 2.0.',
-        '是否随视频生成原生音频。Seedance 2.0 默认关闭。'
+        'Whether to generate native audio with the video. Enabled by default for Seedance 2.0.',
+        '是否随视频生成原生音频。Seedance 2.0 默认开启。'
     ],
     'bytedance/seedance-2.0-fast': [
         'Whether to generate native audio with the video. Enabled by default for Seedance 2.0 Fast.',

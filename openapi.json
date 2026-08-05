@@ -786,8 +786,8 @@
         "properties": {
           "output_with_audio": {
             "type": "boolean",
-            "description": "Whether to generate native audio with the video. Disabled by default for Seedance 2.0.",
-            "default": false
+            "description": "Whether to generate native audio with the video. Enabled by default for Seedance 2.0.",
+            "default": true
           },
           "model": {
             "type": "string",

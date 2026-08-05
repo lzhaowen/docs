@@ -786,8 +786,8 @@
         "properties": {
           "output_with_audio": {
             "type": "boolean",
-            "description": "是否随视频生成原生音频。Seedance 2.0 默认关闭。",
-            "default": false
+            "description": "是否随视频生成原生音频。Seedance 2.0 默认开启。",
+            "default": true
           },
           "model": {
             "type": "string",
