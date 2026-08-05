@@ -22,21 +22,21 @@ const publicVideoModelCapabilities = {
         aspectRatios: ['1:1', '16:9', '9:16', '4:3', '3:4'],
         durations: [4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15],
         supportsOutputWithAudio: true,
-        defaults: { resolution: '720p', aspectRatio: '16:9', duration: 5 }
+        defaults: { resolution: '720p', aspectRatio: '16:9', duration: 5, outputWithAudio: false }
     },
     'bytedance/seedance-2.0-fast': {
         resolutions: ['480p', '720p'],
         aspectRatios: ['1:1', '16:9', '9:16', '4:3', '3:4'],
         durations: [4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15],
         supportsOutputWithAudio: true,
-        defaults: { resolution: '720p', aspectRatio: '16:9', duration: 5 }
+        defaults: { resolution: '720p', aspectRatio: '16:9', duration: 5, outputWithAudio: true }
     },
     'google/veo-3.1': {
         resolutions: ['720p', '1080p', '4K'],
         aspectRatios: ['16:9', '9:16'],
         durations: [4, 5, 6, 7, 8],
         supportsOutputWithAudio: true,
-        defaults: { resolution: '720p', aspectRatio: '16:9', duration: 8 }
+        defaults: { resolution: '720p', aspectRatio: '16:9', duration: 8, outputWithAudio: true }
     },
     'xai/grok-imagine': {
         resolutions: ['480p', '720p'],
@@ -50,6 +50,18 @@ const publicVideoModelCapabilities = {
     }
 };
 const publicModels = Object.keys(publicVideoModelCapabilities);
+const outputWithAudioDescriptions = {
+    en: {
+        'bytedance/seedance-2.0': 'Whether to generate native audio with the video. Disabled by default for Seedance 2.0.',
+        'bytedance/seedance-2.0-fast': 'Whether to generate native audio with the video. Enabled by default for Seedance 2.0 Fast.',
+        'google/veo-3.1': 'Whether to generate native audio with the video. Enabled by default for Veo 3.1.'
+    },
+    zh: {
+        'bytedance/seedance-2.0': '是否随视频生成原生音频。Seedance 2.0 默认关闭。',
+        'bytedance/seedance-2.0-fast': '是否随视频生成原生音频。Seedance 2.0 Fast 默认开启。',
+        'google/veo-3.1': '是否随视频生成原生音频。Veo 3.1 默认开启。'
+    }
+};
 const publicResolutions = ['480p', '720p', '1080p', '4K'];
 const publicAspectRatios = ['1:1', '16:9', '9:16', '4:3', '3:4', '2:3', '3:2'];
 const publicModes = [
@@ -193,6 +205,11 @@ function validateSpec(spec, label) {
     assert(!videoRequest.properties.duration.enum, `${label}: duration enum must be model-specific`);
     assert(!videoRequest.properties.duration_seconds, `${label}: request duration_seconds must not be public`);
     assert(videoRequest.properties.output_with_audio.type === 'boolean', `${label}: output_with_audio must be boolean`);
+    assert(
+        videoRequest.properties.output_with_audio.description
+            === (label === 'en' ? 'Whether to generate native audio with the video.' : '是否随视频生成原生音频。'),
+        `${label}: top-level output_with_audio description must stay model-neutral`
+    );
     assert(!videoRequest.properties.size, `${label}: video size must not be public`);
     assert(!videoRequest.not, `${label}: stale resolution/size constraint must not be public`);
     assert(videoRequest.properties.n.minimum === 1 && videoRequest.properties.n.maximum === 4, `${label}: task count range mismatch`);
@@ -216,6 +233,14 @@ function validateSpec(spec, label) {
         assert(branchSchema.properties.duration.default === capability.defaults.duration, `${label}: ${model} duration default mismatch`);
         if (capability.supportsOutputWithAudio) {
             assert(branchSchema.properties.output_with_audio?.type === 'boolean', `${label}: ${model} audio output capability missing`);
+            assert(
+                branchSchema.properties.output_with_audio.default === capability.defaults.outputWithAudio,
+                `${label}: ${model} audio output default mismatch`
+            );
+            assert(
+                branchSchema.properties.output_with_audio.description === outputWithAudioDescriptions[label][model],
+                `${label}: ${model} audio output description mismatch`
+            );
             assert(!branchSchema.not, `${label}: ${model} must allow output_with_audio`);
         } else {
             assert(!branchSchema.properties.output_with_audio, `${label}: ${model} must not expose output_with_audio`);

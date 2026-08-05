@@ -17,21 +17,21 @@ const publicVideoModelCapabilities = {
         aspectRatios: ['1:1', '16:9', '9:16', '4:3', '3:4'],
         durations: [4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15],
         supportsOutputWithAudio: true,
-        defaults: { resolution: '720p', aspectRatio: '16:9', duration: 5 }
+        defaults: { resolution: '720p', aspectRatio: '16:9', duration: 5, outputWithAudio: false }
     },
     'bytedance/seedance-2.0-fast': {
         resolutions: ['480p', '720p'],
         aspectRatios: ['1:1', '16:9', '9:16', '4:3', '3:4'],
         durations: [4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15],
         supportsOutputWithAudio: true,
-        defaults: { resolution: '720p', aspectRatio: '16:9', duration: 5 }
+        defaults: { resolution: '720p', aspectRatio: '16:9', duration: 5, outputWithAudio: true }
     },
     'google/veo-3.1': {
         resolutions: ['720p', '1080p', '4K'],
         aspectRatios: ['16:9', '9:16'],
         durations: [4, 5, 6, 7, 8],
         supportsOutputWithAudio: true,
-        defaults: { resolution: '720p', aspectRatio: '16:9', duration: 8 }
+        defaults: { resolution: '720p', aspectRatio: '16:9', duration: 8, outputWithAudio: true }
     },
     'xai/grok-imagine': {
         resolutions: ['480p', '720p'],
@@ -69,12 +69,26 @@ const videoModelFieldDescriptions = {
         '所选视频模型允许的时长，单位为秒。'
     ],
     output_with_audio: [
-        'Whether to generate native audio with the video. Supported by Seedance 2.0, Seedance 2.0 Fast, and Veo 3.1. If omitted, the selected model\'s configured default applies.',
-        '是否随视频生成原生音频。Seedance 2.0、Seedance 2.0 Fast 和 Veo 3.1 支持此参数。省略时使用所选模型的当前默认值。'
+        'Whether to generate native audio with the video.',
+        '是否随视频生成原生音频。'
     ],
     input_references: [
         'Uploaded image, video, and audio reference assets. Images support JPG, JPEG, PNG, and WEBP; videos support MP4 and MOV; audio supports MP3 and WAV. The endpoint accepts up to six images, four videos, and two audio files. Each audio file must be 2 to 15 seconds and no larger than 15 MB, and the combined audio duration must not exceed 15 seconds. Audio must be accompanied by at least one image or video. The downstream request body must not exceed 64 MB; do not Base64-encode large files. Every item declares its media type and requires file_id.',
         '已上传的图片、视频和音频参考素材。图片支持 JPG、JPEG、PNG 和 WEBP，视频支持 MP4 和 MOV，音频支持 MP3 和 WAV。接口最多接受六张图片、四个视频和两个音频。单个音频时长为 2 至 15 秒且不超过 15 MB，所有音频总时长不超过 15 秒。音频必须与至少一个图片或视频同时使用。下游请求体不得超过 64 MB；大文件不要使用 Base64 编码。每项声明媒体类型，并且必须提供 file_id。'
+    ]
+};
+const videoModelOutputWithAudioDescriptions = {
+    'bytedance/seedance-2.0': [
+        'Whether to generate native audio with the video. Disabled by default for Seedance 2.0.',
+        '是否随视频生成原生音频。Seedance 2.0 默认关闭。'
+    ],
+    'bytedance/seedance-2.0-fast': [
+        'Whether to generate native audio with the video. Enabled by default for Seedance 2.0 Fast.',
+        '是否随视频生成原生音频。Seedance 2.0 Fast 默认开启。'
+    ],
+    'google/veo-3.1': [
+        'Whether to generate native audio with the video. Enabled by default for Veo 3.1.',
+        '是否随视频生成原生音频。Veo 3.1 默认开启。'
     ]
 };
 const publicVideoModes = [
@@ -3078,7 +3092,8 @@ function exposeVideoOnlyV1(paths, components) {
                 ...(capability.supportsOutputWithAudio ? {
                     output_with_audio: {
                         type: 'boolean',
-                        description: videoModelFieldDescriptions.output_with_audio[0]
+                        default: capability.defaults.outputWithAudio,
+                        description: videoModelOutputWithAudioDescriptions[model][0]
                     }
                 } : {})
             },
@@ -3858,10 +3873,14 @@ function applyVideoModelFieldDescriptions(spec, languageIndex) {
         const properties = branch.$ref
             ? spec.components.schemas[branch.$ref.split('/').pop()]?.properties
             : branch.properties;
-        for (const fieldName of ['model', 'resolution', 'aspect_ratio', 'duration', 'output_with_audio']) {
+        for (const fieldName of ['model', 'resolution', 'aspect_ratio', 'duration']) {
             if (properties?.[fieldName]) {
                 properties[fieldName].description = videoModelFieldDescriptions[fieldName][languageIndex];
             }
+        }
+        const model = properties?.model?.enum?.[0];
+        if (properties?.output_with_audio && videoModelOutputWithAudioDescriptions[model]) {
+            properties.output_with_audio.description = videoModelOutputWithAudioDescriptions[model][languageIndex];
         }
     }
 }

@@ -675,7 +675,7 @@
         "properties": {
           "output_with_audio": {
             "type": "boolean",
-            "description": "是否随视频生成原生音频。Seedance 2.0、Seedance 2.0 Fast 和 Veo 3.1 支持此参数。省略时使用所选模型的当前默认值。"
+            "description": "是否随视频生成原生音频。"
           },
           "model": {
             "type": "string",
@@ -786,7 +786,8 @@
         "properties": {
           "output_with_audio": {
             "type": "boolean",
-            "description": "是否随视频生成原生音频。Seedance 2.0、Seedance 2.0 Fast 和 Veo 3.1 支持此参数。省略时使用所选模型的当前默认值。"
+            "description": "是否随视频生成原生音频。Seedance 2.0 默认关闭。",
+            "default": false
           },
           "model": {
             "type": "string",
@@ -849,7 +850,8 @@
         "properties": {
           "output_with_audio": {
             "type": "boolean",
-            "description": "是否随视频生成原生音频。Seedance 2.0、Seedance 2.0 Fast 和 Veo 3.1 支持此参数。省略时使用所选模型的当前默认值。"
+            "description": "是否随视频生成原生音频。Seedance 2.0 Fast 默认开启。",
+            "default": true
           },
           "model": {
             "type": "string",
@@ -910,7 +912,8 @@
         "properties": {
           "output_with_audio": {
             "type": "boolean",
-            "description": "是否随视频生成原生音频。Seedance 2.0、Seedance 2.0 Fast 和 Veo 3.1 支持此参数。省略时使用所选模型的当前默认值。"
+            "description": "是否随视频生成原生音频。Veo 3.1 默认开启。",
+            "default": true
           },
           "model": {
             "type": "string",

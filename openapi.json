@@ -675,7 +675,7 @@
         "properties": {
           "output_with_audio": {
             "type": "boolean",
-            "description": "Whether to generate native audio with the video. Supported by Seedance 2.0, Seedance 2.0 Fast, and Veo 3.1. If omitted, the selected model's configured default applies."
+            "description": "Whether to generate native audio with the video."
           },
           "model": {
             "type": "string",
@@ -786,7 +786,8 @@
         "properties": {
           "output_with_audio": {
             "type": "boolean",
-            "description": "Whether to generate native audio with the video. Supported by Seedance 2.0, Seedance 2.0 Fast, and Veo 3.1. If omitted, the selected model's configured default applies."
+            "description": "Whether to generate native audio with the video. Disabled by default for Seedance 2.0.",
+            "default": false
           },
           "model": {
             "type": "string",
@@ -849,7 +850,8 @@
         "properties": {
           "output_with_audio": {
             "type": "boolean",
-            "description": "Whether to generate native audio with the video. Supported by Seedance 2.0, Seedance 2.0 Fast, and Veo 3.1. If omitted, the selected model's configured default applies."
+            "description": "Whether to generate native audio with the video. Enabled by default for Seedance 2.0 Fast.",
+            "default": true
           },
           "model": {
             "type": "string",
@@ -910,7 +912,8 @@
         "properties": {
           "output_with_audio": {
             "type": "boolean",
-            "description": "Whether to generate native audio with the video. Supported by Seedance 2.0, Seedance 2.0 Fast, and Veo 3.1. If omitted, the selected model's configured default applies."
+            "description": "Whether to generate native audio with the video. Enabled by default for Veo 3.1.",
+            "default": true
           },
           "model": {
             "type": "string",
