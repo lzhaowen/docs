@@ -16,18 +16,21 @@ const publicVideoModelCapabilities = {
         resolutions: ['480p', '720p', '1080p', '4K'],
         aspectRatios: ['1:1', '16:9', '9:16', '4:3', '3:4'],
         durations: [4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15],
+        supportsOutputWithAudio: true,
         defaults: { resolution: '720p', aspectRatio: '16:9', duration: 5 }
     },
     'bytedance/seedance-2.0-fast': {
         resolutions: ['480p', '720p'],
         aspectRatios: ['1:1', '16:9', '9:16', '4:3', '3:4'],
         durations: [4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15],
+        supportsOutputWithAudio: true,
         defaults: { resolution: '720p', aspectRatio: '16:9', duration: 5 }
     },
     'google/veo-3.1': {
         resolutions: ['720p', '1080p', '4K'],
         aspectRatios: ['16:9', '9:16'],
         durations: [4, 5, 6, 7, 8],
+        supportsOutputWithAudio: true,
         defaults: { resolution: '720p', aspectRatio: '16:9', duration: 8 }
     },
     'xai/grok-imagine': {
@@ -37,6 +40,7 @@ const publicVideoModelCapabilities = {
             6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18,
             19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30
         ],
+        supportsOutputWithAudio: false,
         defaults: { resolution: '720p', aspectRatio: '16:9', duration: 6 }
     }
 };
@@ -64,9 +68,13 @@ const videoModelFieldDescriptions = {
         'Duration allowed by the selected video model, in seconds.',
         '所选视频模型允许的时长，单位为秒。'
     ],
+    output_with_audio: [
+        'Whether to generate native audio with the video. Supported by Seedance 2.0, Seedance 2.0 Fast, and Veo 3.1. If omitted, the selected model\'s configured default applies.',
+        '是否随视频生成原生音频。Seedance 2.0、Seedance 2.0 Fast 和 Veo 3.1 支持此参数。省略时使用所选模型的当前默认值。'
+    ],
     input_references: [
-        'Uploaded image, video, and audio reference assets. The endpoint accepts up to six images, four videos, and two audio files. Audio must be accompanied by at least one image or video. Every item declares its media type and requires file_id.',
-        '已上传的图片、视频和音频参考素材。接口最多接受六张图片、四个视频和两个音频；音频必须与至少一个图片或视频同时使用。每项声明媒体类型，并且必须提供 file_id。'
+        'Uploaded image, video, and audio reference assets. Images support JPG, JPEG, PNG, and WEBP; videos support MP4 and MOV; audio supports MP3 and WAV. The endpoint accepts up to six images, four videos, and two audio files. Each audio file must be 2 to 15 seconds and no larger than 15 MB, and the combined audio duration must not exceed 15 seconds. Audio must be accompanied by at least one image or video. The downstream request body must not exceed 64 MB; do not Base64-encode large files. Every item declares its media type and requires file_id.',
+        '已上传的图片、视频和音频参考素材。图片支持 JPG、JPEG、PNG 和 WEBP，视频支持 MP4 和 MOV，音频支持 MP3 和 WAV。接口最多接受六张图片、四个视频和两个音频。单个音频时长为 2 至 15 秒且不超过 15 MB，所有音频总时长不超过 15 秒。音频必须与至少一个图片或视频同时使用。下游请求体不得超过 64 MB；大文件不要使用 Base64 编码。每项声明媒体类型，并且必须提供 file_id。'
     ]
 };
 const publicVideoModes = [
@@ -140,6 +148,7 @@ const schemaFieldDescriptions = {
         duration: ['Generated video duration in seconds when available.', '可用时返回生成视频的时长，单位为秒。'],
         resolution: ['Generated video resolution when available, such as 720p.', '可用时返回生成视频的分辨率，例如 720p。'],
         aspect_ratio: ['Generated video aspect ratio when available, such as 16:9.', '可用时返回生成视频的宽高比，例如 16:9。'],
+        has_audio: ['Whether native audio generation was enabled for this video.', '此视频是否启用了原生音频生成。'],
         mode: ['Generation mode used for this video.', '此视频使用的生成模式。'],
         status: ['Current status of this generated video.', '此生成视频的当前状态。'],
         created_at: ['Unix timestamp in seconds when this generated video was created.', '此生成视频的创建时间，Unix 时间戳，单位为秒。'],
@@ -163,7 +172,10 @@ const schemaFieldDescriptions = {
         images: ['Generated image files returned after the task succeeds.', '任务成功后返回的生成图片文件列表。']
     },
     VideoTaskOutput: {
-        videos: ['Child video tasks and their current output information.', '子视频任务及其当前输出信息。']
+        videos: [
+            'All child video tasks and their current output information. url and format are null until a result file is available.',
+            '所有子视频任务及其当前输出信息；结果文件可用前 url 和 format 为 null。'
+        ]
     },
     ModelTaskOutput: {
         models: ['Generated 3D model files returned after the task succeeds.', '任务成功后返回的生成 3D 模型文件列表。']
@@ -177,7 +189,10 @@ const schemaFieldDescriptions = {
         type: ['Operation type performed by the task.', '任务执行的操作类型。'],
         status: ['Normalized task lifecycle status.', '标准化后的任务生命周期状态。'],
         mode: ['Video generation mode used by the task.', '任务使用的视频生成模式。'],
-        output: ['Generated output returned after asynchronous processing completes.', '异步处理完成后返回的生成结果。'],
+        output: [
+            'Current child video task output, including entries that are still queued or processing.',
+            '当前子视频任务输出，包括仍在排队或处理中的条目。'
+        ],
         usage: ['Credits charged for this task when available.', '可用时返回此任务扣除的点数。'],
         error: ['Error details when the task fails.', '任务失败时返回的错误详情。'],
         progress: ['Task completion percentage from 0 to 100.', '任务完成进度百分比，范围为 0 到 100。']
@@ -331,9 +346,13 @@ const schemaFieldDescriptions = {
     VideoGenerationJsonRequest: {
         model: ['Video generation model identifier.', '视频生成模型标识。'],
         prompt: ['Required text instruction describing the video to generate.', '描述待生成视频内容的必填文本提示词。'],
-        frame_images: ['First-frame and last-frame images uploaded through POST /openapi/v1/files. Each frame_type may appear at most once, and every item requires file_id.', '通过 POST /openapi/v1/files 上传的首帧和尾帧图片。每个 frame_type 最多出现一次，每项都必须提供 file_id。'],
-        input_references: ['Uploaded image, video, and audio reference assets. The endpoint accepts up to six images, four videos, and two audio files. Audio must be accompanied by at least one image or video. Every item declares its media type and requires file_id.', '已上传的图片、视频和音频参考素材。接口最多接受六张图片、四个视频和两个音频；音频必须与至少一个图片或视频同时使用。每项声明媒体类型，并且必须提供 file_id。'],
+        frame_images: [
+            'First-frame and last-frame images uploaded through POST /openapi/v1/files. Supported formats are JPG, JPEG, PNG, and WEBP. Each frame_type may appear at most once, and every item requires file_id.',
+            '通过 POST /openapi/v1/files 上传的首帧和尾帧图片，支持 JPG、JPEG、PNG 和 WEBP 格式。每个 frame_type 最多出现一次，每项都必须提供 file_id。'
+        ],
+        input_references: videoModelFieldDescriptions.input_references,
         duration: ['Target video duration in seconds.', '目标视频时长，单位为秒。'],
+        output_with_audio: ['Whether to generate native audio with the video.', '是否随视频生成原生音频。'],
         n: ['Number of video generation tasks to create.', '需要创建的视频生成任务数量。'],
         resolution: ['Named resolution published for the selected video model, currently 480p, 720p, 1080p, 1K, or 2K.', '所选视频模型公布的命名分辨率，当前为 480p、720p、1080p、1K 或 2K。'],
         aspect_ratio: ['Target video width-to-height ratio.', '目标视频宽高比。'],
@@ -342,19 +361,31 @@ const schemaFieldDescriptions = {
     VideoFrameImage: {
         type: ['Media type of the frame asset. Always image.', '帧素材的媒体类型，固定为 image。'],
         frame_type: ['Position represented by this image: first_frame or last_frame.', '此图片表示的帧位置：first_frame 或 last_frame。'],
-        file_id: ['File ID returned by the file upload endpoint.', '文件上传接口返回的文件 ID。']
+        file_id: [
+            'File ID returned by the file upload endpoint. Supported formats for frame images: JPG, JPEG, PNG, and WEBP.',
+            '文件上传接口返回的文件 ID。帧图片支持 JPG、JPEG、PNG 和 WEBP 格式。'
+        ]
     },
     VideoImageReference: {
         type: ['Media type of this reference. Always image.', '此参考素材的媒体类型，固定为 image。'],
-        file_id: ['File ID returned by the file upload endpoint.', '文件上传接口返回的文件 ID。']
+        file_id: [
+            'File ID returned by the file upload endpoint. Supported image reference formats: JPG, JPEG, PNG, and WEBP.',
+            '文件上传接口返回的文件 ID。图片参考素材支持 JPG、JPEG、PNG 和 WEBP 格式。'
+        ]
     },
     VideoVideoReference: {
         type: ['Media type of this reference. Always video.', '此参考素材的媒体类型，固定为 video。'],
-        file_id: ['File ID returned by the file upload endpoint.', '文件上传接口返回的文件 ID。']
+        file_id: [
+            'File ID returned by the file upload endpoint. Supported video reference formats: MP4 and MOV.',
+            '文件上传接口返回的文件 ID。视频参考素材支持 MP4 和 MOV 格式。'
+        ]
     },
     VideoAudioReference: {
         type: ['Media type of this reference. Always audio.', '此参考素材的媒体类型，固定为 audio。'],
-        file_id: ['File ID returned by the file upload endpoint.', '文件上传接口返回的文件 ID。']
+        file_id: [
+            'File ID returned by the file upload endpoint. Supported audio reference formats: MP3 and WAV. Each file must be 2 to 15 seconds and no larger than 15 MB.',
+            '文件上传接口返回的文件 ID。音频参考素材支持 MP3 和 WAV 格式，单个文件时长为 2 至 15 秒且不超过 15 MB。'
+        ]
     },
     ThreeDGenerationRequest: {
         model: ['Model identifier returned by GET /openapi/v1/models.', 'GET /openapi/v1/models 返回的模型标识。'],
@@ -402,7 +433,10 @@ const schemaFieldDescriptions = {
         has_more: ['Whether another page of managed files is available.', '是否还有下一页托管文件。']
     },
     CreateManagedFileRequest: {
-        file: ['Image or video uploaded from the local filesystem. Images may be JPG, JPEG, PNG, GIF, WEBP, BMP, HEIC, or HEIF up to 10 MB. Videos may be MP4, MOV, WEBM, M4V, OGG, or OGV up to 100 MB.', '从本地文件系统上传的图片或视频。图片支持不超过 10 MB 的 JPG、JPEG、PNG、GIF、WEBP、BMP、HEIC 或 HEIF；视频支持不超过 100 MB 的 MP4、MOV、WEBM、M4V、OGG 或 OGV。']
+        file: [
+            'File to upload. Supported image formats: JPG, JPEG, PNG, GIF, WEBP, BMP, HEIC, and HEIF. Supported video formats: MP4, MOV, WEBM, M4V, OGG, and OGV. Supported audio formats: MP3 and WAV.',
+            '需要上传的文件。图片支持 JPG、JPEG、PNG、GIF、WEBP、BMP、HEIC 和 HEIF；视频支持 MP4、MOV、WEBM、M4V、OGG 和 OGV；音频支持 MP3 和 WAV。'
+        ]
     },
     CreditBalance: {
         total_credits: ['Total credits currently available to the account.', '账户当前可用的总点数。'],
@@ -1109,6 +1143,11 @@ const translations = new Map([
     ['Associated task ID in UUID format.', '关联任务的 ID，格式为 UUID。'],
     ['Public task type.', '公开任务类型。'],
     ['Generated 3D model resource ID in UUID format.', 'UUID 格式的已生成 3D 模型资源 ID。'],
+    ['Uploads one local image, video, or audio file and returns a reusable file ID.', '上传一个本地图片、视频或音频文件，并返回可复用的文件 ID。'],
+    ['The authenticated user cannot access this resource or has insufficient credits', '当前已认证用户无权访问该资源或点数不足'],
+    ['Invalid prompt', '提示词无效'],
+    ['Unsupported model', '模型不受支持'],
+    ['Model unavailable', '模型不可用'],
     ['Invalid request', '请求无效'],
     ['Authentication failed', '认证失败'],
     ['The authenticated user cannot access this model or resource', '当前已认证用户无权访问该模型或资源'],
@@ -1152,7 +1191,31 @@ function readJson(filePath) {
 }
 
 function writeJson(filePath, value) {
-    fs.writeFileSync(filePath, `${JSON.stringify(value, null, 2)}\n`, 'utf8');
+    const existing = fs.existsSync(filePath) ? readJson(filePath) : null;
+    const orderedValue = existing ? applyExistingKeyOrder(value, existing) : value;
+    fs.writeFileSync(filePath, `${JSON.stringify(orderedValue, null, 2)}\n`, 'utf8');
+}
+
+function applyExistingKeyOrder(value, existing) {
+    if (Array.isArray(value)) {
+        return value.map((item, index) => applyExistingKeyOrder(item, existing?.[index]));
+    }
+    if (!value || typeof value !== 'object') {
+        return value;
+    }
+
+    const result = {};
+    for (const key of Object.keys(existing || {})) {
+        if (Object.prototype.hasOwnProperty.call(value, key)) {
+            result[key] = applyExistingKeyOrder(value[key], existing[key]);
+        }
+    }
+    for (const [key, child] of Object.entries(value)) {
+        if (!Object.prototype.hasOwnProperty.call(result, key)) {
+            result[key] = applyExistingKeyOrder(child, existing?.[key]);
+        }
+    }
+    return result;
 }
 
 function collectReferencedComponents(paths, components) {
@@ -2869,13 +2932,17 @@ function exposeVideoOnlyV1(paths, components) {
         example: publicVideoModels[0],
         description: 'Video generation model identifier.'
     };
+    videoRequest.properties.prompt.minLength = 1;
+    videoRequest.properties.prompt.maxLength = 1000;
+    videoRequest.properties.prompt.description =
+        schemaFieldDescriptions.VideoGenerationJsonRequest.prompt[0];
     const fileIdProperty = {
         type: 'string',
         pattern: fileIdPattern,
         example: '550e8400-e29b-41d4-a716-446655440000',
         description: 'File ID returned by the file upload endpoint.'
     };
-    const createTypedReferenceSchema = (mediaType) => ({
+    const createTypedReferenceSchema = (mediaType, fileDescription) => ({
         type: 'object',
         required: ['type', 'file_id'],
         additionalProperties: false,
@@ -2885,7 +2952,7 @@ function exposeVideoOnlyV1(paths, components) {
                 enum: [mediaType],
                 description: `Media type of this reference. Always ${mediaType}.`
             },
-            file_id: { ...fileIdProperty }
+            file_id: { ...fileIdProperty, description: fileDescription }
         }
     });
 
@@ -2904,12 +2971,24 @@ function exposeVideoOnlyV1(paths, components) {
                 enum: ['first_frame', 'last_frame'],
                 description: 'Position represented by this image: first_frame or last_frame.'
             },
-            file_id: { ...fileIdProperty }
+            file_id: {
+                ...fileIdProperty,
+                description: schemaFieldDescriptions.VideoFrameImage.file_id[0]
+            }
         }
     };
-    components.schemas.VideoImageReference = createTypedReferenceSchema('image');
-    components.schemas.VideoVideoReference = createTypedReferenceSchema('video');
-    components.schemas.VideoAudioReference = createTypedReferenceSchema('audio');
+    components.schemas.VideoImageReference = createTypedReferenceSchema(
+        'image',
+        schemaFieldDescriptions.VideoImageReference.file_id[0]
+    );
+    components.schemas.VideoVideoReference = createTypedReferenceSchema(
+        'video',
+        schemaFieldDescriptions.VideoVideoReference.file_id[0]
+    );
+    components.schemas.VideoAudioReference = createTypedReferenceSchema(
+        'audio',
+        schemaFieldDescriptions.VideoAudioReference.file_id[0]
+    );
     components.schemas.VideoInputReference = {
         oneOf: [
             { $ref: '#/components/schemas/VideoImageReference' },
@@ -2933,7 +3012,7 @@ function exposeVideoOnlyV1(paths, components) {
         minItems: 1,
         maxItems: 2,
         items: { $ref: '#/components/schemas/VideoFrameImage' },
-        description: 'First-frame and last-frame images uploaded through POST /openapi/v1/files. Each frame_type may appear at most once, and every item requires file_id.'
+        description: schemaFieldDescriptions.VideoGenerationJsonRequest.frame_images[0]
     };
     videoRequest.properties.input_references = {
         type: 'array',
@@ -2946,6 +3025,10 @@ function exposeVideoOnlyV1(paths, components) {
         type: 'integer',
         minimum: 1,
         description: 'Optional duration in seconds. Allowed values and the default are defined by the selected model.'
+    };
+    videoRequest.properties.output_with_audio = {
+        type: 'boolean',
+        description: videoModelFieldDescriptions.output_with_audio[0]
     };
     videoRequest.properties.resolution.enum = publicVideoResolutions;
     videoRequest.properties.resolution.description = videoModelFieldDescriptions.resolution[0];
@@ -2991,8 +3074,17 @@ function exposeVideoOnlyV1(paths, components) {
                     enum: capability.durations,
                     default: capability.defaults.duration,
                     description: videoModelFieldDescriptions.duration[0]
-                }
-            }
+                },
+                ...(capability.supportsOutputWithAudio ? {
+                    output_with_audio: {
+                        type: 'boolean',
+                        description: videoModelFieldDescriptions.output_with_audio[0]
+                    }
+                } : {})
+            },
+            ...(capability.supportsOutputWithAudio ? {} : {
+                not: { required: ['output_with_audio'] }
+            })
         };
     }
     videoRequest.allOf = [{
@@ -3036,7 +3128,8 @@ function exposeVideoOnlyV1(paths, components) {
                 duration: 5,
                 n: 1,
                 resolution: '720p',
-                aspect_ratio: '16:9'
+                aspect_ratio: '16:9',
+                output_with_audio: true
             }
         },
         first_last_frame_image_to_video: {
@@ -3059,7 +3152,8 @@ function exposeVideoOnlyV1(paths, components) {
                 duration: 5,
                 n: 1,
                 resolution: '720p',
-                aspect_ratio: '16:9'
+                aspect_ratio: '16:9',
+                output_with_audio: true
             }
         },
         reference_to_video: {
@@ -3075,7 +3169,8 @@ function exposeVideoOnlyV1(paths, components) {
                 duration: 8,
                 n: 1,
                 resolution: '720p',
-                aspect_ratio: '16:9'
+                aspect_ratio: '16:9',
+                output_with_audio: true
             }
         }
     };
@@ -3103,7 +3198,7 @@ function exposeVideoOnlyV1(paths, components) {
             file: {
                 type: 'string',
                 format: 'binary',
-                description: 'Image or video uploaded from the local filesystem. Images may be JPG, JPEG, PNG, GIF, WEBP, BMP, HEIC, or HEIF up to 10 MB. Videos may be MP4, MOV, WEBM, M4V, OGG, or OGV up to 100 MB.'
+                description: schemaFieldDescriptions.CreateManagedFileRequest.file[0]
             }
         }
     };
@@ -3144,7 +3239,7 @@ function exposeVideoOnlyV1(paths, components) {
     };
     fileOperation.tags = ['Files'];
     fileOperation.summary = 'Upload a file';
-    fileOperation.description = 'Uploads one local image or video and returns a reusable file ID.';
+    fileOperation.description = 'Uploads one local image, video, or audio file and returns a reusable file ID.';
     fileOperation.operationId = 'uploadFile';
     fileOperation.requestBody = {
         required: true,
@@ -3228,6 +3323,60 @@ function exposeVideoOnlyV1(paths, components) {
         (field) => !['mode', 'model'].includes(field)
     );
 
+    components.responses.BadRequest = {
+        description: 'Invalid request',
+        headers: buildStandardResponseHeaders(),
+        content: {
+            'application/json': {
+                schema: { $ref: '#/components/schemas/ErrorResponse' },
+                examples: {
+                    invalid_prompt: {
+                        summary: 'Invalid prompt',
+                        value: {
+                            error: {
+                                code: 'invalid_prompt',
+                                message: 'prompt is required and must be a non-empty string'
+                            }
+                        }
+                    },
+                    unsupported_model: {
+                        summary: 'Unsupported model',
+                        value: {
+                            error: {
+                                code: 'unsupported_model',
+                                message: 'Unsupported modelKey: missing-model'
+                            }
+                        }
+                    },
+                    model_unavailable: {
+                        summary: 'Model unavailable',
+                        value: {
+                            error: {
+                                code: 'model_unavailable',
+                                message: 'Model is unavailable: veo-3.1'
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    };
+    components.responses.Forbidden = {
+        description: 'The authenticated user cannot access this resource or has insufficient credits',
+        headers: buildStandardResponseHeaders(),
+        content: {
+            'application/json': {
+                schema: { $ref: '#/components/schemas/ErrorResponse' },
+                example: {
+                    error: {
+                        code: 'insufficient_credits',
+                        message: 'Insufficient credits for video generation'
+                    }
+                }
+            }
+        }
+    };
+
     taskSchema.properties.model = {
         type: 'string',
         enum: publicVideoModels,
@@ -3272,8 +3421,12 @@ function exposeVideoOnlyV1(paths, components) {
 
     components.schemas.Task.properties.output = {
         $ref: '#/components/schemas/VideoTaskOutput',
-        description: 'Current child video task output, including entries that are still queued or processing.'
+        description: schemaFieldDescriptions.Task.output[0]
     };
+    components.schemas.Task.required = [
+        ...(components.schemas.Task.required || []).filter((field) => field !== 'output'),
+        'output'
+    ];
     renameSchemaProperty(
         components.schemas.VideoFile,
         'duration_seconds',
@@ -3287,6 +3440,10 @@ function exposeVideoOnlyV1(paths, components) {
         nullable: true,
         example: '16:9',
         description: 'Generated video aspect ratio when available, such as 16:9.'
+    };
+    videoFileSchema.properties.has_audio = {
+        type: 'boolean',
+        description: 'Whether native audio generation was enabled for this video.'
     };
     videoFileSchema.properties.mode = {
         type: 'string',
@@ -3314,6 +3471,7 @@ function exposeVideoOnlyV1(paths, components) {
         'duration',
         'resolution',
         'aspect_ratio',
+        'has_audio',
         'mode',
         'status',
         'created_at',
@@ -3326,6 +3484,7 @@ function exposeVideoOnlyV1(paths, components) {
                 'duration',
                 'resolution',
                 'aspect_ratio',
+                'has_audio',
                 'mode',
                 'status',
                 'created_at',
@@ -3334,7 +3493,7 @@ function exposeVideoOnlyV1(paths, components) {
         )
     ];
     components.schemas.VideoTaskOutput.properties.videos.description =
-        'All child video tasks and their current output information. url and format are null until a result file is available.';
+        schemaFieldDescriptions.VideoTaskOutput.videos[0];
     delete components.schemas.Task.properties.result;
     taskOperation.description = 'Returns task status and output by batch task ID or child video UUID. Provide exactly one of the id or uuid query parameters.';
     taskOperation.parameters = [
@@ -3377,6 +3536,7 @@ function exposeVideoOnlyV1(paths, components) {
                     duration: 5,
                     resolution: '720p',
                     aspect_ratio: '16:9',
+                    has_audio: true,
                     mode: 'first_frame_image_to_video',
                     status: 'succeeded',
                     created_at: 1784044800,
@@ -3667,6 +3827,22 @@ if (!fs.existsSync(fullV1BackupPath)) {
     throw new Error(`Full v1 backup not found: ${fullV1BackupPath}`);
 }
 
+function preserveEnglishExampleValues(englishValue, localizedValue) {
+    if (!englishValue || !localizedValue || typeof englishValue !== 'object' || typeof localizedValue !== 'object') {
+        return;
+    }
+    for (const [key, englishChild] of Object.entries(englishValue)) {
+        if (!(key in localizedValue)) {
+            continue;
+        }
+        if (key === 'example' || key === 'value') {
+            localizedValue[key] = JSON.parse(JSON.stringify(englishChild));
+            continue;
+        }
+        preserveEnglishExampleValues(englishChild, localizedValue[key]);
+    }
+}
+
 function applyVideoModelFieldDescriptions(spec, languageIndex) {
     const schema = spec.components.schemas.VideoGenerationJsonRequest;
     if (!schema) {
@@ -3682,7 +3858,7 @@ function applyVideoModelFieldDescriptions(spec, languageIndex) {
         const properties = branch.$ref
             ? spec.components.schemas[branch.$ref.split('/').pop()]?.properties
             : branch.properties;
-        for (const fieldName of ['model', 'resolution', 'aspect_ratio', 'duration']) {
+        for (const fieldName of ['model', 'resolution', 'aspect_ratio', 'duration', 'output_with_audio']) {
             if (properties?.[fieldName]) {
                 properties[fieldName].description = videoModelFieldDescriptions[fieldName][languageIndex];
             }
@@ -3697,6 +3873,7 @@ const v1Chinese = localize(v1English);
 applyFieldDescriptions(v1Chinese, 1);
 applyVideoModelFieldDescriptions(v1Chinese, 1);
 preserveEnglishMessageValues(v1English, v1Chinese);
+preserveEnglishExampleValues(v1English, v1Chinese);
 
 assertAllFieldsDocumented(v1English);
 assertAllFieldsDocumented(v1Chinese);

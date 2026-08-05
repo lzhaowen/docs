@@ -134,7 +134,8 @@
                     "duration": 5,
                     "n": 1,
                     "resolution": "720p",
-                    "aspect_ratio": "16:9"
+                    "aspect_ratio": "16:9",
+                    "output_with_audio": true
                   }
                 },
                 "first_last_frame_image_to_video": {
@@ -157,7 +158,8 @@
                     "duration": 5,
                     "n": 1,
                     "resolution": "720p",
-                    "aspect_ratio": "16:9"
+                    "aspect_ratio": "16:9",
+                    "output_with_audio": true
                   }
                 },
                 "reference_to_video": {
@@ -182,7 +184,8 @@
                     "duration": 8,
                     "n": 1,
                     "resolution": "720p",
-                    "aspect_ratio": "16:9"
+                    "aspect_ratio": "16:9",
+                    "output_with_audio": true
                   }
                 }
               }
@@ -299,6 +302,7 @@
                         "duration": 5,
                         "resolution": "720p",
                         "aspect_ratio": "16:9",
+                        "has_audio": true,
                         "mode": "first_frame_image_to_video",
                         "status": "succeeded",
                         "created_at": 1784044800,
@@ -434,6 +438,7 @@
           "duration",
           "resolution",
           "aspect_ratio",
+          "has_audio",
           "mode",
           "status",
           "created_at",
@@ -475,6 +480,10 @@
             "nullable": true,
             "example": "16:9",
             "description": "Generated video aspect ratio when available, such as 16:9."
+          },
+          "has_audio": {
+            "type": "boolean",
+            "description": "Whether native audio generation was enabled for this video."
           },
           "mode": {
             "type": "string",
@@ -664,6 +673,10 @@
         ],
         "additionalProperties": false,
         "properties": {
+          "output_with_audio": {
+            "type": "boolean",
+            "description": "Whether to generate native audio with the video. Supported by Seedance 2.0, Seedance 2.0 Fast, and Veo 3.1. If omitted, the selected model's configured default applies."
+          },
           "model": {
             "type": "string",
             "enum": [
@@ -678,7 +691,8 @@
           "prompt": {
             "type": "string",
             "minLength": 1,
-            "description": "Required text instruction describing the video to generate."
+            "description": "Required text instruction describing the video to generate.",
+            "maxLength": 1000
           },
           "n": {
             "type": "integer",
@@ -733,7 +747,7 @@
           "duration": {
             "type": "integer",
             "minimum": 1,
-            "description": "Optional duration in seconds. Allowed values and the default are defined by the selected model."
+            "description": "Duration allowed by the selected video model, in seconds."
           }
         },
         "allOf": [
@@ -770,11 +784,16 @@
           "model"
         ],
         "properties": {
+          "output_with_audio": {
+            "type": "boolean",
+            "description": "Whether to generate native audio with the video. Supported by Seedance 2.0, Seedance 2.0 Fast, and Veo 3.1. If omitted, the selected model's configured default applies."
+          },
           "model": {
             "type": "string",
             "enum": [
               "bytedance/seedance-2.0"
-            ]
+            ],
+            "description": "Video generation model identifier. Parameter defaults and allowed values depend on the selected model."
           },
           "resolution": {
             "type": "string",
@@ -784,7 +803,8 @@
               "1080p",
               "4K"
             ],
-            "default": "720p"
+            "default": "720p",
+            "description": "Resolution allowed by the selected video model."
           },
           "aspect_ratio": {
             "type": "string",
@@ -795,7 +815,8 @@
               "4:3",
               "3:4"
             ],
-            "default": "16:9"
+            "default": "16:9",
+            "description": "Aspect ratio allowed by the selected video model."
           },
           "duration": {
             "type": "integer",
@@ -816,7 +837,7 @@
               15
             ],
             "default": 5,
-            "description": "Optional duration in seconds. Defaults to 5."
+            "description": "Duration allowed by the selected video model, in seconds."
           }
         }
       },
@@ -826,11 +847,16 @@
           "model"
         ],
         "properties": {
+          "output_with_audio": {
+            "type": "boolean",
+            "description": "Whether to generate native audio with the video. Supported by Seedance 2.0, Seedance 2.0 Fast, and Veo 3.1. If omitted, the selected model's configured default applies."
+          },
           "model": {
             "type": "string",
             "enum": [
               "bytedance/seedance-2.0-fast"
-            ]
+            ],
+            "description": "Video generation model identifier. Parameter defaults and allowed values depend on the selected model."
           },
           "resolution": {
             "type": "string",
@@ -838,7 +864,8 @@
               "480p",
               "720p"
             ],
-            "default": "720p"
+            "default": "720p",
+            "description": "Resolution allowed by the selected video model."
           },
           "aspect_ratio": {
             "type": "string",
@@ -849,7 +876,8 @@
               "4:3",
               "3:4"
             ],
-            "default": "16:9"
+            "default": "16:9",
+            "description": "Aspect ratio allowed by the selected video model."
           },
           "duration": {
             "type": "integer",
@@ -870,7 +898,7 @@
               15
             ],
             "default": 5,
-            "description": "Optional duration in seconds. Defaults to 5."
+            "description": "Duration allowed by the selected video model, in seconds."
           }
         }
       },
@@ -880,11 +908,16 @@
           "model"
         ],
         "properties": {
+          "output_with_audio": {
+            "type": "boolean",
+            "description": "Whether to generate native audio with the video. Supported by Seedance 2.0, Seedance 2.0 Fast, and Veo 3.1. If omitted, the selected model's configured default applies."
+          },
           "model": {
             "type": "string",
             "enum": [
               "google/veo-3.1"
-            ]
+            ],
+            "description": "Video generation model identifier. Parameter defaults and allowed values depend on the selected model."
           },
           "resolution": {
             "type": "string",
@@ -893,7 +926,8 @@
               "1080p",
               "4K"
             ],
-            "default": "720p"
+            "default": "720p",
+            "description": "Resolution allowed by the selected video model."
           },
           "aspect_ratio": {
             "type": "string",
@@ -901,7 +935,8 @@
               "16:9",
               "9:16"
             ],
-            "default": "16:9"
+            "default": "16:9",
+            "description": "Aspect ratio allowed by the selected video model."
           },
           "duration": {
             "type": "integer",
@@ -915,7 +950,7 @@
               8
             ],
             "default": 8,
-            "description": "Optional duration in seconds. Defaults to 8."
+            "description": "Duration allowed by the selected video model, in seconds."
           }
         }
       },
@@ -924,12 +959,18 @@
         "required": [
           "model"
         ],
+        "not": {
+          "required": [
+            "output_with_audio"
+          ]
+        },
         "properties": {
           "model": {
             "type": "string",
             "enum": [
               "xai/grok-imagine"
-            ]
+            ],
+            "description": "Video generation model identifier. Parameter defaults and allowed values depend on the selected model."
           },
           "resolution": {
             "type": "string",
@@ -937,7 +978,8 @@
               "480p",
               "720p"
             ],
-            "default": "720p"
+            "default": "720p",
+            "description": "Resolution allowed by the selected video model."
           },
           "aspect_ratio": {
             "type": "string",
@@ -948,7 +990,8 @@
               "2:3",
               "3:2"
             ],
-            "default": "16:9"
+            "default": "16:9",
+            "description": "Aspect ratio allowed by the selected video model."
           },
           "duration": {
             "type": "integer",
@@ -982,7 +1025,7 @@
               30
             ],
             "default": 6,
-            "description": "Optional duration in seconds. Defaults to 6."
+            "description": "Duration allowed by the selected video model, in seconds."
           }
         }
       },

@@ -98,7 +98,7 @@ Upload one local image or video with `POST /files`. Store the returned file `id`
 
 ## Create a video
 
-Submit a JSON request to `POST /videos/generations`. Put first-frame and last-frame images in `frame_images`; use `input_references` for other image, video, or audio references. This example animates the uploaded first-frame image by its file ID. The API returns `202 Accepted` with a task ID.
+Submit a JSON request to `POST /videos/generations`. Put first-frame and last-frame images in `frame_images`; use `input_references` for other image, video, or audio references. Set `output_with_audio` for Seedance 2.0, Seedance 2.0 Fast, or Veo 3.1 to control native audio generation. Omit it for `xai/grok-imagine`; if you omit it for a supported model, that model's configured default applies. This example animates the uploaded first-frame image by its file ID. The API returns `202 Accepted` with a task ID.
 
 <CodeGroup>
   ```bash cURL
@@ -119,6 +119,7 @@ Submit a JSON request to `POST /videos/generations`. Put first-frame and last-fr
       "duration": 5,
       "resolution": "720p",
       "aspect_ratio": "16:9",
+      "output_with_audio": true,
       "n": 1
     }'
   ```
@@ -143,6 +144,7 @@ Submit a JSON request to `POST /videos/generations`. Put first-frame and last-fr
           "duration": 5,
           "resolution": "720p",
           "aspect_ratio": "16:9",
+          "output_with_audio": True,
           "n": 1,
       },
   )
@@ -169,6 +171,7 @@ Submit a JSON request to `POST /videos/generations`. Put first-frame and last-fr
       duration: 5,
       resolution: "720p",
       aspect_ratio: "16:9",
+      output_with_audio: true,
       n: 1,
     }),
   });
@@ -188,7 +191,7 @@ Submit a JSON request to `POST /videos/generations`. Put first-frame and last-fr
   )
 
   func main() {
-      body := []byte(`{"model":"bytedance/seedance-2.0-fast","prompt":"A cinematic tracking shot through a neon-lit street at night","frame_images":[{"type":"image","frame_type":"first_frame","file_id":"550e8400-e29b-41d4-a716-446655440000"}],"duration":5,"resolution":"720p","aspect_ratio":"16:9","n":1}`)
+      body := []byte(`{"model":"bytedance/seedance-2.0-fast","prompt":"A cinematic tracking shot through a neon-lit street at night","frame_images":[{"type":"image","frame_type":"first_frame","file_id":"550e8400-e29b-41d4-a716-446655440000"}],"duration":5,"resolution":"720p","aspect_ratio":"16:9","output_with_audio":true,"n":1}`)
       request, _ := http.NewRequest("POST", "https://api.neural4d.com/openapi/v1/videos/generations", bytes.NewReader(body))
       request.Header.Set("Authorization", "Bearer "+os.Getenv("YOUR_API_KEY"))
       request.Header.Set("Content-Type", "application/json")
@@ -220,7 +223,7 @@ Submit a JSON request to `POST /videos/generations`. Put first-frame and last-fr
 
 ## Retrieve the task
 
-Pass exactly one of the batch task `id` or child video `uuid` to `GET /tasks/task-info`. Poll until `status` is `succeeded` or `failed`. Each item in `output.videos` includes its child UUID, aspect ratio, generation mode, status, and timestamps.
+Pass exactly one of the batch task `id` or child video `uuid` to `GET /tasks/task-info`. Poll until `status` is `succeeded` or `failed`. Each item in `output.videos` includes its child UUID, aspect ratio, native audio flag, generation mode, status, and timestamps.
 
 ```bash cURL
 curl --request GET \
@@ -247,6 +250,7 @@ To query directly by a generated video UUID, use `uuid` instead of `id`: `GET /o
         "duration": 5,
         "resolution": "720p",
         "aspect_ratio": "16:9",
+        "has_audio": true,
         "mode": "first_frame_image_to_video",
         "status": "succeeded",
         "created_at": 1784044800,

@@ -21,18 +21,21 @@ const publicVideoModelCapabilities = {
         resolutions: ['480p', '720p', '1080p', '4K'],
         aspectRatios: ['1:1', '16:9', '9:16', '4:3', '3:4'],
         durations: [4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15],
+        supportsOutputWithAudio: true,
         defaults: { resolution: '720p', aspectRatio: '16:9', duration: 5 }
     },
     'bytedance/seedance-2.0-fast': {
         resolutions: ['480p', '720p'],
         aspectRatios: ['1:1', '16:9', '9:16', '4:3', '3:4'],
         durations: [4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15],
+        supportsOutputWithAudio: true,
         defaults: { resolution: '720p', aspectRatio: '16:9', duration: 5 }
     },
     'google/veo-3.1': {
         resolutions: ['720p', '1080p', '4K'],
         aspectRatios: ['16:9', '9:16'],
         durations: [4, 5, 6, 7, 8],
+        supportsOutputWithAudio: true,
         defaults: { resolution: '720p', aspectRatio: '16:9', duration: 8 }
     },
     'xai/grok-imagine': {
@@ -42,6 +45,7 @@ const publicVideoModelCapabilities = {
             6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18,
             19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30
         ],
+        supportsOutputWithAudio: false,
         defaults: { resolution: '720p', aspectRatio: '16:9', duration: 6 }
     }
 };
@@ -181,12 +185,14 @@ function validateSpec(spec, label) {
         `${label}: required prompt must be documented`
     );
     assert(videoRequest.properties.prompt.minLength === 1, `${label}: prompt must be non-empty`);
+    assert(videoRequest.properties.prompt.maxLength === 1000, `${label}: prompt maximum length mismatch`);
     assert(JSON.stringify(videoRequest.properties.model.enum) === JSON.stringify(publicModels), `${label}: video model enum mismatch`);
     assert(videoRequest.properties.duration.minimum === 1, `${label}: minimum duration mismatch`);
     assert(!videoRequest.properties.duration.maximum, `${label}: duration maximum must be model-specific`);
     assert(!('default' in videoRequest.properties.duration), `${label}: duration has model-specific defaults`);
     assert(!videoRequest.properties.duration.enum, `${label}: duration enum must be model-specific`);
     assert(!videoRequest.properties.duration_seconds, `${label}: request duration_seconds must not be public`);
+    assert(videoRequest.properties.output_with_audio.type === 'boolean', `${label}: output_with_audio must be boolean`);
     assert(!videoRequest.properties.size, `${label}: video size must not be public`);
     assert(!videoRequest.not, `${label}: stale resolution/size constraint must not be public`);
     assert(videoRequest.properties.n.minimum === 1 && videoRequest.properties.n.maximum === 4, `${label}: task count range mismatch`);
@@ -208,6 +214,16 @@ function validateSpec(spec, label) {
         assert(branchSchema.properties.resolution.default === capability.defaults.resolution, `${label}: ${model} resolution default mismatch`);
         assert(branchSchema.properties.aspect_ratio.default === capability.defaults.aspectRatio, `${label}: ${model} aspect ratio default mismatch`);
         assert(branchSchema.properties.duration.default === capability.defaults.duration, `${label}: ${model} duration default mismatch`);
+        if (capability.supportsOutputWithAudio) {
+            assert(branchSchema.properties.output_with_audio?.type === 'boolean', `${label}: ${model} audio output capability missing`);
+            assert(!branchSchema.not, `${label}: ${model} must allow output_with_audio`);
+        } else {
+            assert(!branchSchema.properties.output_with_audio, `${label}: ${model} must not expose output_with_audio`);
+            assert(
+                JSON.stringify(branchSchema.not?.required) === JSON.stringify(['output_with_audio']),
+                `${label}: ${model} must reject output_with_audio`
+            );
+        }
     }
     assert(!videoRequest.properties.extra_body, `${label}: extra_body must not be public`);
 
@@ -289,6 +305,11 @@ function validateSpec(spec, label) {
         assert(capability.durations.includes(example.value.duration), `${label}: duration example mismatch`);
         assert(capability.resolutions.includes(example.value.resolution), `${label}: resolution example mismatch`);
         assert(capability.aspectRatios.includes(example.value.aspect_ratio), `${label}: aspect ratio example mismatch`);
+        if (capability.supportsOutputWithAudio) {
+            assert(example.value.output_with_audio === true, `${label}: supported audio output example missing`);
+        } else {
+            assert(!('output_with_audio' in example.value), `${label}: unsupported audio output example found`);
+        }
     }
 
     const generationExample = videoOperation.responses['202'].content['application/json'].example;
@@ -324,12 +345,13 @@ function validateSpec(spec, label) {
     assert(schemas.VideoFile.required.includes('uuid'), `${label}: video output must require child uuid`);
     assert(schemas.VideoFile.properties.url?.nullable === true, `${label}: video output URL must be nullable while pending`);
     assert(
-        ['url', 'format', 'duration', 'resolution', 'aspect_ratio', 'mode', 'status', 'created_at', 'updated_at']
+        ['url', 'format', 'duration', 'resolution', 'aspect_ratio', 'has_audio', 'mode', 'status', 'created_at', 'updated_at']
             .every((field) => schemas.VideoFile.required.includes(field)),
         `${label}: video output fields must be required`
     );
     assert(schemas.VideoFile.properties.duration && !schemas.VideoFile.properties.duration_seconds, `${label}: video output duration field mismatch`);
     assert(schemas.VideoFile.properties.aspect_ratio?.nullable === true, `${label}: video output aspect_ratio must be nullable`);
+    assert(schemas.VideoFile.properties.has_audio?.type === 'boolean', `${label}: video output has_audio must be boolean`);
     assert(JSON.stringify(schemas.VideoFile.properties.mode?.enum) === JSON.stringify(publicModes), `${label}: video output mode enum mismatch`);
     assert(
         schemas.VideoTaskOutput.properties.videos.description.includes(
@@ -350,6 +372,7 @@ function validateSpec(spec, label) {
     assert(taskExample.output.videos[0].uuid, `${label}: completed video child uuid missing`);
     assert(taskExample.output.videos[0].duration === 5 && !taskExample.output.videos[0].duration_seconds, `${label}: completed video duration mismatch`);
     assert(taskExample.output.videos[0].aspect_ratio === '16:9', `${label}: completed video aspect ratio missing`);
+    assert(taskExample.output.videos[0].has_audio === true, `${label}: completed video audio flag missing`);
     assert(taskExample.output.videos[0].mode === taskExample.mode, `${label}: completed video mode mismatch`);
     assert(taskExample.output.videos[0].status === 'succeeded', `${label}: completed video status missing`);
     assert(taskExample.output.videos[0].created_at && taskExample.output.videos[0].updated_at, `${label}: completed video timestamps missing`);
@@ -410,6 +433,7 @@ function validatePages() {
         assert(quickstart.includes('/tasks/task-info?uuid='), `${locale}: task-info uuid query example missing`);
         assert(quickstart.includes('bytedance/seedance-2.0-fast'), `${locale}: namespaced fast model example missing`);
         assert(quickstart.includes('"duration"'), `${locale}: duration example missing`);
+        assert(quickstart.includes('output_with_audio'), `${locale}: output_with_audio example missing`);
         assert(!quickstart.includes('duration_seconds'), `${locale}: duration_seconds must not appear`);
         assert(!/"(?:object|progress)"\s*:/.test(quickstart), `${locale}: removed response field leaked into quickstart`);
         assert((quickstart.match(/"mode"\s*:/g) || []).length >= 2, `${locale}: response mode examples missing`);
@@ -421,6 +445,7 @@ function validatePages() {
         assert(!quickstart.includes('asset_refs'), `${locale}: internal asset_refs must not appear`);
         assert(quickstart.includes('"output"'), `${locale}: task output example missing`);
         assert(quickstart.includes('"aspect_ratio": "16:9"'), `${locale}: video output aspect ratio missing`);
+        assert(quickstart.includes('"has_audio": true'), `${locale}: video output audio flag missing`);
         assert((quickstart.match(/"mode"\s*:/g) || []).length >= 3, `${locale}: child video mode example missing`);
         assert((quickstart.match(/"uuid"\s*:/g) || []).length >= 2, `${locale}: child uuid examples missing`);
         assert(!quickstart.includes('"result"'), `${locale}: stale task result example found`);

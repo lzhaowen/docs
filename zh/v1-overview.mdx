@@ -98,7 +98,7 @@ API v1 使用 `https://api.neural4d.com/openapi/v1` 基础路径。每个请求�
 
 ## 创建视频
 
-向 `POST /videos/generations` 提交 JSON 请求。首帧和尾帧图片放入 `frame_images`，其他图片、视频或音频参考素材放入 `input_references`。以下示例通过文件 ID 引用已上传的首帧图片。接口返回 `202 Accepted` 和任务 ID。
+向 `POST /videos/generations` 提交 JSON 请求。首帧和尾帧图片放入 `frame_images`，其他图片、视频或音频参考素材放入 `input_references`。Seedance 2.0、Seedance 2.0 Fast 和 Veo 3.1 可通过 `output_with_audio` 控制是否生成原生音频；`xai/grok-imagine` 不支持此参数。支持的模型省略此参数时，使用该模型的当前默认值。以下示例通过文件 ID 引用已上传的首帧图片。接口返回 `202 Accepted` 和任务 ID。
 
 <CodeGroup>
   ```bash cURL
@@ -119,6 +119,7 @@ API v1 使用 `https://api.neural4d.com/openapi/v1` 基础路径。每个请求�
       "duration": 5,
       "resolution": "720p",
       "aspect_ratio": "16:9",
+      "output_with_audio": true,
       "n": 1
     }'
   ```
@@ -143,6 +144,7 @@ API v1 使用 `https://api.neural4d.com/openapi/v1` 基础路径。每个请求�
           "duration": 5,
           "resolution": "720p",
           "aspect_ratio": "16:9",
+          "output_with_audio": True,
           "n": 1,
       },
   )
@@ -169,6 +171,7 @@ API v1 使用 `https://api.neural4d.com/openapi/v1` 基础路径。每个请求�
       duration: 5,
       resolution: "720p",
       aspect_ratio: "16:9",
+      output_with_audio: true,
       n: 1,
     }),
   });
@@ -188,7 +191,7 @@ API v1 使用 `https://api.neural4d.com/openapi/v1` 基础路径。每个请求�
   )
 
   func main() {
-      body := []byte(`{"model":"bytedance/seedance-2.0-fast","prompt":"夜晚穿行霓虹街道的电影感跟拍镜头","frame_images":[{"type":"image","frame_type":"first_frame","file_id":"550e8400-e29b-41d4-a716-446655440000"}],"duration":5,"resolution":"720p","aspect_ratio":"16:9","n":1}`)
+      body := []byte(`{"model":"bytedance/seedance-2.0-fast","prompt":"夜晚穿行霓虹街道的电影感跟拍镜头","frame_images":[{"type":"image","frame_type":"first_frame","file_id":"550e8400-e29b-41d4-a716-446655440000"}],"duration":5,"resolution":"720p","aspect_ratio":"16:9","output_with_audio":true,"n":1}`)
       request, _ := http.NewRequest("POST", "https://api.neural4d.com/openapi/v1/videos/generations", bytes.NewReader(body))
       request.Header.Set("Authorization", "Bearer "+os.Getenv("YOUR_API_KEY"))
       request.Header.Set("Content-Type", "application/json")
@@ -220,7 +223,7 @@ API v1 使用 `https://api.neural4d.com/openapi/v1` 基础路径。每个请求�
 
 ## 查询任务
 
-将批次任务 `id` 或视频子项 `uuid` 中的一个传给 `GET /tasks/task-info`，不能同时传入。轮询直到 `status` 变为 `succeeded` 或 `failed`。`output.videos` 中的每个子项都会返回 UUID、宽高比、生成模式、状态和时间。
+将批次任务 `id` 或视频子项 `uuid` 中的一个传给 `GET /tasks/task-info`，不能同时传入。轮询直到 `status` 变为 `succeeded` 或 `failed`。`output.videos` 中的每个子项都会返回 UUID、宽高比、原生音频标识、生成模式、状态和时间。
 
 ```bash cURL
 curl --request GET \
@@ -247,6 +250,7 @@ curl --request GET \
         "duration": 5,
         "resolution": "720p",
         "aspect_ratio": "16:9",
+        "has_audio": true,
         "mode": "first_frame_image_to_video",
         "status": "succeeded",
         "created_at": 1784044800,

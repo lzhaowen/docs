@@ -134,7 +134,8 @@
                     "duration": 5,
                     "n": 1,
                     "resolution": "720p",
-                    "aspect_ratio": "16:9"
+                    "aspect_ratio": "16:9",
+                    "output_with_audio": true
                   }
                 },
                 "first_last_frame_image_to_video": {
@@ -157,7 +158,8 @@
                     "duration": 5,
                     "n": 1,
                     "resolution": "720p",
-                    "aspect_ratio": "16:9"
+                    "aspect_ratio": "16:9",
+                    "output_with_audio": true
                   }
                 },
                 "reference_to_video": {
@@ -182,7 +184,8 @@
                     "duration": 8,
                     "n": 1,
                     "resolution": "720p",
-                    "aspect_ratio": "16:9"
+                    "aspect_ratio": "16:9",
+                    "output_with_audio": true
                   }
                 }
               }
@@ -299,6 +302,7 @@
                         "duration": 5,
                         "resolution": "720p",
                         "aspect_ratio": "16:9",
+                        "has_audio": true,
                         "mode": "first_frame_image_to_video",
                         "status": "succeeded",
                         "created_at": 1784044800,
@@ -434,6 +438,7 @@
           "duration",
           "resolution",
           "aspect_ratio",
+          "has_audio",
           "mode",
           "status",
           "created_at",
@@ -475,6 +480,10 @@
             "nullable": true,
             "example": "16:9",
             "description": "可用时返回生成视频的宽高比，例如 16:9。"
+          },
+          "has_audio": {
+            "type": "boolean",
+            "description": "此视频是否启用了原生音频生成。"
           },
           "mode": {
             "type": "string",
@@ -664,6 +673,10 @@
         ],
         "additionalProperties": false,
         "properties": {
+          "output_with_audio": {
+            "type": "boolean",
+            "description": "是否随视频生成原生音频。Seedance 2.0、Seedance 2.0 Fast 和 Veo 3.1 支持此参数。省略时使用所选模型的当前默认值。"
+          },
           "model": {
             "type": "string",
             "enum": [
@@ -678,7 +691,8 @@
           "prompt": {
             "type": "string",
             "minLength": 1,
-            "description": "描述待生成视频内容的必填文本提示词。"
+            "description": "描述待生成视频内容的必填文本提示词。",
+            "maxLength": 1000
           },
           "n": {
             "type": "integer",
@@ -733,7 +747,7 @@
           "duration": {
             "type": "integer",
             "minimum": 1,
-            "description": "可选的视频时长，单位为秒。允许值和默认值由所选模型决定。"
+            "description": "所选视频模型允许的时长，单位为秒。"
           }
         },
         "allOf": [
@@ -770,11 +784,16 @@
           "model"
         ],
         "properties": {
+          "output_with_audio": {
+            "type": "boolean",
+            "description": "是否随视频生成原生音频。Seedance 2.0、Seedance 2.0 Fast 和 Veo 3.1 支持此参数。省略时使用所选模型的当前默认值。"
+          },
           "model": {
             "type": "string",
             "enum": [
               "bytedance/seedance-2.0"
-            ]
+            ],
+            "description": "视频生成模型标识。参数默认值和可选值取决于所选模型。"
           },
           "resolution": {
             "type": "string",
@@ -784,7 +803,8 @@
               "1080p",
               "4K"
             ],
-            "default": "720p"
+            "default": "720p",
+            "description": "所选视频模型允许的分辨率。"
           },
           "aspect_ratio": {
             "type": "string",
@@ -795,7 +815,8 @@
               "4:3",
               "3:4"
             ],
-            "default": "16:9"
+            "default": "16:9",
+            "description": "所选视频模型允许的宽高比。"
           },
           "duration": {
             "type": "integer",
@@ -816,7 +837,7 @@
               15
             ],
             "default": 5,
-            "description": "可选的视频时长，单位为秒。默认值为 5。"
+            "description": "所选视频模型允许的时长，单位为秒。"
           }
         }
       },
@@ -826,11 +847,16 @@
           "model"
         ],
         "properties": {
+          "output_with_audio": {
+            "type": "boolean",
+            "description": "是否随视频生成原生音频。Seedance 2.0、Seedance 2.0 Fast 和 Veo 3.1 支持此参数。省略时使用所选模型的当前默认值。"
+          },
           "model": {
             "type": "string",
             "enum": [
               "bytedance/seedance-2.0-fast"
-            ]
+            ],
+            "description": "视频生成模型标识。参数默认值和可选值取决于所选模型。"
           },
           "resolution": {
             "type": "string",
@@ -838,7 +864,8 @@
               "480p",
               "720p"
             ],
-            "default": "720p"
+            "default": "720p",
+            "description": "所选视频模型允许的分辨率。"
           },
           "aspect_ratio": {
             "type": "string",
@@ -849,7 +876,8 @@
               "4:3",
               "3:4"
             ],
-            "default": "16:9"
+            "default": "16:9",
+            "description": "所选视频模型允许的宽高比。"
           },
           "duration": {
             "type": "integer",
@@ -870,7 +898,7 @@
               15
             ],
             "default": 5,
-            "description": "可选的视频时长，单位为秒。默认值为 5。"
+            "description": "所选视频模型允许的时长，单位为秒。"
           }
         }
       },
@@ -880,11 +908,16 @@
           "model"
         ],
         "properties": {
+          "output_with_audio": {
+            "type": "boolean",
+            "description": "是否随视频生成原生音频。Seedance 2.0、Seedance 2.0 Fast 和 Veo 3.1 支持此参数。省略时使用所选模型的当前默认值。"
+          },
           "model": {
             "type": "string",
             "enum": [
               "google/veo-3.1"
-            ]
+            ],
+            "description": "视频生成模型标识。参数默认值和可选值取决于所选模型。"
           },
           "resolution": {
             "type": "string",
@@ -893,7 +926,8 @@
               "1080p",
               "4K"
             ],
-            "default": "720p"
+            "default": "720p",
+            "description": "所选视频模型允许的分辨率。"
           },
           "aspect_ratio": {
             "type": "string",
@@ -901,7 +935,8 @@
               "16:9",
               "9:16"
             ],
-            "default": "16:9"
+            "default": "16:9",
+            "description": "所选视频模型允许的宽高比。"
           },
           "duration": {
             "type": "integer",
@@ -915,7 +950,7 @@
               8
             ],
             "default": 8,
-            "description": "可选的视频时长，单位为秒。默认值为 8。"
+            "description": "所选视频模型允许的时长，单位为秒。"
           }
         }
       },
@@ -924,12 +959,18 @@
         "required": [
           "model"
         ],
+        "not": {
+          "required": [
+            "output_with_audio"
+          ]
+        },
         "properties": {
           "model": {
             "type": "string",
             "enum": [
               "xai/grok-imagine"
-            ]
+            ],
+            "description": "视频生成模型标识。参数默认值和可选值取决于所选模型。"
           },
           "resolution": {
             "type": "string",
@@ -937,7 +978,8 @@
               "480p",
               "720p"
             ],
-            "default": "720p"
+            "default": "720p",
+            "description": "所选视频模型允许的分辨率。"
           },
           "aspect_ratio": {
             "type": "string",
@@ -948,7 +990,8 @@
               "2:3",
               "3:2"
             ],
-            "default": "16:9"
+            "default": "16:9",
+            "description": "所选视频模型允许的宽高比。"
           },
           "duration": {
             "type": "integer",
@@ -982,7 +1025,7 @@
               30
             ],
             "default": 6,
-            "description": "可选的视频时长，单位为秒。默认值为 6。"
+            "description": "所选视频模型允许的时长，单位为秒。"
           }
         }
       },
