@@ -1,0 +1,7 @@
+User-agent: *
+Content-Signal: ai-train=yes, search=yes, ai-input=yes
+Disallow: /cdn-cgi/
+Disallow: /mintlify-assets/_next/
+Allow: /_next/image
+Disallow: /_next/
+Sitemap: https://docs.neural4d.com/sitemap.xml
