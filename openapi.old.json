@@ -1111,6 +1111,11 @@
             "default": false,
             "description": "Whether to generate only the mesh, without texture or PBR output."
           },
+          "enableImageEnhancement": {
+            "type": "boolean",
+            "default": false,
+            "description": "Image enhancement is in beta. Contact customer service for authorization to enable this function."
+          },
           "mesh_quality": {
             "type": "string",
             "enum": [
