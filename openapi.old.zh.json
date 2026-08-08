@@ -1000,11 +1000,6 @@
             "default": false,
             "description": "是否仅生成网格，不生成纹理或 PBR 输出。"
           },
-          "enableImageEnhancement": {
-            "type": "boolean",
-            "default": false,
-            "description": "图像增强功能处于内测阶段，如需启用，请联系客服完成授权开通."
-          },
           "mesh_quality": {
             "type": "string",
             "enum": [
@@ -1203,6 +1198,11 @@
             "type": "boolean",
             "default": false,
             "description": "是否仅生成网格，不生成纹理或 PBR 输出。"
+          },
+          "enableImageEnhancement": {
+            "type": "boolean",
+            "default": false,
+            "description": "图像增强功能处于内测阶段，如需启用，请联系客服完成授权开通."
           },
           "mesh_quality": {
             "type": "string",
