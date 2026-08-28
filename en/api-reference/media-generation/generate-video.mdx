@@ -1,0 +1,220 @@
+---
+title: "Generate video"
+sidebarTitle: "Generate video"
+description: "Generate videos from a text prompt with optional reference images. You can upload 0 to 6 reference images and submit 1 to 4 generation jobs in a single request."
+api: "POST https://alb.neural4d.com:3000/api/createNormalVideo"
+playground: simple
+authMethod: bearer
+contentType: multipart/form-data
+---
+
+## Authorizations
+
+<ParamField header="Authorization" type="string" required default={'Bearer ${YOUR_API_KEY}'}>
+  Use the bearer token provided through the Neural4D website.
+</ParamField>
+
+## Body <span className="api-content-type">multipart/form-data</span>
+
+<ParamField body="prompt" type="string" required>
+  Text prompt describing the desired generated video.
+  </ParamField>
+<ParamField body="images" type="string&lt;binary&gt;[]">
+  Optional reference images used to guide generation.
+
+Allowed array length: `0 - 6` elements.
+</ParamField>
+<ParamField body="aspectRatio" type="enum&lt;string&gt;" default="16:9">
+  Target aspect ratio for the generated video.
+
+Available options: `16:9`, `9:16`, `1:1`, `4:3`, `3:4`.
+</ParamField>
+<ParamField body="jobNum" type="integer" default={1}>
+  Number of generation jobs to submit.
+
+Required range: `1 <= x <= 4`.
+</ParamField>
+<ParamField body="duration" type="integer" default={5}>
+  Target video duration in seconds.
+
+Required range: `4 <= x <= 15`.
+</ParamField>
+<ParamField body="resolution" type="enum&lt;string&gt;" default="720p">
+  Target output resolution.
+
+Available options: `480p`, `720p`, `1080p`.
+</ParamField>
+
+<RequestExample>
+```bash cURL
+curl --request POST \
+  --url https://alb.neural4d.com:3000/api/createNormalVideo \
+  --header 'Authorization: Bearer <token>' \
+  --form 'prompt=a flower bouquet' \
+  --form 'images=@/path/to/file' \
+  --form 'duration=14' \
+  --form 'aspectRatio=9:16' \
+  --form 'resolution=480p' \
+  --form 'jobNum=3'
+```
+
+```python Python
+import requests
+
+response = requests.request(
+    "POST",
+    "https://alb.neural4d.com:3000/api/createNormalVideo",
+    headers={
+    "Authorization": "Bearer <token>",
+    },
+    files={"images": open('/path/to/file', 'rb')},
+)
+print(response.json())
+```
+
+```javascript JavaScript
+const response = await fetch("https://alb.neural4d.com:3000/api/createNormalVideo", {
+  method: "POST",
+  headers: {
+    "Authorization": "Bearer <token>"
+  },
+  body: (() => { const form = new FormData(); form.append("file", fileInput.files[0]); return form; })(),
+});
+const data = await response.json();
+console.log(data);
+```
+
+```typescript TypeScript
+const response: Response = await fetch("https://alb.neural4d.com:3000/api/createNormalVideo", {
+  method: "POST",
+  headers: {
+    "Authorization": "Bearer <token>"
+  },
+  body: (() => { const form = new FormData(); form.append("file", fileInput.files[0]); return form; })(),
+});
+const data = await response.json();
+console.log(data);
+```
+
+```java Java
+import java.net.URI;
+import java.net.http.*;
+
+HttpRequest request = HttpRequest.newBuilder()
+    .uri(URI.create("https://alb.neural4d.com:3000/api/createNormalVideo"))
+    .header("Authorization", "Bearer <token>")
+    .method("POST", HttpRequest.BodyPublishers.noBody())
+    .build();
+HttpResponse<String> response = HttpClient.newHttpClient().send(request, HttpResponse.BodyHandlers.ofString());
+System.out.println(response.body());
+```
+
+```go Go
+package main
+
+import (
+  "fmt"
+  "io"
+  "net/http"
+  "strings"
+)
+
+payload := nil
+req, _ := http.NewRequest("POST", "https://alb.neural4d.com:3000/api/createNormalVideo", payload)
+req.Header.Set("Authorization", "Bearer <token>")
+resp, _ := http.DefaultClient.Do(req)
+defer resp.Body.Close()
+bodyBytes, _ := io.ReadAll(resp.Body)
+fmt.Println(string(bodyBytes))
+```
+
+```ruby Ruby
+require "net/http"
+require "json"
+
+uri = URI("https://alb.neural4d.com:3000/api/createNormalVideo")
+request = Net::HTTP::Post.new(uri)
+request["Authorization"] = "Bearer <token>"
+
+response = Net::HTTP.start(uri.hostname, uri.port, use_ssl: uri.scheme == "https") { |http| http.request(request) }
+puts response.body
+```
+
+```php PHP
+<?php
+
+$ch = curl_init("https://alb.neural4d.com:3000/api/createNormalVideo");
+curl_setopt_array($ch, [
+    CURLOPT_CUSTOMREQUEST => "POST",
+    CURLOPT_RETURNTRANSFER => true,
+    CURLOPT_HTTPHEADER => ["Authorization: Bearer <token>"],
+]);
+$response = curl_exec($ch);
+curl_close($ch);
+echo $response;
+```
+
+```csharp C#
+using System.Net.Http;
+using System.Text;
+
+using var client = new HttpClient();
+using var request = new HttpRequestMessage(HttpMethod.Post, "https://alb.neural4d.com:3000/api/createNormalVideo");
+request.Headers.TryAddWithoutValidation("Authorization", "Bearer <token>");
+using var response = await client.SendAsync(request);
+Console.WriteLine(await response.Content.ReadAsStringAsync());
+```
+</RequestExample>
+
+## Response
+
+<Tabs sync={false}>
+  <Tab title="200">
+    Video generation job accepted
+        
+    <ResponseField name="success" type="boolean" required>
+      Whether the generation request was accepted.
+    </ResponseField>
+
+    <ResponseField name="data" type="object" required>
+      Queue and task details for the accepted generation request.
+
+      <Expandable title="child attributes">
+        <ResponseField name="pointsDeducted" pre={["data."]} type="integer" required>
+          Points deducted for the accepted generation request.
+        </ResponseField>
+
+        <ResponseField name="queueStatus" pre={["data."]} type="string" required>
+          Current queue state for the submitted job.
+        </ResponseField>
+
+        <ResponseField name="jobNum" pre={["data."]} type="integer" required>
+          Number of accepted generation jobs.
+        </ResponseField>
+
+        <ResponseField name="uuids" pre={["data."]} type="string[]" required>
+          UUIDs assigned to each accepted generation job.
+        </ResponseField>
+      </Expandable>
+    </ResponseField>
+  </Tab>
+</Tabs>
+
+<ResponseExample>
+```json 200 queued
+{
+  "success": true,
+  "data": {
+    "pointsDeducted": 1344,
+    "queueStatus": "queued",
+    "jobNum": 3,
+    "uuids": [
+      "18c8eb80-e1b0-43d4-878e-7fdd31a7e525",
+      "76f14626-e2ef-466c-a720-473dc64ebf43",
+      "acb40a9d-082b-4842-bd92-1955b7eb1a13"
+    ]
+  }
+}
+```
+
+</ResponseExample>

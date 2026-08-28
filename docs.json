@@ -31,10 +31,20 @@
               },
               {
                 "group": "API reference",
-                "openapi": {
-                  "source": "openapi.json",
-                  "directory": "en-v1-api-reference"
-                }
+                "pages": [
+                  {
+                    "group": "Files",
+                    "pages": ["en/v1-api-reference/files/upload-a-file"]
+                  },
+                  {
+                    "group": "Video generation",
+                    "pages": ["en/v1-api-reference/video-generation/create-video-generation-tasks"]
+                  },
+                  {
+                    "group": "Tasks",
+                    "pages": ["en/v1-api-reference/tasks/retrieve-a-task"]
+                  }
+                ]
               }
             ]
           },
@@ -51,10 +61,42 @@
               },
               {
                 "group": "API reference",
-                "openapi": {
-                  "source": "openapi.old.json",
-                  "directory": "en-api-reference"
-                }
+                "pages": [
+                  {
+                    "group": "Text to 3D",
+                    "pages": ["en/api-reference/text-to-3d/generate-model-from-text"]
+                  },
+                  {
+                    "group": "Model management",
+                    "pages": [
+                      "en/api-reference/model-management/retrieve-model",
+                      "en/api-reference/model-management/convert-model-format",
+                      "en/api-reference/model-management/query-job-progress"
+                    ]
+                  },
+                  {
+                    "group": "Image to 3D",
+                    "pages": [
+                      "en/api-reference/image-to-3d/generate-model-with-image",
+                      "en/api-reference/image-to-3d/generate-chibi-style-model-with-image"
+                    ]
+                  },
+                  {
+                    "group": "Picture and video generation",
+                    "pages": [
+                      "en/api-reference/media-generation/generate-picture",
+                      "en/api-reference/media-generation/generate-video",
+                      "en/api-reference/media-generation/retrieve-generation-result"
+                    ]
+                  },
+                  {
+                    "group": "Account and validation",
+                    "pages": [
+                      "en/api-reference/account-and-validation/detect-portrait-image",
+                      "en/api-reference/account-and-validation/query-remaining-balance"
+                    ]
+                  }
+                ]
               }
             ]
           }
@@ -75,10 +117,20 @@
               },
               {
                 "group": "API 参考",
-                "openapi": {
-                  "source": "openapi.zh.json",
-                  "directory": "zh-v1-api-reference"
-                }
+                "pages": [
+                  {
+                    "group": "文件",
+                    "pages": ["zh/v1-api-reference/files/upload-a-file"]
+                  },
+                  {
+                    "group": "视频生成",
+                    "pages": ["zh/v1-api-reference/video-generation/create-video-generation-tasks"]
+                  },
+                  {
+                    "group": "任务",
+                    "pages": ["zh/v1-api-reference/tasks/retrieve-a-task"]
+                  }
+                ]
               }
             ]
           },
@@ -95,10 +147,42 @@
               },
               {
                 "group": "API 参考",
-                "openapi": {
-                  "source": "openapi.old.zh.json",
-                  "directory": "zh-api-reference"
-                }
+                "pages": [
+                  {
+                    "group": "文本生成 3D",
+                    "pages": ["zh/api-reference/text-to-3d/generate-model-from-text"]
+                  },
+                  {
+                    "group": "模型管理",
+                    "pages": [
+                      "zh/api-reference/model-management/retrieve-model",
+                      "zh/api-reference/model-management/convert-model-format",
+                      "zh/api-reference/model-management/query-job-progress"
+                    ]
+                  },
+                  {
+                    "group": "图片生成 3D",
+                    "pages": [
+                      "zh/api-reference/image-to-3d/generate-model-with-image",
+                      "zh/api-reference/image-to-3d/generate-chibi-style-model-with-image"
+                    ]
+                  },
+                  {
+                    "group": "图片与视频生成",
+                    "pages": [
+                      "zh/api-reference/media-generation/generate-picture",
+                      "zh/api-reference/media-generation/generate-video",
+                      "zh/api-reference/media-generation/retrieve-generation-result"
+                    ]
+                  },
+                  {
+                    "group": "账户与校验",
+                    "pages": [
+                      "zh/api-reference/account-and-validation/detect-portrait-image",
+                      "zh/api-reference/account-and-validation/query-remaining-balance"
+                    ]
+                  }
+                ]
               }
             ]
           }
@@ -139,7 +223,6 @@
     "options": [
       "copy",
       "view",
-      "download-spec",
       "chatgpt",
       "claude",
       "perplexity"
@@ -157,6 +240,18 @@
     {
       "source": "/zh",
       "destination": "/zh/quickstart"
+    },
+    {
+      "source": "/en-api-reference/:path*",
+      "destination": "/en/api-reference/:path*"
+    },
+    {
+      "source": "/zh-api-reference/:path*",
+      "destination": "/zh/api-reference/:path*"
+    },
+    {
+      "source": "/en-v1-api-reference/:path*",
+      "destination": "/en/v1-api-reference/:path*"
     }
   ]
 }

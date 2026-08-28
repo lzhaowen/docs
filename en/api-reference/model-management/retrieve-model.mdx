@@ -1,0 +1,227 @@
+---
+title: "Retrieve model"
+sidebarTitle: "Retrieve model"
+description: "Retrieve a generated model by UUID."
+api: "POST https://alb.neural4d.com:3000/api/retrieveModel"
+playground: simple
+authMethod: bearer
+contentType: application/json
+---
+
+## Authorizations
+
+<ParamField header="Authorization" type="string" required default={'Bearer ${YOUR_API_KEY}'}>
+  Use the bearer token provided through the Neural4D website.
+</ParamField>
+
+## Body <span className="api-content-type">application/json</span>
+
+<ParamField body="uuid" type="string" required>
+  Unique job or model identifier returned by a previous create endpoint.
+
+Example: `"f47ac10b-58cc-4372-a567-0e02b2c3d479"`.
+</ParamField>
+
+<RequestExample>
+```bash cURL
+curl --request POST \
+  --url https://alb.neural4d.com:3000/api/retrieveModel \
+  --header 'Authorization: Bearer <token>' \
+  --header 'Content-Type: application/json' \
+  --data '
+{
+  "uuid": "f47ac10b-58cc-4372-a567-0e02b2c3d479"
+}
+'
+```
+
+```python Python
+import requests
+
+response = requests.request(
+    "POST",
+    "https://alb.neural4d.com:3000/api/retrieveModel",
+    headers={
+    "Authorization": "Bearer <token>",
+    "Content-Type": "application/json",
+    },
+    json={
+      "uuid": "f47ac10b-58cc-4372-a567-0e02b2c3d479"
+    },
+)
+print(response.json())
+```
+
+```javascript JavaScript
+const response = await fetch("https://alb.neural4d.com:3000/api/retrieveModel", {
+  method: "POST",
+  headers: {
+    "Authorization": "Bearer <token>",
+    "Content-Type": "application/json"
+  },
+  body: JSON.stringify({
+    "uuid": "f47ac10b-58cc-4372-a567-0e02b2c3d479"
+  }),
+});
+const data = await response.json();
+console.log(data);
+```
+
+```typescript TypeScript
+const response: Response = await fetch("https://alb.neural4d.com:3000/api/retrieveModel", {
+  method: "POST",
+  headers: {
+    "Authorization": "Bearer <token>",
+    "Content-Type": "application/json"
+  },
+  body: JSON.stringify({
+    "uuid": "f47ac10b-58cc-4372-a567-0e02b2c3d479"
+  }),
+});
+const data = await response.json();
+console.log(data);
+```
+
+```java Java
+import java.net.URI;
+import java.net.http.*;
+
+HttpRequest request = HttpRequest.newBuilder()
+    .uri(URI.create("https://alb.neural4d.com:3000/api/retrieveModel"))
+    .header("Authorization", "Bearer <token>")
+    .header("Content-Type", "application/json")
+    .method("POST", HttpRequest.BodyPublishers.ofString("{\n      \"uuid\": \"f47ac10b-58cc-4372-a567-0e02b2c3d479\"\n    }"))
+    .build();
+HttpResponse<String> response = HttpClient.newHttpClient().send(request, HttpResponse.BodyHandlers.ofString());
+System.out.println(response.body());
+```
+
+```go Go
+package main
+
+import (
+  "fmt"
+  "io"
+  "net/http"
+  "strings"
+)
+
+payload := strings.NewReader("{\n  \"uuid\": \"f47ac10b-58cc-4372-a567-0e02b2c3d479\"\n}")
+req, _ := http.NewRequest("POST", "https://alb.neural4d.com:3000/api/retrieveModel", payload)
+req.Header.Set("Authorization", "Bearer <token>")
+req.Header.Set("Content-Type", "application/json")
+resp, _ := http.DefaultClient.Do(req)
+defer resp.Body.Close()
+bodyBytes, _ := io.ReadAll(resp.Body)
+fmt.Println(string(bodyBytes))
+```
+
+```ruby Ruby
+require "net/http"
+require "json"
+
+uri = URI("https://alb.neural4d.com:3000/api/retrieveModel")
+request = Net::HTTP::Post.new(uri)
+request["Authorization"] = "Bearer <token>"
+request["Content-Type"] = "application/json"
+request.body = {
+  "uuid": "f47ac10b-58cc-4372-a567-0e02b2c3d479"
+}.to_json
+
+response = Net::HTTP.start(uri.hostname, uri.port, use_ssl: uri.scheme == "https") { |http| http.request(request) }
+puts response.body
+```
+
+```php PHP
+<?php
+
+$ch = curl_init("https://alb.neural4d.com:3000/api/retrieveModel");
+curl_setopt_array($ch, [
+    CURLOPT_CUSTOMREQUEST => "POST",
+    CURLOPT_RETURNTRANSFER => true,
+    CURLOPT_HTTPHEADER => ["Authorization: Bearer <token>", "Content-Type: application/json"],
+    CURLOPT_POSTFIELDS => "{\n  \"uuid\": \"f47ac10b-58cc-4372-a567-0e02b2c3d479\"\n}",
+]);
+$response = curl_exec($ch);
+curl_close($ch);
+echo $response;
+```
+
+```csharp C#
+using System.Net.Http;
+using System.Text;
+
+using var client = new HttpClient();
+using var request = new HttpRequestMessage(HttpMethod.Post, "https://alb.neural4d.com:3000/api/retrieveModel");
+request.Headers.TryAddWithoutValidation("Authorization", "Bearer <token>");
+request.Headers.TryAddWithoutValidation("Content-Type", "application/json");
+request.Content = new StringContent("{\n  \"uuid\": \"f47ac10b-58cc-4372-a567-0e02b2c3d479\"\n}", Encoding.UTF8, "application/json");
+using var response = await client.SendAsync(request);
+Console.WriteLine(await response.Content.ReadAsStringAsync());
+```
+</RequestExample>
+
+## Response
+
+<Tabs sync={false}>
+  <Tab title="200">
+    Model retrieval result
+        
+    <ResponseField name="codeStatus" type="enum&lt;integer&gt;" required>
+      Result status. `0` means completed, `1` means generating, `-1` means the token is invalid or expired, `-2` means the UUID does not exist, and `-3` means generation failed.
+
+    Available options: `-3`, `-2`, `-1`, `0`, `1`.
+    </ResponseField>
+
+
+
+    <ResponseField name="message" type="string" required>
+      Retrieval status message.
+    </ResponseField>
+
+
+
+    <ResponseField name="modelUrl" type="string&lt;uri&gt; | null">
+      Download URL for the generated model when available.
+    </ResponseField>
+
+
+
+    <ResponseField name="imageUrl" type="string&lt;uri&gt; | null">
+      Preview image URL for the generated model when available.
+    </ResponseField>
+
+
+
+    <ResponseField name="prompts" type="string | null">
+      Prompt content associated with the generated model.
+    </ResponseField>
+
+
+
+    <ResponseField name="createdAt" type="string&lt;date-time&gt; | null">
+      Model creation timestamp.
+    </ResponseField>
+
+
+
+    <ResponseField name="sourcePage" type="string | null">
+      Source page marker returned by the service.
+    </ResponseField>
+  </Tab>
+</Tabs>
+
+<ResponseExample>
+```json 200 completed
+{
+  "codeStatus": 0,
+  "message": "Generate model success",
+  "modelUrl": "https://cos.zmkj.com/afsafr24.glb?AWSAccessKeyId=AKIDodI2mK61Xsfasfsfsa",
+  "imageUrl": "https://cos.zmkj.com/afsafr24.jpg?AWSAccessKeyId=AKIDodI2mK61Xsfasfsfsa",
+  "prompts": "a cute bird",
+  "createdAt": "2024-11-07T05:59:40.000Z",
+  "sourcePage": "createModel"
+}
+```
+
+</ResponseExample>

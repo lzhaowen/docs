@@ -1,0 +1,391 @@
+---
+title: "上传文件"
+sidebarTitle: "上传文件"
+description: "上传一个本地图片、视频或音频文件，并返回可复用的文件 ID。"
+api: "POST https://api.neural4d.com/openapi/v1/files"
+playground: simple
+authMethod: bearer
+contentType: multipart/form-data
+---
+
+## 授权
+
+<ParamField header="Authorization" type="string" required default={'Bearer ${YOUR_API_KEY}'}>
+  使用 Bearer 方式发送的 Neural4D API 密钥。
+</ParamField>
+
+## 请求体 <span className="api-content-type">multipart/form-data</span>
+
+<ParamField body="file" type="string&lt;binary&gt;" required>
+  需要上传的文件。图片支持 JPG、JPEG、PNG、GIF、WEBP、BMP、HEIC 和 HEIF；视频支持 MP4、MOV、WEBM、M4V、OGG 和 OGV；音频支持 MP3 和 WAV。
+  </ParamField>
+
+<RequestExample>
+```bash cURL
+curl --request POST \
+  --url https://api.neural4d.com/openapi/v1/files \
+  --header 'Authorization: Bearer <token>' \
+  --form 'file=@/path/to/file.png'
+```
+
+```python Python
+import requests
+
+response = requests.request(
+    "POST",
+    "https://api.neural4d.com/openapi/v1/files",
+    headers={
+    "Authorization": "Bearer <token>",
+    },
+    files={"file": open('/path/to/file', 'rb')},
+)
+print(response.json())
+```
+
+```javascript JavaScript
+const response = await fetch("https://api.neural4d.com/openapi/v1/files", {
+  method: "POST",
+  headers: {
+    "Authorization": "Bearer <token>"
+  },
+  body: (() => { const form = new FormData(); form.append("file", fileInput.files[0]); return form; })(),
+});
+const data = await response.json();
+console.log(data);
+```
+
+```typescript TypeScript
+const response: Response = await fetch("https://api.neural4d.com/openapi/v1/files", {
+  method: "POST",
+  headers: {
+    "Authorization": "Bearer <token>"
+  },
+  body: (() => { const form = new FormData(); form.append("file", fileInput.files[0]); return form; })(),
+});
+const data = await response.json();
+console.log(data);
+```
+
+```java Java
+import java.net.URI;
+import java.net.http.*;
+
+HttpRequest request = HttpRequest.newBuilder()
+    .uri(URI.create("https://api.neural4d.com/openapi/v1/files"))
+    .header("Authorization", "Bearer <token>")
+    .method("POST", HttpRequest.BodyPublishers.noBody())
+    .build();
+HttpResponse<String> response = HttpClient.newHttpClient().send(request, HttpResponse.BodyHandlers.ofString());
+System.out.println(response.body());
+```
+
+```go Go
+package main
+
+import (
+  "fmt"
+  "io"
+  "net/http"
+  "strings"
+)
+
+payload := nil
+req, _ := http.NewRequest("POST", "https://api.neural4d.com/openapi/v1/files", payload)
+req.Header.Set("Authorization", "Bearer <token>")
+resp, _ := http.DefaultClient.Do(req)
+defer resp.Body.Close()
+bodyBytes, _ := io.ReadAll(resp.Body)
+fmt.Println(string(bodyBytes))
+```
+
+```ruby Ruby
+require "net/http"
+require "json"
+
+uri = URI("https://api.neural4d.com/openapi/v1/files")
+request = Net::HTTP::Post.new(uri)
+request["Authorization"] = "Bearer <token>"
+
+response = Net::HTTP.start(uri.hostname, uri.port, use_ssl: uri.scheme == "https") { |http| http.request(request) }
+puts response.body
+```
+
+```php PHP
+<?php
+
+$ch = curl_init("https://api.neural4d.com/openapi/v1/files");
+curl_setopt_array($ch, [
+    CURLOPT_CUSTOMREQUEST => "POST",
+    CURLOPT_RETURNTRANSFER => true,
+    CURLOPT_HTTPHEADER => ["Authorization: Bearer <token>"],
+]);
+$response = curl_exec($ch);
+curl_close($ch);
+echo $response;
+```
+
+```csharp C#
+using System.Net.Http;
+using System.Text;
+
+using var client = new HttpClient();
+using var request = new HttpRequestMessage(HttpMethod.Post, "https://api.neural4d.com/openapi/v1/files");
+request.Headers.TryAddWithoutValidation("Authorization", "Bearer <token>");
+using var response = await client.SendAsync(request);
+Console.WriteLine(await response.Content.ReadAsStringAsync());
+```
+</RequestExample>
+
+## 响应
+
+<Tabs sync={false}>
+  <Tab title="201">
+    文件已上传
+        
+    <ResponseField name="id" type="string" required>
+      生成请求使用的文件 ID。
+
+    示例：`"550e8400-e29b-41d4-a716-446655440000"`。
+    </ResponseField>
+
+    <ResponseField name="filename" type="string" required>
+      上传文件的原始名称。
+
+    示例：`"first-frame.png"`。
+    </ResponseField>
+
+    <ResponseField name="bytes" type="integer&lt;int64&gt;" required>
+      上传文件大小，单位为字节。
+
+    取值范围：`0 <= x <= infinity`。
+
+    示例：`245760`。
+    </ResponseField>
+
+    <ResponseField name="mime_type" type="string" required>
+      检测到的上传文件媒体类型。
+
+    示例：`"image/png"`。
+    </ResponseField>
+
+    <ResponseField name="created_at" type="integer&lt;int64&gt;" required>
+      文件创建时间的 Unix 时间戳，单位为秒。
+    </ResponseField>
+  </Tab>
+
+  <Tab title="400">
+    请求无效
+        
+    <ResponseField name="error" type="object" required>
+      结构化错误详情。
+
+      <Expandable title="child attributes">
+        <ResponseField name="code" pre={["error."]} type="string" required>
+          稳定且可供程序读取的错误码。
+
+        示例：`"invalid_prompt"`。
+        </ResponseField>
+
+        <ResponseField name="message" pre={["error."]} type="string" required>
+          便于阅读的错误说明。
+
+        示例：`"prompt is required and must be a non-empty string"`。
+        </ResponseField>
+
+        <ResponseField name="doc_url" pre={["error."]} type="string&lt;uri&gt; | null">
+          包含此错误更多信息的可选文档 URL。
+
+        示例：`"https://api.neural4d.com/docs/errors#invalid_prompt"`。
+        </ResponseField>
+      </Expandable>
+    </ResponseField>
+  </Tab>
+
+  <Tab title="401">
+    认证失败
+        
+    <ResponseField name="error" type="object" required>
+      结构化错误详情。
+
+      <Expandable title="child attributes">
+        <ResponseField name="code" pre={["error."]} type="string" required>
+          稳定且可供程序读取的错误码。
+
+        示例：`"invalid_prompt"`。
+        </ResponseField>
+
+        <ResponseField name="message" pre={["error."]} type="string" required>
+          便于阅读的错误说明。
+
+        示例：`"prompt is required and must be a non-empty string"`。
+        </ResponseField>
+
+        <ResponseField name="doc_url" pre={["error."]} type="string&lt;uri&gt; | null">
+          包含此错误更多信息的可选文档 URL。
+
+        示例：`"https://api.neural4d.com/docs/errors#invalid_prompt"`。
+        </ResponseField>
+      </Expandable>
+    </ResponseField>
+  </Tab>
+
+  <Tab title="403">
+    当前已认证用户无权访问该资源或点数不足
+        
+    <ResponseField name="error" type="object" required>
+      结构化错误详情。
+
+      <Expandable title="child attributes">
+        <ResponseField name="code" pre={["error."]} type="string" required>
+          稳定且可供程序读取的错误码。
+
+        示例：`"invalid_prompt"`。
+        </ResponseField>
+
+        <ResponseField name="message" pre={["error."]} type="string" required>
+          便于阅读的错误说明。
+
+        示例：`"prompt is required and must be a non-empty string"`。
+        </ResponseField>
+
+        <ResponseField name="doc_url" pre={["error."]} type="string&lt;uri&gt; | null">
+          包含此错误更多信息的可选文档 URL。
+
+        示例：`"https://api.neural4d.com/docs/errors#invalid_prompt"`。
+        </ResponseField>
+      </Expandable>
+    </ResponseField>
+  </Tab>
+
+  <Tab title="429">
+    已超过请求或配额限制
+        
+    <ResponseField name="error" type="object" required>
+      结构化错误详情。
+
+      <Expandable title="child attributes">
+        <ResponseField name="code" pre={["error."]} type="string" required>
+          稳定且可供程序读取的错误码。
+
+        示例：`"invalid_prompt"`。
+        </ResponseField>
+
+        <ResponseField name="message" pre={["error."]} type="string" required>
+          便于阅读的错误说明。
+
+        示例：`"prompt is required and must be a non-empty string"`。
+        </ResponseField>
+
+        <ResponseField name="doc_url" pre={["error."]} type="string&lt;uri&gt; | null">
+          包含此错误更多信息的可选文档 URL。
+
+        示例：`"https://api.neural4d.com/docs/errors#invalid_prompt"`。
+        </ResponseField>
+      </Expandable>
+    </ResponseField>
+  </Tab>
+
+  <Tab title="500">
+    内部或上游服务错误
+        
+    <ResponseField name="error" type="object" required>
+      结构化错误详情。
+
+      <Expandable title="child attributes">
+        <ResponseField name="code" pre={["error."]} type="string" required>
+          稳定且可供程序读取的错误码。
+
+        示例：`"invalid_prompt"`。
+        </ResponseField>
+
+        <ResponseField name="message" pre={["error."]} type="string" required>
+          便于阅读的错误说明。
+
+        示例：`"prompt is required and must be a non-empty string"`。
+        </ResponseField>
+
+        <ResponseField name="doc_url" pre={["error."]} type="string&lt;uri&gt; | null">
+          包含此错误更多信息的可选文档 URL。
+
+        示例：`"https://api.neural4d.com/docs/errors#invalid_prompt"`。
+        </ResponseField>
+      </Expandable>
+    </ResponseField>
+  </Tab>
+</Tabs>
+
+<ResponseExample>
+```json 201 Example
+{
+  "id": "550e8400-e29b-41d4-a716-446655440000",
+  "filename": "first-frame.png",
+  "bytes": 245760,
+  "mime_type": "image/png",
+  "created_at": 1784044800
+}
+```
+
+```json 400 invalid_prompt
+{
+  "error": {
+    "code": "invalid_prompt",
+    "message": "prompt is required and must be a non-empty string"
+  }
+}
+```
+
+```json 400 unsupported_model
+{
+  "error": {
+    "code": "unsupported_model",
+    "message": "Unsupported modelKey: missing-model"
+  }
+}
+```
+
+```json 400 model_unavailable
+{
+  "error": {
+    "code": "model_unavailable",
+    "message": "Model is unavailable: veo-3.1"
+  }
+}
+```
+
+```json 401 Example
+{
+  "error": {
+    "code": "invalid_api_key",
+    "message": "The API key is invalid or expired"
+  }
+}
+```
+
+```json 403 Example
+{
+  "error": {
+    "code": "insufficient_credits",
+    "message": "Insufficient credits for video generation"
+  }
+}
+```
+
+```json 429 Example
+{
+  "error": {
+    "code": "rate_limit_exceeded",
+    "message": "Too many requests. Retry after the indicated interval."
+  }
+}
+```
+
+```json 500 Example
+{
+  "error": {
+    "code": "internal_error",
+    "message": "An internal error occurred"
+  }
+}
+```
+
+</ResponseExample>

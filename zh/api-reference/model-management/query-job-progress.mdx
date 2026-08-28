@@ -1,0 +1,199 @@
+---
+title: "查询任务进度"
+sidebarTitle: "查询任务进度"
+description: "通过 UUID 查询模型生成任务的当前进度。"
+api: "POST https://alb.neural4d.com:3000/api/queryJobProgress"
+playground: simple
+authMethod: bearer
+contentType: application/json
+---
+
+## 授权
+
+<ParamField header="Authorization" type="string" required default={'Bearer ${YOUR_API_KEY}'}>
+  使用 Neural4D 网站提供的 Bearer token。
+</ParamField>
+
+## 请求体 <span className="api-content-type">application/json</span>
+
+<ParamField body="uuid" type="string" required>
+  由创建接口返回的任务或模型唯一标识。
+
+示例：`"f47ac10b-58cc-4372-a567-0e02b2c3d479"`。
+</ParamField>
+
+<RequestExample>
+```bash cURL
+curl --request POST \
+  --url https://alb.neural4d.com:3000/api/queryJobProgress \
+  --header 'Authorization: Bearer <token>' \
+  --header 'Content-Type: application/json' \
+  --data '
+{
+  "uuid": "c7b77026-88f5-417f-a7c8-648a9448"
+}
+'
+```
+
+```python Python
+import requests
+
+response = requests.request(
+    "POST",
+    "https://alb.neural4d.com:3000/api/queryJobProgress",
+    headers={
+    "Authorization": "Bearer <token>",
+    "Content-Type": "application/json",
+    },
+    json={
+      "uuid": "c7b77026-88f5-417f-a7c8-648a9448"
+    },
+)
+print(response.json())
+```
+
+```javascript JavaScript
+const response = await fetch("https://alb.neural4d.com:3000/api/queryJobProgress", {
+  method: "POST",
+  headers: {
+    "Authorization": "Bearer <token>",
+    "Content-Type": "application/json"
+  },
+  body: JSON.stringify({
+    "uuid": "c7b77026-88f5-417f-a7c8-648a9448"
+  }),
+});
+const data = await response.json();
+console.log(data);
+```
+
+```typescript TypeScript
+const response: Response = await fetch("https://alb.neural4d.com:3000/api/queryJobProgress", {
+  method: "POST",
+  headers: {
+    "Authorization": "Bearer <token>",
+    "Content-Type": "application/json"
+  },
+  body: JSON.stringify({
+    "uuid": "c7b77026-88f5-417f-a7c8-648a9448"
+  }),
+});
+const data = await response.json();
+console.log(data);
+```
+
+```java Java
+import java.net.URI;
+import java.net.http.*;
+
+HttpRequest request = HttpRequest.newBuilder()
+    .uri(URI.create("https://alb.neural4d.com:3000/api/queryJobProgress"))
+    .header("Authorization", "Bearer <token>")
+    .header("Content-Type", "application/json")
+    .method("POST", HttpRequest.BodyPublishers.ofString("{\n      \"uuid\": \"c7b77026-88f5-417f-a7c8-648a9448\"\n    }"))
+    .build();
+HttpResponse<String> response = HttpClient.newHttpClient().send(request, HttpResponse.BodyHandlers.ofString());
+System.out.println(response.body());
+```
+
+```go Go
+package main
+
+import (
+  "fmt"
+  "io"
+  "net/http"
+  "strings"
+)
+
+payload := strings.NewReader("{\n  \"uuid\": \"c7b77026-88f5-417f-a7c8-648a9448\"\n}")
+req, _ := http.NewRequest("POST", "https://alb.neural4d.com:3000/api/queryJobProgress", payload)
+req.Header.Set("Authorization", "Bearer <token>")
+req.Header.Set("Content-Type", "application/json")
+resp, _ := http.DefaultClient.Do(req)
+defer resp.Body.Close()
+bodyBytes, _ := io.ReadAll(resp.Body)
+fmt.Println(string(bodyBytes))
+```
+
+```ruby Ruby
+require "net/http"
+require "json"
+
+uri = URI("https://alb.neural4d.com:3000/api/queryJobProgress")
+request = Net::HTTP::Post.new(uri)
+request["Authorization"] = "Bearer <token>"
+request["Content-Type"] = "application/json"
+request.body = {
+  "uuid": "c7b77026-88f5-417f-a7c8-648a9448"
+}.to_json
+
+response = Net::HTTP.start(uri.hostname, uri.port, use_ssl: uri.scheme == "https") { |http| http.request(request) }
+puts response.body
+```
+
+```php PHP
+<?php
+
+$ch = curl_init("https://alb.neural4d.com:3000/api/queryJobProgress");
+curl_setopt_array($ch, [
+    CURLOPT_CUSTOMREQUEST => "POST",
+    CURLOPT_RETURNTRANSFER => true,
+    CURLOPT_HTTPHEADER => ["Authorization: Bearer <token>", "Content-Type: application/json"],
+    CURLOPT_POSTFIELDS => "{\n  \"uuid\": \"c7b77026-88f5-417f-a7c8-648a9448\"\n}",
+]);
+$response = curl_exec($ch);
+curl_close($ch);
+echo $response;
+```
+
+```csharp C#
+using System.Net.Http;
+using System.Text;
+
+using var client = new HttpClient();
+using var request = new HttpRequestMessage(HttpMethod.Post, "https://alb.neural4d.com:3000/api/queryJobProgress");
+request.Headers.TryAddWithoutValidation("Authorization", "Bearer <token>");
+request.Headers.TryAddWithoutValidation("Content-Type", "application/json");
+request.Content = new StringContent("{\n  \"uuid\": \"c7b77026-88f5-417f-a7c8-648a9448\"\n}", Encoding.UTF8, "application/json");
+using var response = await client.SendAsync(request);
+Console.WriteLine(await response.Content.ReadAsStringAsync());
+```
+</RequestExample>
+
+## 响应
+
+<Tabs sync={false}>
+  <Tab title="200">
+    任务进度结果
+        
+    <ResponseField name="statusType" type="enum&lt;integer&gt;" required>
+      进度查询状态。`0` 表示有效，`-1` 表示任务不存在，`-2` 表示查询无效。
+
+    可选值：`-2`、`-1`、`0`。
+    </ResponseField>
+
+
+
+    <ResponseField name="message" type="string" required>
+      可读的任务进度查询结果。
+    </ResponseField>
+
+
+
+    <ResponseField name="progress" type="string | null">
+      服务返回的当前任务进度百分比。
+    </ResponseField>
+  </Tab>
+</Tabs>
+
+<ResponseExample>
+```json 200 success
+{
+  "statusType": 0,
+  "message": "Get job progress successfully",
+  "progress": "100%"
+}
+```
+
+</ResponseExample>

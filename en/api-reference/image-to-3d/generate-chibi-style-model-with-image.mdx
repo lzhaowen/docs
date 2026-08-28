@@ -1,0 +1,218 @@
+---
+title: "Generate chibi-style model with image"
+sidebarTitle: "Generate chibi-style model with image"
+description: "Generate chibi-style 3D character models from uploaded images and a configured style tag. This operation consumes 30 points. The style tag must be configured in advance."
+api: "POST https://alb.neural4d.com:3000/api/createCuteModelsFromImages"
+playground: simple
+authMethod: bearer
+contentType: multipart/form-data
+---
+
+## Authorizations
+
+<ParamField header="Authorization" type="string" required default={'Bearer ${YOUR_API_KEY}'}>
+  Use the bearer token provided through the Neural4D website.
+</ParamField>
+
+## Body <span className="api-content-type">multipart/form-data</span>
+
+<ParamField body="images" type="string&lt;binary&gt;[]" required>
+  Input image files used to generate chibi-style models.
+
+Allowed array length: `1 - unbounded` elements.
+</ParamField>
+<ParamField body="styleType" type="string" required>
+  Configured prompt tag used by the cute-model workflow.
+
+Example: `"Pixel-Style"`.
+</ParamField>
+
+<RequestExample>
+```bash cURL
+curl --request POST \
+  --url https://alb.neural4d.com:3000/api/createCuteModelsFromImages \
+  --header 'Authorization: Bearer <token>' \
+  --form 'images=@/path/to/file' \
+  --form 'styleType=Pixel-Style'
+```
+
+```python Python
+import requests
+
+response = requests.request(
+    "POST",
+    "https://alb.neural4d.com:3000/api/createCuteModelsFromImages",
+    headers={
+    "Authorization": "Bearer <token>",
+    },
+    files={"images": open('/path/to/file', 'rb')},
+)
+print(response.json())
+```
+
+```javascript JavaScript
+const response = await fetch("https://alb.neural4d.com:3000/api/createCuteModelsFromImages", {
+  method: "POST",
+  headers: {
+    "Authorization": "Bearer <token>"
+  },
+  body: (() => { const form = new FormData(); form.append("file", fileInput.files[0]); return form; })(),
+});
+const data = await response.json();
+console.log(data);
+```
+
+```typescript TypeScript
+const response: Response = await fetch("https://alb.neural4d.com:3000/api/createCuteModelsFromImages", {
+  method: "POST",
+  headers: {
+    "Authorization": "Bearer <token>"
+  },
+  body: (() => { const form = new FormData(); form.append("file", fileInput.files[0]); return form; })(),
+});
+const data = await response.json();
+console.log(data);
+```
+
+```java Java
+import java.net.URI;
+import java.net.http.*;
+
+HttpRequest request = HttpRequest.newBuilder()
+    .uri(URI.create("https://alb.neural4d.com:3000/api/createCuteModelsFromImages"))
+    .header("Authorization", "Bearer <token>")
+    .method("POST", HttpRequest.BodyPublishers.noBody())
+    .build();
+HttpResponse<String> response = HttpClient.newHttpClient().send(request, HttpResponse.BodyHandlers.ofString());
+System.out.println(response.body());
+```
+
+```go Go
+package main
+
+import (
+  "fmt"
+  "io"
+  "net/http"
+  "strings"
+)
+
+payload := nil
+req, _ := http.NewRequest("POST", "https://alb.neural4d.com:3000/api/createCuteModelsFromImages", payload)
+req.Header.Set("Authorization", "Bearer <token>")
+resp, _ := http.DefaultClient.Do(req)
+defer resp.Body.Close()
+bodyBytes, _ := io.ReadAll(resp.Body)
+fmt.Println(string(bodyBytes))
+```
+
+```ruby Ruby
+require "net/http"
+require "json"
+
+uri = URI("https://alb.neural4d.com:3000/api/createCuteModelsFromImages")
+request = Net::HTTP::Post.new(uri)
+request["Authorization"] = "Bearer <token>"
+
+response = Net::HTTP.start(uri.hostname, uri.port, use_ssl: uri.scheme == "https") { |http| http.request(request) }
+puts response.body
+```
+
+```php PHP
+<?php
+
+$ch = curl_init("https://alb.neural4d.com:3000/api/createCuteModelsFromImages");
+curl_setopt_array($ch, [
+    CURLOPT_CUSTOMREQUEST => "POST",
+    CURLOPT_RETURNTRANSFER => true,
+    CURLOPT_HTTPHEADER => ["Authorization: Bearer <token>"],
+]);
+$response = curl_exec($ch);
+curl_close($ch);
+echo $response;
+```
+
+```csharp C#
+using System.Net.Http;
+using System.Text;
+
+using var client = new HttpClient();
+using var request = new HttpRequestMessage(HttpMethod.Post, "https://alb.neural4d.com:3000/api/createCuteModelsFromImages");
+request.Headers.TryAddWithoutValidation("Authorization", "Bearer <token>");
+using var response = await client.SendAsync(request);
+Console.WriteLine(await response.Content.ReadAsStringAsync());
+```
+</RequestExample>
+
+## Response
+
+<Tabs sync={false}>
+  <Tab title="200">
+    Batch create result
+        
+    <ResponseField name="success" type="boolean" required>
+      Whether the batch request was processed successfully.
+    </ResponseField>
+
+    <ResponseField name="totalFiles" type="integer" required>
+      Total number of uploaded input files.
+    </ResponseField>
+
+    <ResponseField name="successCount" type="integer" required>
+      Number of input files queued successfully.
+    </ResponseField>
+
+    <ResponseField name="failureCount" type="integer" required>
+      Number of input files that failed to queue.
+    </ResponseField>
+
+    <ResponseField name="results" type="object[]" required>
+      Successful queue results for each processed input file.
+
+      <Expandable title="child attributes">
+        <ResponseField name="uuids" pre={["results[]."]} type="string[]" required>
+          Generated job or model UUIDs for this input file.
+        </ResponseField>
+
+        <ResponseField name="success" pre={["results[]."]} type="boolean" required>
+          Whether this input file was queued successfully.
+        </ResponseField>
+
+        <ResponseField name="message" pre={["results[]."]} type="string" required>
+          Human-readable result for this input file.
+        </ResponseField>
+      </Expandable>
+    </ResponseField>
+
+    <ResponseField name="failures" type="object[]" required>
+      Failure details for input files that could not be queued.
+    </ResponseField>
+
+    <ResponseField name="message" type="string" required>
+      Human-readable summary of the batch operation.
+    </ResponseField>
+  </Tab>
+</Tabs>
+
+<ResponseExample>
+```json 200 success
+{
+  "success": true,
+  "totalFiles": 1,
+  "successCount": 1,
+  "failureCount": 0,
+  "results": [
+    {
+      "uuids": [
+        "31f15c88-48ae"
+      ],
+      "success": true,
+      "message": "Task created and model generation started, please retrieve model after a moment"
+    }
+  ],
+  "failures": [],
+  "message": "Processed 1 files: 1 succeeded, 0 failed"
+}
+```
+
+</ResponseExample>

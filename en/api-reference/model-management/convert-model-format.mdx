@@ -1,0 +1,237 @@
+---
+title: "Convert model format"
+sidebarTitle: "Convert model format"
+description: "Convert a generated model into a target format and return the download URL. This operation consumes 10 points."
+api: "POST https://alb.neural4d.com:3000/api/convertToFormat"
+playground: simple
+authMethod: bearer
+contentType: application/json
+---
+
+## Authorizations
+
+<ParamField header="Authorization" type="string" required default={'Bearer ${YOUR_API_KEY}'}>
+  Use the bearer token provided through the Neural4D website.
+</ParamField>
+
+## Body <span className="api-content-type">application/json</span>
+
+<ParamField body="uuid" type="string" required>
+  UUID of the generated model to convert.
+  </ParamField>
+<ParamField body="modelType" type="enum&lt;string&gt;" default="glb">
+  Target model format.
+
+Available options: `fbx`, `glb`, `obj`, `stl`, `blend`, `usdz`.
+</ParamField>
+<ParamField body="modelSize" type="integer" default={2}>
+  Target model size in millimeters. The value must be greater than 1.
+
+Required range: `2 <= x <= infinity`.
+</ParamField>
+
+<RequestExample>
+```bash cURL
+curl --request POST \
+  --url https://alb.neural4d.com:3000/api/convertToFormat \
+  --header 'Authorization: Bearer <token>' \
+  --header 'Content-Type: application/json' \
+  --data '
+{
+  "uuid": "2dee04d4-f6e5-4fdf-b626-0f814e24db84",
+  "modelType": "fbx",
+  "modelSize": 2
+}
+'
+```
+
+```python Python
+import requests
+
+response = requests.request(
+    "POST",
+    "https://alb.neural4d.com:3000/api/convertToFormat",
+    headers={
+    "Authorization": "Bearer <token>",
+    "Content-Type": "application/json",
+    },
+    json={
+      "uuid": "2dee04d4-f6e5-4fdf-b626-0f814e24db84",
+      "modelType": "fbx",
+      "modelSize": 2
+    },
+)
+print(response.json())
+```
+
+```javascript JavaScript
+const response = await fetch("https://alb.neural4d.com:3000/api/convertToFormat", {
+  method: "POST",
+  headers: {
+    "Authorization": "Bearer <token>",
+    "Content-Type": "application/json"
+  },
+  body: JSON.stringify({
+    "uuid": "2dee04d4-f6e5-4fdf-b626-0f814e24db84",
+    "modelType": "fbx",
+    "modelSize": 2
+  }),
+});
+const data = await response.json();
+console.log(data);
+```
+
+```typescript TypeScript
+const response: Response = await fetch("https://alb.neural4d.com:3000/api/convertToFormat", {
+  method: "POST",
+  headers: {
+    "Authorization": "Bearer <token>",
+    "Content-Type": "application/json"
+  },
+  body: JSON.stringify({
+    "uuid": "2dee04d4-f6e5-4fdf-b626-0f814e24db84",
+    "modelType": "fbx",
+    "modelSize": 2
+  }),
+});
+const data = await response.json();
+console.log(data);
+```
+
+```java Java
+import java.net.URI;
+import java.net.http.*;
+
+HttpRequest request = HttpRequest.newBuilder()
+    .uri(URI.create("https://alb.neural4d.com:3000/api/convertToFormat"))
+    .header("Authorization", "Bearer <token>")
+    .header("Content-Type", "application/json")
+    .method("POST", HttpRequest.BodyPublishers.ofString("{\n      \"uuid\": \"2dee04d4-f6e5-4fdf-b626-0f814e24db84\",\n      \"modelType\": \"fbx\",\n      \"modelSize\": 2\n    }"))
+    .build();
+HttpResponse<String> response = HttpClient.newHttpClient().send(request, HttpResponse.BodyHandlers.ofString());
+System.out.println(response.body());
+```
+
+```go Go
+package main
+
+import (
+  "fmt"
+  "io"
+  "net/http"
+  "strings"
+)
+
+payload := strings.NewReader("{\n  \"uuid\": \"2dee04d4-f6e5-4fdf-b626-0f814e24db84\",\n  \"modelType\": \"fbx\",\n  \"modelSize\": 2\n}")
+req, _ := http.NewRequest("POST", "https://alb.neural4d.com:3000/api/convertToFormat", payload)
+req.Header.Set("Authorization", "Bearer <token>")
+req.Header.Set("Content-Type", "application/json")
+resp, _ := http.DefaultClient.Do(req)
+defer resp.Body.Close()
+bodyBytes, _ := io.ReadAll(resp.Body)
+fmt.Println(string(bodyBytes))
+```
+
+```ruby Ruby
+require "net/http"
+require "json"
+
+uri = URI("https://alb.neural4d.com:3000/api/convertToFormat")
+request = Net::HTTP::Post.new(uri)
+request["Authorization"] = "Bearer <token>"
+request["Content-Type"] = "application/json"
+request.body = {
+  "uuid": "2dee04d4-f6e5-4fdf-b626-0f814e24db84",
+  "modelType": "fbx",
+  "modelSize": 2
+}.to_json
+
+response = Net::HTTP.start(uri.hostname, uri.port, use_ssl: uri.scheme == "https") { |http| http.request(request) }
+puts response.body
+```
+
+```php PHP
+<?php
+
+$ch = curl_init("https://alb.neural4d.com:3000/api/convertToFormat");
+curl_setopt_array($ch, [
+    CURLOPT_CUSTOMREQUEST => "POST",
+    CURLOPT_RETURNTRANSFER => true,
+    CURLOPT_HTTPHEADER => ["Authorization: Bearer <token>", "Content-Type: application/json"],
+    CURLOPT_POSTFIELDS => "{\n  \"uuid\": \"2dee04d4-f6e5-4fdf-b626-0f814e24db84\",\n  \"modelType\": \"fbx\",\n  \"modelSize\": 2\n}",
+]);
+$response = curl_exec($ch);
+curl_close($ch);
+echo $response;
+```
+
+```csharp C#
+using System.Net.Http;
+using System.Text;
+
+using var client = new HttpClient();
+using var request = new HttpRequestMessage(HttpMethod.Post, "https://alb.neural4d.com:3000/api/convertToFormat");
+request.Headers.TryAddWithoutValidation("Authorization", "Bearer <token>");
+request.Headers.TryAddWithoutValidation("Content-Type", "application/json");
+request.Content = new StringContent("{\n  \"uuid\": \"2dee04d4-f6e5-4fdf-b626-0f814e24db84\",\n  \"modelType\": \"fbx\",\n  \"modelSize\": 2\n}", Encoding.UTF8, "application/json");
+using var response = await client.SendAsync(request);
+Console.WriteLine(await response.Content.ReadAsStringAsync());
+```
+</RequestExample>
+
+## Response
+
+<Tabs sync={false}>
+  <Tab title="200">
+    Format conversion result
+        
+    <ResponseField name="statusType" type="enum&lt;integer&gt;" required>
+      Conversion status. `0` means completed, `1` means still converting, and `-1` means the request is invalid or the conversion failed.
+
+    Available options: `-1`, `0`, `1`.
+    </ResponseField>
+
+    <ResponseField name="message" type="string" required>
+      Conversion status message.
+    </ResponseField>
+
+    <ResponseField name="modelUrl" type="string&lt;uri&gt; | null">
+      Download URL for the converted model when available.
+    </ResponseField>
+
+    <ResponseField name="scaleNumber" type="integer | null">
+      Returned scale number when the conversion finishes.
+    </ResponseField>
+
+    <ResponseField name="modelSize" type="integer | null">
+      Echoed model size from the request or intermediate response.
+    </ResponseField>
+  </Tab>
+</Tabs>
+
+<ResponseExample>
+```json 200 converting
+{
+  "statusType": 1,
+  "modelSize": 2,
+  "message": "The specified model format does not exist, converting now..."
+}
+```
+
+```json 200 completed
+{
+  "statusType": 0,
+  "modelUrl": "https://s3.neural4d.com/fbx_54078587-7fdd-49c5-9fe6-317d22f27098.zip?sig=example",
+  "scaleNumber": 4,
+  "message": "Format conversion has been completed and is ready for download."
+}
+```
+
+```json 200 missingUuid
+{
+  "statusType": -1,
+  "message": "Model not found for this UUID (0efc2b3-57e1-4813-90c6-419de96e785e). Please check if the UUID is correct."
+}
+```
+
+</ResponseExample>
