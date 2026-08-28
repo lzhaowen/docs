@@ -3,13 +3,13 @@ title: "查询任务"
 sidebarTitle: "查询任务"
 description: "按批次任务 ID 或视频子项 UUID 返回任务状态和输出。id 与 uuid 必须且只能传入一个。"
 api: "GET https://api.neural4d.com/openapi/v1/tasks/task-info"
-playground: simple
-authMethod: bearer
+playground: "simple"
+authMethod: "bearer"
 ---
 
 ## 授权
 
-<ParamField header="Authorization" type="string" required default={'Bearer ${YOUR_API_KEY}'}>
+<ParamField header="Authorization" default="Bearer ${YOUR_API_KEY}" type="string" required>
   使用 Bearer 方式发送的 Neural4D API 密钥。
 </ParamField>
 
@@ -18,15 +18,17 @@ authMethod: bearer
 <ParamField query="id" type="string">
   生成请求返回的批次任务 ID。与 uuid 二选一，不能同时传入。
 
-示例：`"normal-video-c50fe63e-699d-4d61-93f5-2099ab159d6d"`。
+  示例：`"normal-video-c50fe63e-699d-4d61-93f5-2099ab159d6d"`。
 </ParamField>
-<ParamField query="uuid" type="string&lt;uuid&gt;">
+
+<ParamField query="uuid" type="string<uuid>">
   生成响应返回的视频子项 UUID。与 id 二选一，不能同时传入。
 
-示例：`"7d1fa4bb-41e6-4a5d-88d8-1851f5342e87"`。
+  示例：`"7d1fa4bb-41e6-4a5d-88d8-1851f5342e87"`。
 </ParamField>
 
 <RequestExample>
+
 ```bash cURL
 curl --request GET \
   --url 'https://api.neural4d.com/openapi/v1/tasks/task-info?id=normal-video-c50fe63e-699d-4d61-93f5-2099ab159d6d' \
@@ -136,27 +138,28 @@ request.Headers.TryAddWithoutValidation("Authorization", "Bearer <token>");
 using var response = await client.SendAsync(request);
 Console.WriteLine(await response.Content.ReadAsStringAsync());
 ```
+
 </RequestExample>
 
 ## 响应
 
-<Tabs sync={false}>
+<Tabs>
   <Tab title="200">
     任务详情
-        
+
     <ResponseField name="id" type="string" required>
       生成请求返回的批次任务 ID。
 
-    示例：`"normal-video-c50fe63e-699d-4d61-93f5-2099ab159d6d"`。
+      示例：`"normal-video-c50fe63e-699d-4d61-93f5-2099ab159d6d"`。
     </ResponseField>
 
-    <ResponseField name="status" type="enum&lt;string&gt;" required>
+    <ResponseField name="status" type="enum<string>" required>
       标准化后的任务生命周期状态。
 
-    可选值：`queued`、`processing`、`succeeded`、`failed`。
+      可选值：`queued`、`processing`、`succeeded`、`failed`。
     </ResponseField>
 
-    <ResponseField name="created_at" type="integer&lt;int64&gt;" required>
+    <ResponseField name="created_at" type="integer<int64>" required>
       Unix 时间戳（秒）。
     </ResponseField>
 
@@ -164,65 +167,65 @@ Console.WriteLine(await response.Content.ReadAsStringAsync());
       当前子视频任务输出，包括仍在排队或处理中的条目。
 
       <Expandable title="child attributes">
-        <ResponseField name="videos" pre={["output."]} type="object[]" required>
+        <ResponseField name="videos" type="object[]" required pre={["output."]}>
           所有子视频任务及其当前输出信息；结果文件可用前 url 和 format 为 null。
 
           <Expandable title="child attributes">
-            <ResponseField name="uuid" pre={["output.videos[]."]} type="string&lt;uuid&gt;" required>
+            <ResponseField name="uuid" type="string<uuid>" required pre={["output.videos[]."]}>
               生成视频子项 UUID。
 
-            示例：`"7d1fa4bb-41e6-4a5d-88d8-1851f5342e87"`。
+              示例：`"7d1fa4bb-41e6-4a5d-88d8-1851f5342e87"`。
             </ResponseField>
 
-            <ResponseField name="url" pre={["output.videos[]."]} type="string&lt;uri&gt; | null" required>
+            <ResponseField name="url" type="string<uri> | null" required pre={["output.videos[]."]}>
               生成视频可用时用于下载的临时签名 URL。
             </ResponseField>
 
-            <ResponseField name="format" pre={["output.videos[]."]} type="string | null" required>
+            <ResponseField name="format" type="string | null" required pre={["output.videos[]."]}>
               已知时返回视频文件格式，例如 mp4。
 
-            示例：`"mp4"`。
+              示例：`"mp4"`。
             </ResponseField>
 
-            <ResponseField name="duration" pre={["output.videos[]."]} type="integer | null" required>
+            <ResponseField name="duration" type="integer | null" required pre={["output.videos[]."]}>
               可用时返回生成视频的时长，单位为秒。
 
-            取值范围：`0 <= x <= infinity`。
+              取值范围：`0 <= x <= infinity`。
             </ResponseField>
 
-            <ResponseField name="resolution" pre={["output.videos[]."]} type="string | null" required>
+            <ResponseField name="resolution" type="string | null" required pre={["output.videos[]."]}>
               可用时返回生成视频的分辨率，例如 720p。
 
-            示例：`"720p"`。
+              示例：`"720p"`。
             </ResponseField>
 
-            <ResponseField name="aspect_ratio" pre={["output.videos[]."]} type="string | null" required>
+            <ResponseField name="aspect_ratio" type="string | null" required pre={["output.videos[]."]}>
               可用时返回生成视频的宽高比，例如 16:9。
 
-            示例：`"16:9"`。
+              示例：`"16:9"`。
             </ResponseField>
 
-            <ResponseField name="has_audio" pre={["output.videos[]."]} type="boolean" required>
+            <ResponseField name="has_audio" type="boolean" required pre={["output.videos[]."]}>
               此视频是否启用了原生音频生成。
             </ResponseField>
 
-            <ResponseField name="mode" pre={["output.videos[]."]} type="enum&lt;string&gt;" required>
+            <ResponseField name="mode" type="enum<string>" required pre={["output.videos[]."]}>
               此视频使用的生成模式。
 
-            可选值：`text_to_video`、`first_frame_image_to_video`、`first_last_frame_image_to_video`、`reference_to_video`。
+              可选值：`text_to_video`、`first_frame_image_to_video`、`first_last_frame_image_to_video`、`reference_to_video`。
             </ResponseField>
 
-            <ResponseField name="status" pre={["output.videos[]."]} type="enum&lt;string&gt;" required>
+            <ResponseField name="status" type="enum<string>" required pre={["output.videos[]."]}>
               此生成视频的当前状态。
 
-            可选值：`queued`、`processing`、`succeeded`、`failed`。
+              可选值：`queued`、`processing`、`succeeded`、`failed`。
             </ResponseField>
 
-            <ResponseField name="created_at" pre={["output.videos[]."]} type="integer&lt;int64&gt;" required>
+            <ResponseField name="created_at" type="integer<int64>" required pre={["output.videos[]."]}>
               此生成视频的创建时间，Unix 时间戳，单位为秒。
             </ResponseField>
 
-            <ResponseField name="updated_at" pre={["output.videos[]."]} type="integer&lt;int64&gt;" required>
+            <ResponseField name="updated_at" type="integer<int64>" required pre={["output.videos[]."]}>
               此生成视频的最后更新时间，Unix 时间戳，单位为秒。
             </ResponseField>
           </Expandable>
@@ -230,19 +233,19 @@ Console.WriteLine(await response.Content.ReadAsStringAsync());
       </Expandable>
     </ResponseField>
 
-    <ResponseField name="mode" type="enum&lt;string&gt;" required>
+    <ResponseField name="mode" type="enum<string>" required>
       任务使用的视频生成模式。
 
-    可选值：`text_to_video`、`first_frame_image_to_video`、`first_last_frame_image_to_video`、`reference_to_video`。
+      可选值：`text_to_video`、`first_frame_image_to_video`、`first_last_frame_image_to_video`、`reference_to_video`。
     </ResponseField>
 
-    <ResponseField name="model" type="enum&lt;string&gt; | null">
+    <ResponseField name="model" type="enum<string> | null">
       任务使用的视频生成模型。
 
-    可选值：`bytedance/seedance-2.0`、`bytedance/seedance-2.0-fast`、`google/veo-3.1`、`xai/grok-imagine`。
+      可选值：`bytedance/seedance-2.0`、`bytedance/seedance-2.0-fast`、`google/veo-3.1`、`xai/grok-imagine`。
     </ResponseField>
 
-    <ResponseField name="updated_at" type="integer&lt;int64&gt;">
+    <ResponseField name="updated_at" type="integer<int64>">
       Unix 时间戳（秒）。
     </ResponseField>
 
@@ -250,12 +253,12 @@ Console.WriteLine(await response.Content.ReadAsStringAsync());
       可用时返回此任务扣除的点数。
 
       <Expandable title="child attributes">
-        <ResponseField name="credits" pre={["usage."]} type="number&lt;float&gt;" required>
+        <ResponseField name="credits" type="number<float>" required pre={["usage."]}>
           该任务或请求扣除的点数。
 
-        取值范围：`0 <= x <= infinity`。
+          取值范围：`0 <= x <= infinity`。
 
-        示例：`26`。
+          示例：`26`。
         </ResponseField>
       </Expandable>
     </ResponseField>
@@ -264,188 +267,182 @@ Console.WriteLine(await response.Content.ReadAsStringAsync());
       任务失败时返回的错误详情。
 
       <Expandable title="child attributes">
-        <ResponseField name="code" pre={["error."]} type="string" required>
+        <ResponseField name="code" type="string" required pre={["error."]}>
           稳定且可供程序读取的任务失败代码。
         </ResponseField>
 
-        <ResponseField name="message" pre={["error."]} type="string" required>
+        <ResponseField name="message" type="string" required pre={["error."]}>
           便于阅读的任务失败说明。
         </ResponseField>
 
-        <ResponseField name="failed_at" pre={["error."]} type="integer&lt;int64&gt;">
+        <ResponseField name="failed_at" type="integer<int64>" pre={["error."]}>
           任务失败时的 Unix 时间戳（秒）。
         </ResponseField>
 
-        <ResponseField name="retryable" pre={["error."]} type="boolean">
+        <ResponseField name="retryable" type="boolean" pre={["error."]}>
           重试相同操作是否可能成功。
         </ResponseField>
       </Expandable>
     </ResponseField>
   </Tab>
-
   <Tab title="400">
     请求无效
-        
+
     <ResponseField name="error" type="object" required>
       结构化错误详情。
 
       <Expandable title="child attributes">
-        <ResponseField name="code" pre={["error."]} type="string" required>
+        <ResponseField name="code" type="string" required pre={["error."]}>
           稳定且可供程序读取的错误码。
 
-        示例：`"invalid_prompt"`。
+          示例：`"invalid_prompt"`。
         </ResponseField>
 
-        <ResponseField name="message" pre={["error."]} type="string" required>
+        <ResponseField name="message" type="string" required pre={["error."]}>
           便于阅读的错误说明。
 
-        示例：`"prompt is required and must be a non-empty string"`。
+          示例：`"prompt is required and must be a non-empty string"`。
         </ResponseField>
 
-        <ResponseField name="doc_url" pre={["error."]} type="string&lt;uri&gt; | null">
+        <ResponseField name="doc_url" type="string<uri> | null" pre={["error."]}>
           包含此错误更多信息的可选文档 URL。
 
-        示例：`"https://api.neural4d.com/docs/errors#invalid_prompt"`。
+          示例：`"https://api.neural4d.com/docs/errors#invalid_prompt"`。
         </ResponseField>
       </Expandable>
     </ResponseField>
   </Tab>
-
   <Tab title="401">
     认证失败
-        
+
     <ResponseField name="error" type="object" required>
       结构化错误详情。
 
       <Expandable title="child attributes">
-        <ResponseField name="code" pre={["error."]} type="string" required>
+        <ResponseField name="code" type="string" required pre={["error."]}>
           稳定且可供程序读取的错误码。
 
-        示例：`"invalid_prompt"`。
+          示例：`"invalid_prompt"`。
         </ResponseField>
 
-        <ResponseField name="message" pre={["error."]} type="string" required>
+        <ResponseField name="message" type="string" required pre={["error."]}>
           便于阅读的错误说明。
 
-        示例：`"prompt is required and must be a non-empty string"`。
+          示例：`"prompt is required and must be a non-empty string"`。
         </ResponseField>
 
-        <ResponseField name="doc_url" pre={["error."]} type="string&lt;uri&gt; | null">
+        <ResponseField name="doc_url" type="string<uri> | null" pre={["error."]}>
           包含此错误更多信息的可选文档 URL。
 
-        示例：`"https://api.neural4d.com/docs/errors#invalid_prompt"`。
+          示例：`"https://api.neural4d.com/docs/errors#invalid_prompt"`。
         </ResponseField>
       </Expandable>
     </ResponseField>
   </Tab>
-
   <Tab title="403">
     当前已认证用户无权访问该资源或点数不足
-        
+
     <ResponseField name="error" type="object" required>
       结构化错误详情。
 
       <Expandable title="child attributes">
-        <ResponseField name="code" pre={["error."]} type="string" required>
+        <ResponseField name="code" type="string" required pre={["error."]}>
           稳定且可供程序读取的错误码。
 
-        示例：`"invalid_prompt"`。
+          示例：`"invalid_prompt"`。
         </ResponseField>
 
-        <ResponseField name="message" pre={["error."]} type="string" required>
+        <ResponseField name="message" type="string" required pre={["error."]}>
           便于阅读的错误说明。
 
-        示例：`"prompt is required and must be a non-empty string"`。
+          示例：`"prompt is required and must be a non-empty string"`。
         </ResponseField>
 
-        <ResponseField name="doc_url" pre={["error."]} type="string&lt;uri&gt; | null">
+        <ResponseField name="doc_url" type="string<uri> | null" pre={["error."]}>
           包含此错误更多信息的可选文档 URL。
 
-        示例：`"https://api.neural4d.com/docs/errors#invalid_prompt"`。
+          示例：`"https://api.neural4d.com/docs/errors#invalid_prompt"`。
         </ResponseField>
       </Expandable>
     </ResponseField>
   </Tab>
-
   <Tab title="404">
     未找到请求的资源
-        
+
     <ResponseField name="error" type="object" required>
       结构化错误详情。
 
       <Expandable title="child attributes">
-        <ResponseField name="code" pre={["error."]} type="string" required>
+        <ResponseField name="code" type="string" required pre={["error."]}>
           稳定且可供程序读取的错误码。
 
-        示例：`"invalid_prompt"`。
+          示例：`"invalid_prompt"`。
         </ResponseField>
 
-        <ResponseField name="message" pre={["error."]} type="string" required>
+        <ResponseField name="message" type="string" required pre={["error."]}>
           便于阅读的错误说明。
 
-        示例：`"prompt is required and must be a non-empty string"`。
+          示例：`"prompt is required and must be a non-empty string"`。
         </ResponseField>
 
-        <ResponseField name="doc_url" pre={["error."]} type="string&lt;uri&gt; | null">
+        <ResponseField name="doc_url" type="string<uri> | null" pre={["error."]}>
           包含此错误更多信息的可选文档 URL。
 
-        示例：`"https://api.neural4d.com/docs/errors#invalid_prompt"`。
+          示例：`"https://api.neural4d.com/docs/errors#invalid_prompt"`。
         </ResponseField>
       </Expandable>
     </ResponseField>
   </Tab>
-
   <Tab title="429">
     已超过请求或配额限制
-        
+
     <ResponseField name="error" type="object" required>
       结构化错误详情。
 
       <Expandable title="child attributes">
-        <ResponseField name="code" pre={["error."]} type="string" required>
+        <ResponseField name="code" type="string" required pre={["error."]}>
           稳定且可供程序读取的错误码。
 
-        示例：`"invalid_prompt"`。
+          示例：`"invalid_prompt"`。
         </ResponseField>
 
-        <ResponseField name="message" pre={["error."]} type="string" required>
+        <ResponseField name="message" type="string" required pre={["error."]}>
           便于阅读的错误说明。
 
-        示例：`"prompt is required and must be a non-empty string"`。
+          示例：`"prompt is required and must be a non-empty string"`。
         </ResponseField>
 
-        <ResponseField name="doc_url" pre={["error."]} type="string&lt;uri&gt; | null">
+        <ResponseField name="doc_url" type="string<uri> | null" pre={["error."]}>
           包含此错误更多信息的可选文档 URL。
 
-        示例：`"https://api.neural4d.com/docs/errors#invalid_prompt"`。
+          示例：`"https://api.neural4d.com/docs/errors#invalid_prompt"`。
         </ResponseField>
       </Expandable>
     </ResponseField>
   </Tab>
-
   <Tab title="500">
     内部或上游服务错误
-        
+
     <ResponseField name="error" type="object" required>
       结构化错误详情。
 
       <Expandable title="child attributes">
-        <ResponseField name="code" pre={["error."]} type="string" required>
+        <ResponseField name="code" type="string" required pre={["error."]}>
           稳定且可供程序读取的错误码。
 
-        示例：`"invalid_prompt"`。
+          示例：`"invalid_prompt"`。
         </ResponseField>
 
-        <ResponseField name="message" pre={["error."]} type="string" required>
+        <ResponseField name="message" type="string" required pre={["error."]}>
           便于阅读的错误说明。
 
-        示例：`"prompt is required and must be a non-empty string"`。
+          示例：`"prompt is required and must be a non-empty string"`。
         </ResponseField>
 
-        <ResponseField name="doc_url" pre={["error."]} type="string&lt;uri&gt; | null">
+        <ResponseField name="doc_url" type="string<uri> | null" pre={["error."]}>
           包含此错误更多信息的可选文档 URL。
 
-        示例：`"https://api.neural4d.com/docs/errors#invalid_prompt"`。
+          示例：`"https://api.neural4d.com/docs/errors#invalid_prompt"`。
         </ResponseField>
       </Expandable>
     </ResponseField>
@@ -453,6 +450,7 @@ Console.WriteLine(await response.Content.ReadAsStringAsync());
 </Tabs>
 
 <ResponseExample>
+
 ```json 200 Example
 {
   "id": "normal-video-c50fe63e-699d-4d61-93f5-2099ab159d6d",
