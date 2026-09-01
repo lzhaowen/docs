@@ -37,6 +37,10 @@
                     "pages": ["en/v1-api-reference/files/upload-a-file"]
                   },
                   {
+                    "group": "Image generation",
+                    "pages": ["en/v1-api-reference/image-generation/create-image-generation-tasks"]
+                  },
+                  {
                     "group": "Video generation",
                     "pages": ["en/v1-api-reference/video-generation/create-video-generation-tasks"]
                   },
@@ -121,6 +125,10 @@
                   {
                     "group": "文件",
                     "pages": ["zh/v1-api-reference/files/upload-a-file"]
+                  },
+                  {
+                    "group": "图片生成",
+                    "pages": ["zh/v1-api-reference/image-generation/create-image-generation-tasks"]
                   },
                   {
                     "group": "视频生成",

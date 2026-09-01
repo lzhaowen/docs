@@ -1,0 +1,778 @@
+---
+title: "创建图片生成任务"
+sidebarTitle: "创建图片生成任务"
+description: "根据文本提示词和可选图片参考素材创建异步图片生成任务。"
+api: "POST https://api.neural4d.com/openapi/v1/images/generations"
+playground: simple
+authMethod: bearer
+contentType: application/json
+---
+
+## 授权
+
+<ParamField header="Authorization" type="string" required default={'Bearer ${YOUR_API_KEY}'}>
+  使用 Bearer 方式发送的 Neural4D API 密钥。
+</ParamField>
+
+## 请求体 <span className="api-content-type">application/json</span>
+
+<Tabs sync={false}>
+  <Tab title="Option 1">
+    <ParamField body="model" type="enum&lt;string&gt;" required>
+      GPT Image 2 模型标识。
+
+      可选值：`openai/gpt-image-2`。
+    </ParamField>
+
+    <ParamField body="prompt" type="string" required>
+      描述待生成或编辑图片的文本提示词。
+
+      字符串长度：`1 - 500`。
+    </ParamField>
+
+    <ParamField body="input_references" type="object[]">
+      通过 `POST /openapi/v1/files` 上传的可选参考图片。仅支持图片参考素材。支持 JPG、JPEG、PNG 和 WEBP 格式。
+
+      数组长度：`0 - 6` 个元素。
+
+      <Expandable title="子属性" defaultOpen>
+        <ParamField body="type" pre={["input_references."]} type="enum&lt;string&gt;" required>
+          参考素材类型。
+
+          可选值：`image`。
+        </ParamField>
+        <ParamField body="file_id" pre={["input_references."]} type="string&lt;uuid&gt;" required>
+          文件上传接口返回的 JPG、JPEG、PNG 或 WEBP 图片文件 ID。
+        </ParamField>
+      </Expandable>
+    </ParamField>
+
+    <ParamField body="n" type="integer" default={1}>
+      要创建的图片生成任务数量。
+
+      取值范围：`1 <= x <= 4`。
+    </ParamField>
+
+    <ParamField body="resolution" type="enum&lt;string&gt;" default="2K">
+      命名输出分辨率。
+
+      可选值：`1K`、`2K`、`4K`。
+    </ParamField>
+
+    <ParamField body="aspect_ratio" type="enum&lt;string&gt;" default="1:1">
+      目标图片宽高比。
+
+      可选值：`1:1`、`16:9`、`9:16`、`4:3`、`3:4`。
+    </ParamField>
+  </Tab>
+
+  <Tab title="Option 2">
+    <ParamField body="model" type="enum&lt;string&gt;" required>
+      Nano Banana Pro 模型标识。
+
+      可选值：`google/nano-banana-pro`。
+    </ParamField>
+
+    <ParamField body="prompt" type="string" required>
+      描述待生成或编辑图片的文本提示词。
+
+      字符串长度：`1 - 500`。
+    </ParamField>
+
+    <ParamField body="input_references" type="object[]">
+      通过 `POST /openapi/v1/files` 上传的可选参考图片。仅支持图片参考素材。支持 JPG、JPEG、PNG 和 WEBP 格式。
+
+      数组长度：`0 - 6` 个元素。
+
+      <Expandable title="子属性" defaultOpen>
+        <ParamField body="type" pre={["input_references."]} type="enum&lt;string&gt;" required>
+          参考素材类型。
+
+          可选值：`image`。
+        </ParamField>
+        <ParamField body="file_id" pre={["input_references."]} type="string&lt;uuid&gt;" required>
+          文件上传接口返回的 JPG、JPEG、PNG 或 WEBP 图片文件 ID。
+        </ParamField>
+      </Expandable>
+    </ParamField>
+
+    <ParamField body="n" type="integer" default={1}>
+      要创建的图片生成任务数量。
+
+      取值范围：`1 <= x <= 4`。
+    </ParamField>
+
+    <ParamField body="resolution" type="enum&lt;string&gt;" default="2K">
+      命名输出分辨率。
+
+      可选值：`1K`、`2K`、`4K`。
+    </ParamField>
+
+    <ParamField body="aspect_ratio" type="enum&lt;string&gt;" default="1:1">
+      目标图片宽高比。
+
+      可选值：`1:1`、`16:9`、`9:16`、`4:3`、`3:4`。
+    </ParamField>
+  </Tab>
+
+  <Tab title="Option 3">
+    <ParamField body="model" type="enum&lt;string&gt;" required>
+      Seedream 4.5 模型标识。
+
+      可选值：`bytedance/seedream-4.5`。
+    </ParamField>
+
+    <ParamField body="prompt" type="string" required>
+      描述待生成或编辑图片的文本提示词。
+
+      字符串长度：`1 - 500`。
+    </ParamField>
+
+    <ParamField body="input_references" type="object[]">
+      通过 `POST /openapi/v1/files` 上传的可选参考图片。仅支持图片参考素材。支持 JPG、JPEG、PNG 和 WEBP 格式。
+
+      数组长度：`0 - 6` 个元素。
+
+      <Expandable title="子属性" defaultOpen>
+        <ParamField body="type" pre={["input_references."]} type="enum&lt;string&gt;" required>
+          参考素材类型。
+
+          可选值：`image`。
+        </ParamField>
+        <ParamField body="file_id" pre={["input_references."]} type="string&lt;uuid&gt;" required>
+          文件上传接口返回的 JPG、JPEG、PNG 或 WEBP 图片文件 ID。
+        </ParamField>
+      </Expandable>
+    </ParamField>
+
+    <ParamField body="n" type="integer" default={1}>
+      要创建的图片生成任务数量。
+
+      取值范围：`1 <= x <= 4`。
+    </ParamField>
+
+    <ParamField body="resolution" type="enum&lt;string&gt;" default="2K">
+      命名输出分辨率。
+
+      可选值：`2K`、`4K`。
+    </ParamField>
+
+    <ParamField body="aspect_ratio" type="enum&lt;string&gt;" default="1:1">
+      目标图片宽高比。
+
+      可选值：`1:1`、`16:9`、`9:16`、`4:3`、`3:4`。
+    </ParamField>
+  </Tab>
+
+  <Tab title="Option 4">
+    <ParamField body="model" type="enum&lt;string&gt;" required>
+      Flux 2 Pro 模型标识。
+
+      可选值：`black-forest-labs/flux-2-pro`。
+    </ParamField>
+
+    <ParamField body="prompt" type="string" required>
+      描述待生成或编辑图片的文本提示词。
+
+      字符串长度：`1 - 500`。
+    </ParamField>
+
+    <ParamField body="input_references" type="object[]">
+      通过 `POST /openapi/v1/files` 上传的可选参考图片。仅支持图片参考素材。支持 JPG、JPEG、PNG 和 WEBP 格式。
+
+      数组长度：`0 - 6` 个元素。
+
+      <Expandable title="子属性" defaultOpen>
+        <ParamField body="type" pre={["input_references."]} type="enum&lt;string&gt;" required>
+          参考素材类型。
+
+          可选值：`image`。
+        </ParamField>
+        <ParamField body="file_id" pre={["input_references."]} type="string&lt;uuid&gt;" required>
+          文件上传接口返回的 JPG、JPEG、PNG 或 WEBP 图片文件 ID。
+        </ParamField>
+      </Expandable>
+    </ParamField>
+
+    <ParamField body="n" type="integer" default={1}>
+      要创建的图片生成任务数量。
+
+      取值范围：`1 <= x <= 4`。
+    </ParamField>
+
+    <ParamField body="resolution" type="enum&lt;string&gt;" default="2K">
+      命名输出分辨率。
+
+      可选值：`1K`、`2K`。
+    </ParamField>
+
+    <ParamField body="aspect_ratio" type="enum&lt;string&gt;" default="1:1">
+      目标图片宽高比。
+
+      可选值：`1:1`、`16:9`、`9:16`、`4:3`、`3:4`。
+    </ParamField>
+  </Tab>
+</Tabs>
+
+<RequestExample>
+```bash cURL · openai/gpt-image-2
+curl --request POST \
+  --url https://api.neural4d.com/openapi/v1/images/generations \
+  --header 'Authorization: Bearer <token>' \
+  --header 'Content-Type: application/json' \
+  --data '
+{
+  "model": "openai/gpt-image-2",
+  "prompt": "白色摄影棚背景中的陶瓷茶壶",
+  "input_references": [
+    {
+      "type": "image",
+      "file_id": "550e8400-e29b-41d4-a716-446655440000"
+    }
+  ],
+  "n": 1,
+  "resolution": "1K",
+  "aspect_ratio": "1:1"
+}
+'
+```
+
+```bash cURL · google/nano-banana-pro
+curl --request POST \
+  --url https://api.neural4d.com/openapi/v1/images/generations \
+  --header 'Authorization: Bearer <token>' \
+  --header 'Content-Type: application/json' \
+  --data '{
+  "model": "google/nano-banana-pro",
+  "prompt": "白色摄影棚背景中的陶瓷茶壶",
+  "input_references": [{
+    "type": "image",
+    "file_id": "550e8400-e29b-41d4-a716-446655440000"
+  }],
+  "n": 1,
+  "resolution": "2K",
+  "aspect_ratio": "16:9"
+}'
+```
+
+```bash cURL · bytedance/seedream-4.5
+curl --request POST \
+  --url https://api.neural4d.com/openapi/v1/images/generations \
+  --header 'Authorization: Bearer <token>' \
+  --header 'Content-Type: application/json' \
+  --data '{
+  "model": "bytedance/seedream-4.5",
+  "prompt": "白色摄影棚背景中的陶瓷茶壶",
+  "input_references": [{
+    "type": "image",
+    "file_id": "550e8400-e29b-41d4-a716-446655440000"
+  }],
+  "n": 1,
+  "resolution": "2K",
+  "aspect_ratio": "1:1"
+}'
+```
+
+```bash cURL · black-forest-labs/flux-2-pro
+curl --request POST \
+  --url https://api.neural4d.com/openapi/v1/images/generations \
+  --header 'Authorization: Bearer <token>' \
+  --header 'Content-Type: application/json' \
+  --data '{
+  "model": "black-forest-labs/flux-2-pro",
+  "prompt": "白色摄影棚背景中的陶瓷茶壶",
+  "input_references": [{
+    "type": "image",
+    "file_id": "550e8400-e29b-41d4-a716-446655440000"
+  }],
+  "n": 1,
+  "resolution": "1K",
+  "aspect_ratio": "1:1"
+}'
+```
+
+```python Python
+import requests
+
+response = requests.post(
+    "https://api.neural4d.com/openapi/v1/images/generations",
+    headers={
+        "Authorization": "Bearer <token>",
+        "Content-Type": "application/json",
+    },
+    json={
+        "model": "openai/gpt-image-2",
+        "prompt": "白色摄影棚背景中的陶瓷茶壶",
+        "input_references": [
+            {
+                "type": "image",
+                "file_id": "550e8400-e29b-41d4-a716-446655440000",
+            },
+        ],
+        "n": 1,
+        "resolution": "1K",
+        "aspect_ratio": "1:1",
+    },
+)
+print(response.json())
+```
+
+```javascript JavaScript
+const response = await fetch("https://api.neural4d.com/openapi/v1/images/generations", {
+  method: "POST",
+  headers: {
+    "Authorization": "Bearer <token>",
+    "Content-Type": "application/json"
+  },
+  body: JSON.stringify({
+    model: "openai/gpt-image-2",
+    prompt: "白色摄影棚背景中的陶瓷茶壶",
+    input_references: [
+      { type: "image", file_id: "550e8400-e29b-41d4-a716-446655440000" }
+    ],
+    n: 1,
+    resolution: "1K",
+    aspect_ratio: "1:1",
+  })
+});
+const data = await response.json();
+console.log(data);
+```
+
+```typescript TypeScript
+const response: Response = await fetch("https://api.neural4d.com/openapi/v1/images/generations", {
+  method: "POST",
+  headers: {
+    "Authorization": "Bearer <token>",
+    "Content-Type": "application/json"
+  },
+  body: JSON.stringify({
+    model: "openai/gpt-image-2",
+    prompt: "白色摄影棚背景中的陶瓷茶壶",
+    input_references: [{ type: "image", file_id: "550e8400-e29b-41d4-a716-446655440000" }],
+    n: 1,
+    resolution: "1K",
+    aspect_ratio: "1:1"
+  })
+});
+const data = await response.json();
+console.log(data);
+```
+
+```java Java
+import java.net.URI;
+import java.net.http.*;
+
+HttpRequest request = HttpRequest.newBuilder()
+    .uri(URI.create("https://api.neural4d.com/openapi/v1/images/generations"))
+    .header("Authorization", "Bearer <token>")
+    .header("Content-Type", "application/json")
+    .POST(HttpRequest.BodyPublishers.ofString("{\n  \"model\": \"openai/gpt-image-2\",\n  \"prompt\": \"白色摄影棚背景中的陶瓷茶壶\",\n  \"input_references\": [{\"type\":\"image\",\"file_id\":\"550e8400-e29b-41d4-a716-446655440000\"}],\n  \"n\": 1,\n  \"resolution\": \"1K\",\n  \"aspect_ratio\": \"1:1\"\n}"))
+    .build();
+HttpResponse<String> response = HttpClient.newHttpClient().send(request, HttpResponse.BodyHandlers.ofString());
+System.out.println(response.body());
+```
+
+```go Go
+package main
+
+import (
+  "fmt"
+  "io"
+  "net/http"
+  "strings"
+)
+
+payload := strings.NewReader(`{"model":"openai/gpt-image-2","prompt":"白色摄影棚背景中的陶瓷茶壶","input_references":[{"type":"image","file_id":"550e8400-e29b-41d4-a716-446655440000"}],"n":1,"resolution":"1K","aspect_ratio":"1:1"}`)
+req, _ := http.NewRequest("POST", "https://api.neural4d.com/openapi/v1/images/generations", payload)
+req.Header.Set("Authorization", "Bearer <token>")
+req.Header.Set("Content-Type", "application/json")
+resp, _ := http.DefaultClient.Do(req)
+defer resp.Body.Close()
+bodyBytes, _ := io.ReadAll(resp.Body)
+fmt.Println(string(bodyBytes))
+```
+
+```ruby Ruby
+require "net/http"
+require "json"
+
+uri = URI("https://api.neural4d.com/openapi/v1/images/generations")
+request = Net::HTTP::Post.new(uri)
+request["Authorization"] = "Bearer <token>"
+request["Content-Type"] = "application/json"
+request.body = {
+  model: "openai/gpt-image-2",
+  prompt: "白色摄影棚背景中的陶瓷茶壶",
+  input_references: [{ type: "image", file_id: "550e8400-e29b-41d4-a716-446655440000" }],
+  n: 1,
+  resolution: "1K",
+  aspect_ratio: "1:1"
+}.to_json
+
+response = Net::HTTP.start(uri.hostname, uri.port, use_ssl: uri.scheme == "https") { |http| http.request(request) }
+puts response.body
+```
+
+```php PHP
+<?php
+
+$ch = curl_init("https://api.neural4d.com/openapi/v1/images/generations");
+curl_setopt_array($ch, [
+    CURLOPT_CUSTOMREQUEST => "POST",
+    CURLOPT_RETURNTRANSFER => true,
+    CURLOPT_HTTPHEADER => ["Authorization: Bearer <token>", "Content-Type: application/json"],
+    CURLOPT_POSTFIELDS => json_encode([
+        "model" => "openai/gpt-image-2",
+        "prompt" => "白色摄影棚背景中的陶瓷茶壶",
+        "input_references" => [[
+            "type" => "image",
+            "file_id" => "550e8400-e29b-41d4-a716-446655440000",
+        ]],
+        "n" => 1,
+        "resolution" => "1K",
+        "aspect_ratio" => "1:1",
+    ]),
+]);
+$response = curl_exec($ch);
+curl_close($ch);
+echo $response;
+```
+
+```csharp C#
+using System.Net.Http;
+using System.Text;
+
+using var client = new HttpClient();
+using var request = new HttpRequestMessage(HttpMethod.Post, "https://api.neural4d.com/openapi/v1/images/generations");
+request.Headers.TryAddWithoutValidation("Authorization", "Bearer <token>");
+request.Content = new StringContent("{\"model\":\"openai/gpt-image-2\",\"prompt\":\"白色摄影棚背景中的陶瓷茶壶\",\"input_references\":[{\"type\":\"image\",\"file_id\":\"550e8400-e29b-41d4-a716-446655440000\"}],\"n\":1,\"resolution\":\"1K\",\"aspect_ratio\":\"1:1\"}", Encoding.UTF8, "application/json");
+using var response = await client.SendAsync(request);
+Console.WriteLine(await response.Content.ReadAsStringAsync());
+```
+</RequestExample>
+
+## 响应
+
+<Tabs sync={false}>
+  <Tab title="202">
+    已接受生成任务
+
+    <ResponseField name="id" type="string" required>
+      生成请求返回的批次任务 ID。
+
+      示例：`"normal-image-c50fe63e-699d-4d61-93f5-2099ab159d6d"`。
+    </ResponseField>
+
+    <ResponseField name="data" type="object[]" required>
+      本次请求创建的生成结果子项。
+
+      数组长度：至少 `1` 个元素。
+
+      <Expandable title="子属性" defaultOpen>
+        <ResponseField name="uuid" pre={["data[]."]} type="string&lt;uuid&gt;" required>
+          生成结果子项 UUID。
+        </ResponseField>
+
+        <ResponseField name="status" pre={["data[]."]} type="enum&lt;string&gt;" required>
+          标准化后的任务生命周期状态。
+
+          可选值：`queued`、`processing`、`succeeded`、`failed`。
+        </ResponseField>
+
+        <ResponseField name="created_at" pre={["data[]."]} type="integer&lt;int64&gt;" required>
+          Unix 时间戳，单位为秒。
+        </ResponseField>
+
+        <ResponseField name="updated_at" pre={["data[]."]} type="integer&lt;int64&gt;">
+          任务更新时间的 Unix 时间戳，单位为秒。
+        </ResponseField>
+
+        <ResponseField name="usage" pre={["data[]."]} type="object">
+          可用时返回此任务扣除的点数。
+
+          <Expandable title="子属性">
+            <ResponseField name="credits" pre={["data[].usage."]} type="number&lt;float&gt;" required>
+              该任务或请求扣除的点数。
+
+              取值范围：`0 <= x <= infinity`。
+
+              示例：`13`。
+            </ResponseField>
+          </Expandable>
+        </ResponseField>
+
+        <ResponseField name="error" pre={["data[]."]} type="object">
+          异步处理失败时返回的错误详情。
+
+          <Expandable title="子属性">
+            <ResponseField name="code" pre={["data[].error."]} type="string" required>
+              稳定且可供程序读取的任务失败代码。
+            </ResponseField>
+
+            <ResponseField name="message" pre={["data[].error."]} type="string" required>
+              便于阅读的任务失败说明。
+            </ResponseField>
+
+            <ResponseField name="failed_at" pre={["data[].error."]} type="integer&lt;int64&gt;">
+              任务失败时的 Unix 时间戳，单位为秒。
+            </ResponseField>
+
+            <ResponseField name="retryable" pre={["data[].error."]} type="boolean">
+              重试相同操作是否可能成功。
+            </ResponseField>
+          </Expandable>
+        </ResponseField>
+      </Expandable>
+    </ResponseField>
+
+    <ResponseField name="status" type="enum&lt;string&gt;" required>
+      本次提交的图片任务的当前状态。
+
+      可选值：`queued`、`processing`、`succeeded`、`failed`。
+    </ResponseField>
+
+    <ResponseField name="created_at" type="integer&lt;int64&gt;" required>
+      批次任务创建时间的 Unix 时间戳，单位为秒。
+    </ResponseField>
+
+    <ResponseField name="mode" type="enum&lt;string&gt;" required>
+      本次提交任务使用的图片生成模式。
+
+      可选值：`text_to_image`、`image_to_image`。
+    </ResponseField>
+
+    <ResponseField name="model" type="enum&lt;string&gt;" required>
+      本次提交任务使用的图片生成模型。
+
+      可选值：`openai/gpt-image-2`、`google/nano-banana-pro`、`bytedance/seedream-4.5`、`black-forest-labs/flux-2-pro`。
+    </ResponseField>
+
+    <ResponseField name="usage" type="object">
+      可用时返回本次提交任务扣除的总点数。
+
+      <Expandable title="子属性">
+        <ResponseField name="credits" pre={["usage."]} type="number&lt;float&gt;" required>
+          本次提交任务扣除的点数。
+
+          示例：`13`。
+        </ResponseField>
+      </Expandable>
+    </ResponseField>
+  </Tab>
+
+  <Tab title="400">
+    请求无效
+
+    <ResponseField name="error" type="object" required>
+      结构化错误详情。
+
+      <Expandable title="子属性">
+        <ResponseField name="code" pre={["error."]} type="string" required>
+          稳定且可供程序读取的错误码。
+
+          示例：`"invalid_prompt"`。
+        </ResponseField>
+        <ResponseField name="message" pre={["error."]} type="string" required>
+          便于阅读的错误说明。
+
+          示例：`"prompt is required and must be a non-empty string"`。
+        </ResponseField>
+        <ResponseField name="doc_url" pre={["error."]} type="string&lt;uri&gt; | null">
+          包含此错误更多信息的可选文档 URL。
+
+          示例：`"https://api.neural4d.com/docs/errors#invalid_prompt"`。
+        </ResponseField>
+      </Expandable>
+    </ResponseField>
+  </Tab>
+
+  <Tab title="401">
+    认证失败
+
+    <ResponseField name="error" type="object" required>
+      结构化错误详情。
+
+      <Expandable title="子属性">
+        <ResponseField name="code" pre={["error."]} type="string" required>
+          稳定且可供程序读取的错误码。
+
+          示例：`"invalid_api_key"`。
+        </ResponseField>
+        <ResponseField name="message" pre={["error."]} type="string" required>
+          便于阅读的错误说明。
+
+          示例：`"The API key is invalid or expired"`。
+        </ResponseField>
+        <ResponseField name="doc_url" pre={["error."]} type="string&lt;uri&gt; | null">
+          包含此错误更多信息的可选文档 URL。
+
+          示例：`"https://api.neural4d.com/docs/errors#invalid_api_key"`。
+        </ResponseField>
+      </Expandable>
+    </ResponseField>
+  </Tab>
+
+  <Tab title="403">
+    当前已认证用户无权访问该资源或点数不足
+
+    <ResponseField name="error" type="object" required>
+      结构化错误详情。
+
+      <Expandable title="子属性">
+        <ResponseField name="code" pre={["error."]} type="string" required>
+          稳定且可供程序读取的错误码。
+
+          示例：`"insufficient_credits"`。
+        </ResponseField>
+        <ResponseField name="message" pre={["error."]} type="string" required>
+          便于阅读的错误说明。
+
+          示例：`"Insufficient credits for image generation"`。
+        </ResponseField>
+        <ResponseField name="doc_url" pre={["error."]} type="string&lt;uri&gt; | null">
+          包含此错误更多信息的可选文档 URL。
+
+          示例：`"https://api.neural4d.com/docs/errors#insufficient_credits"`。
+        </ResponseField>
+      </Expandable>
+    </ResponseField>
+  </Tab>
+
+  <Tab title="429">
+    已超过请求或配额限制
+
+    <ResponseField name="error" type="object" required>
+      结构化错误详情。
+
+      <Expandable title="子属性">
+        <ResponseField name="code" pre={["error."]} type="string" required>
+          稳定且可供程序读取的错误码。
+
+          示例：`"rate_limit_exceeded"`。
+        </ResponseField>
+        <ResponseField name="message" pre={["error."]} type="string" required>
+          便于阅读的错误说明。
+
+          示例：`"Too many requests. Retry after the indicated interval."`。
+        </ResponseField>
+        <ResponseField name="doc_url" pre={["error."]} type="string&lt;uri&gt; | null">
+          包含此错误更多信息的可选文档 URL。
+
+          示例：`"https://api.neural4d.com/docs/errors#rate_limit_exceeded"`。
+        </ResponseField>
+      </Expandable>
+    </ResponseField>
+  </Tab>
+
+  <Tab title="500">
+    内部或上游服务错误
+
+    <ResponseField name="error" type="object" required>
+      结构化错误详情。
+
+      <Expandable title="子属性">
+        <ResponseField name="code" pre={["error."]} type="string" required>
+          稳定且可供程序读取的错误码。
+
+          示例：`"internal_error"`。
+        </ResponseField>
+        <ResponseField name="message" pre={["error."]} type="string" required>
+          便于阅读的错误说明。
+
+          示例：`"An internal error occurred"`。
+        </ResponseField>
+        <ResponseField name="doc_url" pre={["error."]} type="string&lt;uri&gt; | null">
+          包含此错误更多信息的可选文档 URL。
+
+          示例：`"https://api.neural4d.com/docs/errors#internal_error"`。
+        </ResponseField>
+      </Expandable>
+    </ResponseField>
+  </Tab>
+</Tabs>
+
+<ResponseExample>
+```json 202 示例
+{
+  "id": "normal-image-c50fe63e-699d-4d61-93f5-2099ab159d6d",
+  "status": "queued",
+  "created_at": 1784044800,
+  "mode": "image_to_image",
+  "model": "openai/gpt-image-2",
+  "data": [
+    {
+      "uuid": "c6f5dc4e-61ac-4694-9a8b-6a95f3ac4457",
+      "status": "queued",
+      "created_at": 1784044800
+    }
+  ],
+  "usage": {
+    "credits": 13
+  }
+}
+```
+
+```json 400 invalid_prompt
+{
+  "error": {
+    "code": "invalid_prompt",
+    "message": "prompt is required and must be a non-empty string"
+  }
+}
+```
+
+```json 400 unsupported_model
+{
+  "error": {
+    "code": "unsupported_model",
+    "message": "Unsupported modelKey: missing-model"
+  }
+}
+```
+
+```json 400 model_unavailable
+{
+  "error": {
+    "code": "model_unavailable",
+    "message": "Model is unavailable: openai/gpt-image-2"
+  }
+}
+```
+
+```json 401 示例
+{
+  "error": {
+    "code": "invalid_api_key",
+    "message": "The API key is invalid or expired"
+  }
+}
+```
+
+```json 403 示例
+{
+  "error": {
+    "code": "insufficient_credits",
+    "message": "Insufficient credits for image generation"
+  }
+}
+```
+
+```json 429 示例
+{
+  "error": {
+    "code": "rate_limit_exceeded",
+    "message": "Too many requests. Retry after the indicated interval."
+  }
+}
+```
+
+```json 500 示例
+{
+  "error": {
+    "code": "internal_error",
+    "message": "An internal error occurred"
+  }
+}
+```
+</ResponseExample>

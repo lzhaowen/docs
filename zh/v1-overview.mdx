@@ -10,6 +10,10 @@ keywords:
 
 API v1 使用 `https://api.neural4d.com/openapi/v1` 基础路径。每个请求都需要携带 API 密钥。
 
+<Info>
+  API v1 仅对有效付费订阅用户开放。免费账户调用任意 API v1 接口时都会收到 `403 subscription_required` 响应。
+</Info>
+
 ## 上传参考文件
 
 通过 `POST /files` 上传一个本地图片或视频，并保存返回的文件 `id`，供生成请求引用。

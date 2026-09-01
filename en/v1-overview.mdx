@@ -10,6 +10,10 @@ keywords:
 
 API v1 uses the `https://api.neural4d.com/openapi/v1` base path. Send your API key with every request.
 
+<Info>
+  API v1 requires an active paid subscription. Free accounts receive a `403 subscription_required` response for every API v1 endpoint.
+</Info>
+
 ## Upload a reference file
 
 Upload one local image or video with `POST /files`. Store the returned file `id` for generation requests.
