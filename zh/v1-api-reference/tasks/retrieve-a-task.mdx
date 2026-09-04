@@ -1,7 +1,7 @@
 ---
 title: "查询任务"
 sidebarTitle: "查询任务"
-description: "按批次任务 ID 或视频子项 UUID 返回任务状态和输出。id 与 uuid 必须且只能传入一个。"
+description: "按批次任务 ID 或图片、视频子项 UUID 返回任务状态和输出。id 与 uuid 必须且只能传入一个。"
 api: "GET https://api.neural4d.com/openapi/v1/tasks/task-info"
 playground: simple
 authMethod: bearer
@@ -21,7 +21,7 @@ authMethod: bearer
 示例：`"normal-video-c50fe63e-699d-4d61-93f5-2099ab159d6d"`。
 </ParamField>
 <ParamField query="uuid" type="string&lt;uuid&gt;">
-  生成响应返回的视频子项 UUID。与 id 二选一，不能同时传入。
+  生成响应返回的图片或视频子项 UUID。与 id 二选一，不能同时传入。
 
 示例：`"7d1fa4bb-41e6-4a5d-88d8-1851f5342e87"`。
 </ParamField>
@@ -161,10 +161,10 @@ Console.WriteLine(await response.Content.ReadAsStringAsync());
     </ResponseField>
 
     <ResponseField name="output" type="object" required>
-      当前子视频任务输出，包括仍在排队或处理中的条目。
+      当前图片或视频子任务输出，包括仍在排队或处理中的条目。
 
       <Expandable title="child attributes">
-        <ResponseField name="videos" pre={["output."]} type="object[]" required>
+        <ResponseField name="videos" pre={["output."]} type="object[]">
           所有子视频任务及其当前输出信息；结果文件可用前 url 和 format 为 null。
 
           <Expandable title="child attributes">
@@ -227,19 +227,56 @@ Console.WriteLine(await response.Content.ReadAsStringAsync());
             </ResponseField>
           </Expandable>
         </ResponseField>
+        <ResponseField name="images" pre={["output."]} type="object[]">
+          所有图片子任务及其当前输出信息；结果文件可用前 url 和 format 为 null。
+
+          <Expandable title="child attributes">
+            <ResponseField name="uuid" pre={["output.images[]."]} type="string&lt;uuid&gt;" required>
+              生成图片子项 UUID。
+            </ResponseField>
+            <ResponseField name="url" pre={["output.images[]."]} type="string&lt;uri&gt; | null" required>
+              生成图片可用时用于下载的临时签名 URL。
+            </ResponseField>
+            <ResponseField name="format" pre={["output.images[]."]} type="string | null" required>
+              已知时返回图片文件格式，例如 png。
+            </ResponseField>
+            <ResponseField name="resolution" pre={["output.images[]."]} type="string | null" required>
+              可用时返回生成图片的分辨率，例如 2K。
+            </ResponseField>
+            <ResponseField name="aspect_ratio" pre={["output.images[]."]} type="string | null" required>
+              可用时返回生成图片的宽高比，例如 1:1。
+            </ResponseField>
+            <ResponseField name="mode" pre={["output.images[]."]} type="enum&lt;string&gt;" required>
+              此图片使用的生成模式。
+
+              可选值：`text_to_image`、`image_to_image`。
+            </ResponseField>
+            <ResponseField name="status" pre={["output.images[]."]} type="enum&lt;string&gt;" required>
+              此生成图片的当前状态。
+
+              可选值：`queued`、`processing`、`succeeded`、`failed`。
+            </ResponseField>
+            <ResponseField name="created_at" pre={["output.images[]."]} type="integer&lt;int64&gt;" required>
+              此生成图片的创建时间，Unix 时间戳，单位为秒。
+            </ResponseField>
+            <ResponseField name="updated_at" pre={["output.images[]."]} type="integer&lt;int64&gt;" required>
+              此生成图片的最后更新时间，Unix 时间戳，单位为秒。
+            </ResponseField>
+          </Expandable>
+        </ResponseField>
       </Expandable>
     </ResponseField>
 
     <ResponseField name="mode" type="enum&lt;string&gt;" required>
-      任务使用的视频生成模式。
+      任务使用的图片或视频生成模式。
 
-    可选值：`text_to_video`、`first_frame_image_to_video`、`first_last_frame_image_to_video`、`reference_to_video`。
+    可选值：`text_to_image`、`image_to_image`、`text_to_video`、`first_frame_image_to_video`、`first_last_frame_image_to_video`、`reference_to_video`。
     </ResponseField>
 
     <ResponseField name="model" type="enum&lt;string&gt; | null">
-      任务使用的视频生成模型。
+      任务使用的图片或视频生成模型。
 
-    可选值：`bytedance/seedance-2.0`、`bytedance/seedance-2.0-fast`、`google/veo-3.1`、`xai/grok-imagine`。
+    可选值：`openai/gpt-image-2`、`google/nano-banana-pro`、`bytedance/seedream-4.5`、`black-forest-labs/flux-2-pro`、`bytedance/seedance-2.0`、`bytedance/seedance-2.0-fast`、`google/veo-3.1`、`xai/grok-imagine`。
     </ResponseField>
 
     <ResponseField name="updated_at" type="integer&lt;int64&gt;">

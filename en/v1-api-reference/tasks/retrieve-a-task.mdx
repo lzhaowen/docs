@@ -1,7 +1,7 @@
 ---
 title: "Retrieve a task"
 sidebarTitle: "Retrieve a task"
-description: "Returns task status and output by batch task ID or child video UUID. Provide exactly one of the id or uuid query parameters."
+description: "Returns task status and output by batch task ID or child image or video UUID. Provide exactly one of the id or uuid query parameters."
 api: "GET https://api.neural4d.com/openapi/v1/tasks/task-info"
 playground: simple
 authMethod: bearer
@@ -21,7 +21,7 @@ authMethod: bearer
 Example: `"normal-video-c50fe63e-699d-4d61-93f5-2099ab159d6d"`.
 </ParamField>
 <ParamField query="uuid" type="string&lt;uuid&gt;">
-  Child video UUID returned in the generation response. Provide this or id, but not both.
+  Child image or video UUID returned in the generation response. Provide this or id, but not both.
 
 Example: `"7d1fa4bb-41e6-4a5d-88d8-1851f5342e87"`.
 </ParamField>
@@ -161,10 +161,10 @@ Console.WriteLine(await response.Content.ReadAsStringAsync());
     </ResponseField>
 
     <ResponseField name="output" type="object" required>
-      Current child video task output, including entries that are still queued or processing.
+      Current child image or video task output, including entries that are still queued or processing.
 
       <Expandable title="child attributes">
-        <ResponseField name="videos" pre={["output."]} type="object[]" required>
+        <ResponseField name="videos" pre={["output."]} type="object[]">
           All child video tasks and their current output information. url and format are null until a result file is available.
 
           <Expandable title="child attributes">
@@ -227,19 +227,56 @@ Console.WriteLine(await response.Content.ReadAsStringAsync());
             </ResponseField>
           </Expandable>
         </ResponseField>
+        <ResponseField name="images" pre={["output."]} type="object[]">
+          All child image tasks and their current output information. url and format are null until a result file is available.
+
+          <Expandable title="child attributes">
+            <ResponseField name="uuid" pre={["output.images[]."]} type="string&lt;uuid&gt;" required>
+              Generated image child UUID.
+            </ResponseField>
+            <ResponseField name="url" pre={["output.images[]."]} type="string&lt;uri&gt; | null" required>
+              Temporary signed URL for downloading the generated image when available.
+            </ResponseField>
+            <ResponseField name="format" pre={["output.images[]."]} type="string | null" required>
+              Image file format when known, such as png.
+            </ResponseField>
+            <ResponseField name="resolution" pre={["output.images[]."]} type="string | null" required>
+              Generated image resolution when available, such as 2K.
+            </ResponseField>
+            <ResponseField name="aspect_ratio" pre={["output.images[]."]} type="string | null" required>
+              Generated image aspect ratio when available, such as 1:1.
+            </ResponseField>
+            <ResponseField name="mode" pre={["output.images[]."]} type="enum&lt;string&gt;" required>
+              Generation mode used for this image.
+
+              Available options: `text_to_image`, `image_to_image`.
+            </ResponseField>
+            <ResponseField name="status" pre={["output.images[]."]} type="enum&lt;string&gt;" required>
+              Current status of this generated image.
+
+              Available options: `queued`, `processing`, `succeeded`, `failed`.
+            </ResponseField>
+            <ResponseField name="created_at" pre={["output.images[]."]} type="integer&lt;int64&gt;" required>
+              Unix timestamp in seconds when this generated image was created.
+            </ResponseField>
+            <ResponseField name="updated_at" pre={["output.images[]."]} type="integer&lt;int64&gt;" required>
+              Unix timestamp in seconds when this generated image was last updated.
+            </ResponseField>
+          </Expandable>
+        </ResponseField>
       </Expandable>
     </ResponseField>
 
     <ResponseField name="mode" type="enum&lt;string&gt;" required>
-      Video generation mode used by the task.
+      Image or video generation mode used by the task.
 
-    Available options: `text_to_video`, `first_frame_image_to_video`, `first_last_frame_image_to_video`, `reference_to_video`.
+    Available options: `text_to_image`, `image_to_image`, `text_to_video`, `first_frame_image_to_video`, `first_last_frame_image_to_video`, `reference_to_video`.
     </ResponseField>
 
     <ResponseField name="model" type="enum&lt;string&gt; | null">
-      Video generation model used by the task.
+      Image or video generation model used by the task.
 
-    Available options: `bytedance/seedance-2.0`, `bytedance/seedance-2.0-fast`, `google/veo-3.1`, `xai/grok-imagine`.
+    Available options: `openai/gpt-image-2`, `google/nano-banana-pro`, `bytedance/seedream-4.5`, `black-forest-labs/flux-2-pro`, `bytedance/seedance-2.0`, `bytedance/seedance-2.0-fast`, `google/veo-3.1`, `xai/grok-imagine`.
     </ResponseField>
 
     <ResponseField name="updated_at" type="integer&lt;int64&gt;">

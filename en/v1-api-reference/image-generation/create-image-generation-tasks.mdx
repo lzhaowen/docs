@@ -1,0 +1,779 @@
+---
+title: "Create image generation tasks"
+sidebarTitle: "Create image generation tasks"
+description: "Creates asynchronous image generation tasks from a prompt and optional image references."
+api: "POST https://api.neural4d.com/openapi/v1/images/generations"
+playground: simple
+authMethod: bearer
+contentType: application/json
+---
+
+## Authorizations
+
+<ParamField header="Authorization" type="string" required default={'Bearer ${YOUR_API_KEY}'}>
+  Neural4D API key using the Bearer scheme.
+</ParamField>
+
+## Body <span className="api-content-type">application/json</span>
+
+<Tabs sync={false}>
+  <Tab title="Option 1">
+    <ParamField body="model" type="enum&lt;string&gt;" required>
+      GPT Image 2 model identifier.
+
+      Available option: `openai/gpt-image-2`.
+    </ParamField>
+
+    <ParamField body="prompt" type="string" required>
+      Text instruction describing the image to generate or edit.
+
+      Required string length: `1 - 500`.
+    </ParamField>
+
+    <ParamField body="input_references" type="object[]">
+      Optional reference images uploaded through `POST /openapi/v1/files`. Only image references are supported. Supported formats are JPG, JPEG, PNG, and WEBP.
+
+      Allowed array length: `0 - 6` elements.
+
+      <Expandable title="Child attributes" defaultOpen>
+        <ParamField body="type" pre={["input_references."]} type="enum&lt;string&gt;" required>
+          Reference media type.
+
+          Available option: `image`.
+        </ParamField>
+
+        <ParamField body="file_id" pre={["input_references."]} type="string&lt;uuid&gt;" required>
+          File ID returned by the file upload endpoint for a JPG, JPEG, PNG, or WEBP image.
+        </ParamField>
+      </Expandable>
+    </ParamField>
+
+    <ParamField body="n" type="integer" default={1}>
+      Number of image generation tasks to create.
+
+      Required range: `1 <= x <= 4`.
+    </ParamField>
+
+    <ParamField body="resolution" type="enum&lt;string&gt;" default="2K">
+      Named output resolution.
+
+      Available options: `1K`, `2K`, `4K`.
+    </ParamField>
+
+    <ParamField body="aspect_ratio" type="enum&lt;string&gt;" default="1:1">
+      Target image width-to-height ratio.
+
+      Available options: `1:1`, `16:9`, `9:16`, `4:3`, `3:4`.
+    </ParamField>
+  </Tab>
+
+  <Tab title="Option 2">
+    <ParamField body="model" type="enum&lt;string&gt;" required>
+      Nano Banana Pro model identifier.
+
+      Available option: `google/nano-banana-pro`.
+    </ParamField>
+
+    <ParamField body="prompt" type="string" required>
+      Text instruction describing the image to generate or edit.
+
+      Required string length: `1 - 500`.
+    </ParamField>
+
+    <ParamField body="input_references" type="object[]">
+      Optional reference images uploaded through `POST /openapi/v1/files`. Only image references are supported. Supported formats are JPG, JPEG, PNG, and WEBP.
+
+      Allowed array length: `0 - 6` elements.
+
+      <Expandable title="Child attributes" defaultOpen>
+        <ParamField body="type" pre={["input_references."]} type="enum&lt;string&gt;" required>
+          Reference media type.
+
+          Available option: `image`.
+        </ParamField>
+        <ParamField body="file_id" pre={["input_references."]} type="string&lt;uuid&gt;" required>
+          File ID returned by the file upload endpoint for a JPG, JPEG, PNG, or WEBP image.
+        </ParamField>
+      </Expandable>
+    </ParamField>
+
+    <ParamField body="n" type="integer" default={1}>
+      Number of image generation tasks to create.
+
+      Required range: `1 <= x <= 4`.
+    </ParamField>
+
+    <ParamField body="resolution" type="enum&lt;string&gt;" default="2K">
+      Named output resolution.
+
+      Available options: `1K`, `2K`, `4K`.
+    </ParamField>
+
+    <ParamField body="aspect_ratio" type="enum&lt;string&gt;" default="1:1">
+      Target image width-to-height ratio.
+
+      Available options: `1:1`, `16:9`, `9:16`, `4:3`, `3:4`.
+    </ParamField>
+  </Tab>
+
+  <Tab title="Option 3">
+    <ParamField body="model" type="enum&lt;string&gt;" required>
+      Seedream 4.5 model identifier.
+
+      Available option: `bytedance/seedream-4.5`.
+    </ParamField>
+
+    <ParamField body="prompt" type="string" required>
+      Text instruction describing the image to generate or edit.
+
+      Required string length: `1 - 500`.
+    </ParamField>
+
+    <ParamField body="input_references" type="object[]">
+      Optional reference images uploaded through `POST /openapi/v1/files`. Only image references are supported. Supported formats are JPG, JPEG, PNG, and WEBP.
+
+      Allowed array length: `0 - 6` elements.
+
+      <Expandable title="Child attributes" defaultOpen>
+        <ParamField body="type" pre={["input_references."]} type="enum&lt;string&gt;" required>
+          Reference media type.
+
+          Available option: `image`.
+        </ParamField>
+        <ParamField body="file_id" pre={["input_references."]} type="string&lt;uuid&gt;" required>
+          File ID returned by the file upload endpoint for a JPG, JPEG, PNG, or WEBP image.
+        </ParamField>
+      </Expandable>
+    </ParamField>
+
+    <ParamField body="n" type="integer" default={1}>
+      Number of image generation tasks to create.
+
+      Required range: `1 <= x <= 4`.
+    </ParamField>
+
+    <ParamField body="resolution" type="enum&lt;string&gt;" default="2K">
+      Named output resolution.
+
+      Available options: `2K`, `4K`.
+    </ParamField>
+
+    <ParamField body="aspect_ratio" type="enum&lt;string&gt;" default="1:1">
+      Target image width-to-height ratio.
+
+      Available options: `1:1`, `16:9`, `9:16`, `4:3`, `3:4`.
+    </ParamField>
+  </Tab>
+
+  <Tab title="Option 4">
+    <ParamField body="model" type="enum&lt;string&gt;" required>
+      Flux 2 Pro model identifier.
+
+      Available option: `black-forest-labs/flux-2-pro`.
+    </ParamField>
+
+    <ParamField body="prompt" type="string" required>
+      Text instruction describing the image to generate or edit.
+
+      Required string length: `1 - 500`.
+    </ParamField>
+
+    <ParamField body="input_references" type="object[]">
+      Optional reference images uploaded through `POST /openapi/v1/files`. Only image references are supported. Supported formats are JPG, JPEG, PNG, and WEBP.
+
+      Allowed array length: `0 - 6` elements.
+
+      <Expandable title="Child attributes" defaultOpen>
+        <ParamField body="type" pre={["input_references."]} type="enum&lt;string&gt;" required>
+          Reference media type.
+
+          Available option: `image`.
+        </ParamField>
+        <ParamField body="file_id" pre={["input_references."]} type="string&lt;uuid&gt;" required>
+          File ID returned by the file upload endpoint for a JPG, JPEG, PNG, or WEBP image.
+        </ParamField>
+      </Expandable>
+    </ParamField>
+
+    <ParamField body="n" type="integer" default={1}>
+      Number of image generation tasks to create.
+
+      Required range: `1 <= x <= 4`.
+    </ParamField>
+
+    <ParamField body="resolution" type="enum&lt;string&gt;" default="2K">
+      Named output resolution.
+
+      Available options: `1K`, `2K`.
+    </ParamField>
+
+    <ParamField body="aspect_ratio" type="enum&lt;string&gt;" default="1:1">
+      Target image width-to-height ratio.
+
+      Available options: `1:1`, `16:9`, `9:16`, `4:3`, `3:4`.
+    </ParamField>
+  </Tab>
+</Tabs>
+
+<RequestExample>
+```bash cURL · openai/gpt-image-2
+curl --request POST \
+  --url https://api.neural4d.com/openapi/v1/images/generations \
+  --header 'Authorization: Bearer <token>' \
+  --header 'Content-Type: application/json' \
+  --data '
+{
+  "model": "openai/gpt-image-2",
+  "prompt": "A ceramic teapot on a white studio background",
+  "input_references": [
+    {
+      "type": "image",
+      "file_id": "550e8400-e29b-41d4-a716-446655440000"
+    }
+  ],
+  "n": 1,
+  "resolution": "1K",
+  "aspect_ratio": "1:1"
+}
+'
+```
+
+```bash cURL · google/nano-banana-pro
+curl --request POST \
+  --url https://api.neural4d.com/openapi/v1/images/generations \
+  --header 'Authorization: Bearer <token>' \
+  --header 'Content-Type: application/json' \
+  --data '{
+  "model": "google/nano-banana-pro",
+  "prompt": "A ceramic teapot on a white studio background",
+  "input_references": [{
+    "type": "image",
+    "file_id": "550e8400-e29b-41d4-a716-446655440000"
+  }],
+  "n": 1,
+  "resolution": "2K",
+  "aspect_ratio": "16:9"
+}'
+```
+
+```bash cURL · bytedance/seedream-4.5
+curl --request POST \
+  --url https://api.neural4d.com/openapi/v1/images/generations \
+  --header 'Authorization: Bearer <token>' \
+  --header 'Content-Type: application/json' \
+  --data '{
+  "model": "bytedance/seedream-4.5",
+  "prompt": "A ceramic teapot on a white studio background",
+  "input_references": [{
+    "type": "image",
+    "file_id": "550e8400-e29b-41d4-a716-446655440000"
+  }],
+  "n": 1,
+  "resolution": "2K",
+  "aspect_ratio": "1:1"
+}'
+```
+
+```bash cURL · black-forest-labs/flux-2-pro
+curl --request POST \
+  --url https://api.neural4d.com/openapi/v1/images/generations \
+  --header 'Authorization: Bearer <token>' \
+  --header 'Content-Type: application/json' \
+  --data '{
+  "model": "black-forest-labs/flux-2-pro",
+  "prompt": "A ceramic teapot on a white studio background",
+  "input_references": [{
+    "type": "image",
+    "file_id": "550e8400-e29b-41d4-a716-446655440000"
+  }],
+  "n": 1,
+  "resolution": "1K",
+  "aspect_ratio": "1:1"
+}'
+```
+
+```python Python
+import requests
+
+response = requests.post(
+    "https://api.neural4d.com/openapi/v1/images/generations",
+    headers={
+        "Authorization": "Bearer <token>",
+        "Content-Type": "application/json",
+    },
+    json={
+        "model": "openai/gpt-image-2",
+        "prompt": "A ceramic teapot on a white studio background",
+        "input_references": [
+            {
+                "type": "image",
+                "file_id": "550e8400-e29b-41d4-a716-446655440000",
+            },
+        ],
+        "n": 1,
+        "resolution": "1K",
+        "aspect_ratio": "1:1",
+    },
+)
+print(response.json())
+```
+
+```javascript JavaScript
+const response = await fetch("https://api.neural4d.com/openapi/v1/images/generations", {
+  method: "POST",
+  headers: {
+    "Authorization": "Bearer <token>",
+    "Content-Type": "application/json"
+  },
+  body: JSON.stringify({
+    model: "openai/gpt-image-2",
+    prompt: "A ceramic teapot on a white studio background",
+    input_references: [
+      { type: "image", file_id: "550e8400-e29b-41d4-a716-446655440000" }
+    ],
+    n: 1,
+    resolution: "1K",
+    aspect_ratio: "1:1",
+  })
+});
+const data = await response.json();
+console.log(data);
+```
+
+```typescript TypeScript
+const response: Response = await fetch("https://api.neural4d.com/openapi/v1/images/generations", {
+  method: "POST",
+  headers: {
+    "Authorization": "Bearer <token>",
+    "Content-Type": "application/json"
+  },
+  body: JSON.stringify({
+    model: "openai/gpt-image-2",
+    prompt: "A ceramic teapot on a white studio background",
+    input_references: [{ type: "image", file_id: "550e8400-e29b-41d4-a716-446655440000" }],
+    n: 1,
+    resolution: "1K",
+    aspect_ratio: "1:1"
+  })
+});
+const data = await response.json();
+console.log(data);
+```
+
+```java Java
+import java.net.URI;
+import java.net.http.*;
+
+HttpRequest request = HttpRequest.newBuilder()
+    .uri(URI.create("https://api.neural4d.com/openapi/v1/images/generations"))
+    .header("Authorization", "Bearer <token>")
+    .header("Content-Type", "application/json")
+    .POST(HttpRequest.BodyPublishers.ofString("{\n  \"model\": \"openai/gpt-image-2\",\n  \"prompt\": \"A ceramic teapot on a white studio background\",\n  \"input_references\": [{\"type\":\"image\",\"file_id\":\"550e8400-e29b-41d4-a716-446655440000\"}],\n  \"n\": 1,\n  \"resolution\": \"1K\",\n  \"aspect_ratio\": \"1:1\"\n}"))
+    .build();
+HttpResponse<String> response = HttpClient.newHttpClient().send(request, HttpResponse.BodyHandlers.ofString());
+System.out.println(response.body());
+```
+
+```go Go
+package main
+
+import (
+  "fmt"
+  "io"
+  "net/http"
+  "strings"
+)
+
+payload := strings.NewReader(`{"model":"openai/gpt-image-2","prompt":"A ceramic teapot on a white studio background","input_references":[{"type":"image","file_id":"550e8400-e29b-41d4-a716-446655440000"}],"n":1,"resolution":"1K","aspect_ratio":"1:1"}`)
+req, _ := http.NewRequest("POST", "https://api.neural4d.com/openapi/v1/images/generations", payload)
+req.Header.Set("Authorization", "Bearer <token>")
+req.Header.Set("Content-Type", "application/json")
+resp, _ := http.DefaultClient.Do(req)
+defer resp.Body.Close()
+bodyBytes, _ := io.ReadAll(resp.Body)
+fmt.Println(string(bodyBytes))
+```
+
+```ruby Ruby
+require "net/http"
+require "json"
+
+uri = URI("https://api.neural4d.com/openapi/v1/images/generations")
+request = Net::HTTP::Post.new(uri)
+request["Authorization"] = "Bearer <token>"
+request["Content-Type"] = "application/json"
+request.body = {
+  model: "openai/gpt-image-2",
+  prompt: "A ceramic teapot on a white studio background",
+  input_references: [{ type: "image", file_id: "550e8400-e29b-41d4-a716-446655440000" }],
+  n: 1,
+  resolution: "1K",
+  aspect_ratio: "1:1"
+}.to_json
+
+response = Net::HTTP.start(uri.hostname, uri.port, use_ssl: uri.scheme == "https") { |http| http.request(request) }
+puts response.body
+```
+
+```php PHP
+<?php
+
+$ch = curl_init("https://api.neural4d.com/openapi/v1/images/generations");
+curl_setopt_array($ch, [
+    CURLOPT_CUSTOMREQUEST => "POST",
+    CURLOPT_RETURNTRANSFER => true,
+    CURLOPT_HTTPHEADER => ["Authorization: Bearer <token>", "Content-Type: application/json"],
+    CURLOPT_POSTFIELDS => json_encode([
+        "model" => "openai/gpt-image-2",
+        "prompt" => "A ceramic teapot on a white studio background",
+        "input_references" => [[
+            "type" => "image",
+            "file_id" => "550e8400-e29b-41d4-a716-446655440000",
+        ]],
+        "n" => 1,
+        "resolution" => "1K",
+        "aspect_ratio" => "1:1",
+    ]),
+]);
+$response = curl_exec($ch);
+curl_close($ch);
+echo $response;
+```
+
+```csharp C#
+using System.Net.Http;
+using System.Text;
+
+using var client = new HttpClient();
+using var request = new HttpRequestMessage(HttpMethod.Post, "https://api.neural4d.com/openapi/v1/images/generations");
+request.Headers.TryAddWithoutValidation("Authorization", "Bearer <token>");
+request.Content = new StringContent("{\"model\":\"openai/gpt-image-2\",\"prompt\":\"A ceramic teapot on a white studio background\",\"input_references\":[{\"type\":\"image\",\"file_id\":\"550e8400-e29b-41d4-a716-446655440000\"}],\"n\":1,\"resolution\":\"1K\",\"aspect_ratio\":\"1:1\"}", Encoding.UTF8, "application/json");
+using var response = await client.SendAsync(request);
+Console.WriteLine(await response.Content.ReadAsStringAsync());
+```
+</RequestExample>
+
+## Response
+
+<Tabs sync={false}>
+  <Tab title="202">
+    Generation tasks accepted
+
+    <ResponseField name="id" type="string" required>
+      Batch task ID returned by the generation request.
+
+      Example: `"normal-image-c50fe63e-699d-4d61-93f5-2099ab159d6d"`.
+    </ResponseField>
+
+    <ResponseField name="data" type="object[]" required>
+      Generated child items created by the request.
+
+      Allowed array length: at least `1` element.
+
+      <Expandable title="Child attributes" defaultOpen>
+        <ResponseField name="uuid" pre={["data[]."]} type="string&lt;uuid&gt;" required>
+          Generated child item UUID.
+        </ResponseField>
+
+        <ResponseField name="status" pre={["data[]."]} type="enum&lt;string&gt;" required>
+          Normalized task lifecycle status.
+
+          Available options: `queued`, `processing`, `succeeded`, `failed`.
+        </ResponseField>
+
+        <ResponseField name="created_at" pre={["data[]."]} type="integer&lt;int64&gt;" required>
+          Unix timestamp in seconds.
+        </ResponseField>
+
+        <ResponseField name="updated_at" pre={["data[]."]} type="integer&lt;int64&gt;">
+          Unix timestamp in seconds when the task was updated.
+        </ResponseField>
+
+        <ResponseField name="usage" pre={["data[]."]} type="object">
+          Credits charged for this task when available.
+
+          <Expandable title="Child attributes">
+            <ResponseField name="credits" pre={["data[].usage."]} type="number&lt;float&gt;" required>
+              Credits charged for the task or submission.
+
+              Required range: `0 <= x <= infinity`.
+
+              Example: `13`.
+            </ResponseField>
+          </Expandable>
+        </ResponseField>
+
+        <ResponseField name="error" pre={["data[]."]} type="object">
+          Failure details when asynchronous processing fails.
+
+          <Expandable title="Child attributes">
+            <ResponseField name="code" pre={["data[].error."]} type="string" required>
+              Stable machine-readable task failure code.
+            </ResponseField>
+
+            <ResponseField name="message" pre={["data[].error."]} type="string" required>
+              Human-readable explanation of the task failure.
+            </ResponseField>
+
+            <ResponseField name="failed_at" pre={["data[].error."]} type="integer&lt;int64&gt;">
+              Unix timestamp in seconds when the task failed.
+            </ResponseField>
+
+            <ResponseField name="retryable" pre={["data[].error."]} type="boolean">
+              Whether retrying the same operation may succeed.
+            </ResponseField>
+          </Expandable>
+        </ResponseField>
+      </Expandable>
+    </ResponseField>
+
+    <ResponseField name="status" type="enum&lt;string&gt;" required>
+      Current status shared by the submitted image tasks.
+
+      Available options: `queued`, `processing`, `succeeded`, `failed`.
+    </ResponseField>
+
+    <ResponseField name="created_at" type="integer&lt;int64&gt;" required>
+      Unix timestamp in seconds when the batch task was created.
+    </ResponseField>
+
+    <ResponseField name="mode" type="enum&lt;string&gt;" required>
+      Image generation mode shared by the submitted tasks.
+
+      Available options: `text_to_image`, `image_to_image`.
+    </ResponseField>
+
+    <ResponseField name="model" type="enum&lt;string&gt;" required>
+      Image generation model used by the submitted tasks.
+
+      Available options: `openai/gpt-image-2`, `google/nano-banana-pro`, `bytedance/seedream-4.5`, `black-forest-labs/flux-2-pro`.
+    </ResponseField>
+
+    <ResponseField name="usage" type="object">
+      Total credits charged for the submitted tasks when available.
+
+      <Expandable title="Child attributes">
+        <ResponseField name="credits" pre={["usage."]} type="number&lt;float&gt;" required>
+          Credits charged for the task submission.
+
+          Example: `13`.
+        </ResponseField>
+      </Expandable>
+    </ResponseField>
+  </Tab>
+
+  <Tab title="400">
+    Invalid request
+
+    <ResponseField name="error" type="object" required>
+      Structured error details.
+
+      <Expandable title="Child attributes">
+        <ResponseField name="code" pre={["error."]} type="string" required>
+          Stable machine-readable error code.
+
+          Example: `"invalid_prompt"`.
+        </ResponseField>
+        <ResponseField name="message" pre={["error."]} type="string" required>
+          Human-readable explanation of the error.
+
+          Example: `"prompt is required and must be a non-empty string"`.
+        </ResponseField>
+        <ResponseField name="doc_url" pre={["error."]} type="string&lt;uri&gt; | null">
+          Optional documentation URL with more information about the error.
+
+          Example: `"https://api.neural4d.com/docs/errors#invalid_prompt"`.
+        </ResponseField>
+      </Expandable>
+    </ResponseField>
+  </Tab>
+
+  <Tab title="401">
+    Authentication failed
+
+    <ResponseField name="error" type="object" required>
+      Structured error details.
+
+      <Expandable title="Child attributes">
+        <ResponseField name="code" pre={["error."]} type="string" required>
+          Stable machine-readable error code.
+
+          Example: `"invalid_api_key"`.
+        </ResponseField>
+        <ResponseField name="message" pre={["error."]} type="string" required>
+          Human-readable explanation of the error.
+
+          Example: `"The API key is invalid or expired"`.
+        </ResponseField>
+        <ResponseField name="doc_url" pre={["error."]} type="string&lt;uri&gt; | null">
+          Optional documentation URL with more information about the error.
+
+          Example: `"https://api.neural4d.com/docs/errors#invalid_api_key"`.
+        </ResponseField>
+      </Expandable>
+    </ResponseField>
+  </Tab>
+
+  <Tab title="403">
+    The authenticated user cannot access this resource or has insufficient credits
+
+    <ResponseField name="error" type="object" required>
+      Structured error details.
+
+      <Expandable title="Child attributes">
+        <ResponseField name="code" pre={["error."]} type="string" required>
+          Stable machine-readable error code.
+
+          Example: `"insufficient_credits"`.
+        </ResponseField>
+        <ResponseField name="message" pre={["error."]} type="string" required>
+          Human-readable explanation of the error.
+
+          Example: `"Insufficient credits for image generation"`.
+        </ResponseField>
+        <ResponseField name="doc_url" pre={["error."]} type="string&lt;uri&gt; | null">
+          Optional documentation URL with more information about the error.
+
+          Example: `"https://api.neural4d.com/docs/errors#insufficient_credits"`.
+        </ResponseField>
+      </Expandable>
+    </ResponseField>
+  </Tab>
+
+  <Tab title="429">
+    Request or quota limit exceeded
+
+    <ResponseField name="error" type="object" required>
+      Structured error details.
+
+      <Expandable title="Child attributes">
+        <ResponseField name="code" pre={["error."]} type="string" required>
+          Stable machine-readable error code.
+
+          Example: `"rate_limit_exceeded"`.
+        </ResponseField>
+        <ResponseField name="message" pre={["error."]} type="string" required>
+          Human-readable explanation of the error.
+
+          Example: `"Too many requests. Retry after the indicated interval."`.
+        </ResponseField>
+        <ResponseField name="doc_url" pre={["error."]} type="string&lt;uri&gt; | null">
+          Optional documentation URL with more information about the error.
+
+          Example: `"https://api.neural4d.com/docs/errors#rate_limit_exceeded"`.
+        </ResponseField>
+      </Expandable>
+    </ResponseField>
+  </Tab>
+
+  <Tab title="500">
+    Internal or upstream service error
+
+    <ResponseField name="error" type="object" required>
+      Structured error details.
+
+      <Expandable title="Child attributes">
+        <ResponseField name="code" pre={["error."]} type="string" required>
+          Stable machine-readable error code.
+
+          Example: `"internal_error"`.
+        </ResponseField>
+        <ResponseField name="message" pre={["error."]} type="string" required>
+          Human-readable explanation of the error.
+
+          Example: `"An internal error occurred"`.
+        </ResponseField>
+        <ResponseField name="doc_url" pre={["error."]} type="string&lt;uri&gt; | null">
+          Optional documentation URL with more information about the error.
+
+          Example: `"https://api.neural4d.com/docs/errors#internal_error"`.
+        </ResponseField>
+      </Expandable>
+    </ResponseField>
+  </Tab>
+</Tabs>
+
+<ResponseExample>
+```json 202 Example
+{
+  "id": "normal-image-c50fe63e-699d-4d61-93f5-2099ab159d6d",
+  "status": "queued",
+  "created_at": 1784044800,
+  "mode": "image_to_image",
+  "model": "openai/gpt-image-2",
+  "data": [
+    {
+      "uuid": "c6f5dc4e-61ac-4694-9a8b-6a95f3ac4457",
+      "status": "queued",
+      "created_at": 1784044800
+    }
+  ],
+  "usage": {
+    "credits": 13
+  }
+}
+```
+
+```json 400 invalid_prompt
+{
+  "error": {
+    "code": "invalid_prompt",
+    "message": "prompt is required and must be a non-empty string"
+  }
+}
+```
+
+```json 400 unsupported_model
+{
+  "error": {
+    "code": "unsupported_model",
+    "message": "Unsupported modelKey: missing-model"
+  }
+}
+```
+
+```json 400 model_unavailable
+{
+  "error": {
+    "code": "model_unavailable",
+    "message": "Model is unavailable: openai/gpt-image-2"
+  }
+}
+```
+
+```json 401 Example
+{
+  "error": {
+    "code": "invalid_api_key",
+    "message": "The API key is invalid or expired"
+  }
+}
+```
+
+```json 403 Example
+{
+  "error": {
+    "code": "insufficient_credits",
+    "message": "Insufficient credits for image generation"
+  }
+}
+```
+
+```json 429 Example
+{
+  "error": {
+    "code": "rate_limit_exceeded",
+    "message": "Too many requests. Retry after the indicated interval."
+  }
+}
+```
+
+```json 500 Example
+{
+  "error": {
+    "code": "internal_error",
+    "message": "An internal error occurred"
+  }
+}
+```
+</ResponseExample>
