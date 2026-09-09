@@ -1,7 +1,7 @@
 ---
 title: "Create image generation tasks"
 sidebarTitle: "Create image generation tasks"
-description: "Creates asynchronous image generation tasks from a prompt and optional image references."
+description: "Creates asynchronous image generation tasks from a prompt and optional image references supplied by file ID or HTTPS URL."
 api: "POST https://api.neural4d.com/openapi/v1/images/generations"
 playground: simple
 authMethod: bearer
@@ -31,9 +31,9 @@ contentType: application/json
     </ParamField>
 
     <ParamField body="input_references" type="object[]">
-      Optional reference images uploaded through `POST /openapi/v1/files`. Only image references are supported. Supported formats are JPG, JPEG, PNG, and WEBP.
+      Optional reference images. Set `file_id` to the `id` returned by `POST /openapi/v1/files`, or provide the image's public HTTPS URL directly in `url`. Only JPG, JPEG, PNG, and WEBP images are supported, up to 10 MiB per image by default. Images must pass content moderation.
 
-      Allowed array length: `0 - 6` elements.
+      Allowed array length: `0 - 6` elements in total. You can mix file IDs and URLs; reference order is preserved. Each item must contain exactly one of `file_id` or `url`.
 
       <Expandable title="Child attributes" defaultOpen>
         <ParamField body="type" pre={["input_references."]} type="enum&lt;string&gt;" required>
@@ -42,8 +42,13 @@ contentType: application/json
           Available option: `image`.
         </ParamField>
 
-        <ParamField body="file_id" pre={["input_references."]} type="string&lt;uuid&gt;" required>
-          File ID returned by the file upload endpoint for a JPG, JPEG, PNG, or WEBP image.
+        <ParamField body="file_id" pre={["input_references."]} type="string&lt;uuid&gt;">
+          File ID returned by the file upload endpoint for your account. Required when `url` is omitted; do not provide both fields.
+        </ParamField>
+        <ParamField body="url" pre={["input_references."]} type="string&lt;uri&gt;">
+          Public HTTPS file URL on port 443, up to 2,048 characters by default. Required when `file_id` is omitted; do not send both.
+
+          The file must be downloadable without cookies or extra authorization headers. Signed URLs are supported; keep them valid during download. Do not include a username, password, or `#...`.
         </ParamField>
       </Expandable>
     </ParamField>
@@ -81,9 +86,9 @@ contentType: application/json
     </ParamField>
 
     <ParamField body="input_references" type="object[]">
-      Optional reference images uploaded through `POST /openapi/v1/files`. Only image references are supported. Supported formats are JPG, JPEG, PNG, and WEBP.
+      Optional reference images. Set `file_id` to the `id` returned by `POST /openapi/v1/files`, or provide the image's public HTTPS URL directly in `url`. Only JPG, JPEG, PNG, and WEBP images are supported, up to 10 MiB per image by default. Images must pass content moderation.
 
-      Allowed array length: `0 - 6` elements.
+      Allowed array length: `0 - 6` elements in total. You can mix file IDs and URLs; reference order is preserved. Each item must contain exactly one of `file_id` or `url`.
 
       <Expandable title="Child attributes" defaultOpen>
         <ParamField body="type" pre={["input_references."]} type="enum&lt;string&gt;" required>
@@ -91,8 +96,13 @@ contentType: application/json
 
           Available option: `image`.
         </ParamField>
-        <ParamField body="file_id" pre={["input_references."]} type="string&lt;uuid&gt;" required>
-          File ID returned by the file upload endpoint for a JPG, JPEG, PNG, or WEBP image.
+        <ParamField body="file_id" pre={["input_references."]} type="string&lt;uuid&gt;">
+          File ID returned by the file upload endpoint for your account. Required when `url` is omitted; do not provide both fields.
+        </ParamField>
+        <ParamField body="url" pre={["input_references."]} type="string&lt;uri&gt;">
+          Public HTTPS file URL on port 443, up to 2,048 characters by default. Required when `file_id` is omitted; do not send both.
+
+          The file must be downloadable without cookies or extra authorization headers. Signed URLs are supported; keep them valid during download. Do not include a username, password, or `#...`.
         </ParamField>
       </Expandable>
     </ParamField>
@@ -130,9 +140,9 @@ contentType: application/json
     </ParamField>
 
     <ParamField body="input_references" type="object[]">
-      Optional reference images uploaded through `POST /openapi/v1/files`. Only image references are supported. Supported formats are JPG, JPEG, PNG, and WEBP.
+      Optional reference images. Set `file_id` to the `id` returned by `POST /openapi/v1/files`, or provide the image's public HTTPS URL directly in `url`. Only JPG, JPEG, PNG, and WEBP images are supported, up to 10 MiB per image by default. Images must pass content moderation.
 
-      Allowed array length: `0 - 6` elements.
+      Allowed array length: `0 - 6` elements in total. You can mix file IDs and URLs; reference order is preserved. Each item must contain exactly one of `file_id` or `url`.
 
       <Expandable title="Child attributes" defaultOpen>
         <ParamField body="type" pre={["input_references."]} type="enum&lt;string&gt;" required>
@@ -140,8 +150,13 @@ contentType: application/json
 
           Available option: `image`.
         </ParamField>
-        <ParamField body="file_id" pre={["input_references."]} type="string&lt;uuid&gt;" required>
-          File ID returned by the file upload endpoint for a JPG, JPEG, PNG, or WEBP image.
+        <ParamField body="file_id" pre={["input_references."]} type="string&lt;uuid&gt;">
+          File ID returned by the file upload endpoint for your account. Required when `url` is omitted; do not provide both fields.
+        </ParamField>
+        <ParamField body="url" pre={["input_references."]} type="string&lt;uri&gt;">
+          Public HTTPS file URL on port 443, up to 2,048 characters by default. Required when `file_id` is omitted; do not send both.
+
+          The file must be downloadable without cookies or extra authorization headers. Signed URLs are supported; keep them valid during download. Do not include a username, password, or `#...`.
         </ParamField>
       </Expandable>
     </ParamField>
@@ -179,9 +194,9 @@ contentType: application/json
     </ParamField>
 
     <ParamField body="input_references" type="object[]">
-      Optional reference images uploaded through `POST /openapi/v1/files`. Only image references are supported. Supported formats are JPG, JPEG, PNG, and WEBP.
+      Optional reference images. Set `file_id` to the `id` returned by `POST /openapi/v1/files`, or provide the image's public HTTPS URL directly in `url`. Only JPG, JPEG, PNG, and WEBP images are supported, up to 10 MiB per image by default. Images must pass content moderation.
 
-      Allowed array length: `0 - 6` elements.
+      Allowed array length: `0 - 6` elements in total. You can mix file IDs and URLs; reference order is preserved. Each item must contain exactly one of `file_id` or `url`.
 
       <Expandable title="Child attributes" defaultOpen>
         <ParamField body="type" pre={["input_references."]} type="enum&lt;string&gt;" required>
@@ -189,8 +204,13 @@ contentType: application/json
 
           Available option: `image`.
         </ParamField>
-        <ParamField body="file_id" pre={["input_references."]} type="string&lt;uuid&gt;" required>
-          File ID returned by the file upload endpoint for a JPG, JPEG, PNG, or WEBP image.
+        <ParamField body="file_id" pre={["input_references."]} type="string&lt;uuid&gt;">
+          File ID returned by the file upload endpoint for your account. Required when `url` is omitted; do not provide both fields.
+        </ParamField>
+        <ParamField body="url" pre={["input_references."]} type="string&lt;uri&gt;">
+          Public HTTPS file URL on port 443, up to 2,048 characters by default. Required when `file_id` is omitted; do not send both.
+
+          The file must be downloadable without cookies or extra authorization headers. Signed URLs are supported; keep them valid during download. Do not include a username, password, or `#...`.
         </ParamField>
       </Expandable>
     </ParamField>
@@ -455,6 +475,8 @@ Console.WriteLine(await response.Content.ReadAsStringAsync());
 
 ## Response
 
+Identify errors by `error.code`, not by matching message text.
+
 <Tabs sync={false}>
   <Tab title="202">
     Generation tasks accepted
@@ -573,6 +595,13 @@ Console.WriteLine(await response.Content.ReadAsStringAsync());
           Stable machine-readable error code.
 
           Example: `"invalid_prompt"`.
+
+          URL reference errors:
+
+          - `invalid_reference_source`: Provide exactly one of `file_id` or `url` per reference.
+          - `invalid_reference_url`: The URL format or length is invalid.
+          - `unsafe_reference_url`: The URL or redirect destination is not allowed. Use a public file URL that meets the requirements above.
+          - `file_rejected`: The image failed content moderation. Use another image.
         </ResponseField>
         <ResponseField name="message" pre={["error."]} type="string" required>
           Human-readable explanation of the error.
@@ -640,6 +669,84 @@ Console.WriteLine(await response.Content.ReadAsStringAsync());
     </ResponseField>
   </Tab>
 
+  <Tab title="408">
+    Reference download timed out
+
+    <ResponseField name="error" type="object" required>
+      Structured error details.
+
+      <Expandable title="Child attributes" defaultOpen>
+        <ResponseField name="code" pre={["error."]} type="string" required>
+
+          - `reference_fetch_timeout`: The download timed out. Check the source server and retry.
+        </ResponseField>
+
+        <ResponseField name="message" pre={["error."]} type="string" required>
+          Human-readable explanation. Use `error.code` to identify the cause.
+        </ResponseField>
+      </Expandable>
+    </ResponseField>
+  </Tab>
+
+  <Tab title="413">
+    Reference file too large
+
+    <ResponseField name="error" type="object" required>
+      Structured error details.
+
+      <Expandable title="Child attributes" defaultOpen>
+        <ResponseField name="code" pre={["error."]} type="string" required>
+
+          - `reference_too_large`: The image exceeds the size limit, which defaults to 10 MiB.
+        </ResponseField>
+
+        <ResponseField name="message" pre={["error."]} type="string" required>
+          Human-readable explanation. Use `error.code` to identify the cause.
+        </ResponseField>
+      </Expandable>
+    </ResponseField>
+  </Tab>
+
+  <Tab title="415">
+    Invalid or unsupported reference file
+
+    <ResponseField name="error" type="object" required>
+      Structured error details.
+
+      <Expandable title="Child attributes" defaultOpen>
+        <ResponseField name="code" pre={["error."]} type="string" required>
+
+          - `invalid_reference_file`: The file is empty or its content cannot be inspected.
+          - `invalid_reference_file_type`: The format is unsupported or does not match the reference type or response `Content-Type`.
+        </ResponseField>
+
+        <ResponseField name="message" pre={["error."]} type="string" required>
+          Human-readable explanation. Use `error.code` to identify the cause.
+        </ResponseField>
+      </Expandable>
+    </ResponseField>
+  </Tab>
+
+  <Tab title="422">
+    Reference download failed
+
+    <ResponseField name="error" type="object" required>
+      Structured error details.
+
+      <Expandable title="Child attributes" defaultOpen>
+        <ResponseField name="code" pre={["error."]} type="string" required>
+
+          - `reference_fetch_failed`: The file cannot be downloaded. Check that the URL is valid and publicly accessible.
+          - `reference_redirect_limit`: Too many redirects. Use a direct file URL.
+        </ResponseField>
+
+        <ResponseField name="message" pre={["error."]} type="string" required>
+          Human-readable explanation. Use `error.code` to identify the cause.
+        </ResponseField>
+      </Expandable>
+    </ResponseField>
+  </Tab>
+
   <Tab title="429">
     Request or quota limit exceeded
 
@@ -651,6 +758,10 @@ Console.WriteLine(await response.Content.ReadAsStringAsync());
           Stable machine-readable error code.
 
           Example: `"rate_limit_exceeded"`.
+
+          URL reference errors:
+
+          - `reference_import_busy`: Reference import is busy. Retry after the interval in the `Retry-After` response header.
         </ResponseField>
         <ResponseField name="message" pre={["error."]} type="string" required>
           Human-readable explanation of the error.
@@ -687,6 +798,24 @@ Console.WriteLine(await response.Content.ReadAsStringAsync());
           Optional documentation URL with more information about the error.
 
           Example: `"https://api.neural4d.com/docs/errors#internal_error"`.
+        </ResponseField>
+      </Expandable>
+    </ResponseField>
+  </Tab>
+  <Tab title="503">
+    Image moderation unavailable
+
+    <ResponseField name="error" type="object" required>
+      Structured error details.
+
+      <Expandable title="Child attributes" defaultOpen>
+        <ResponseField name="code" pre={["error."]} type="string" required>
+
+          - `file_moderation_unavailable`: Image moderation is temporarily unavailable. Retry later.
+        </ResponseField>
+
+        <ResponseField name="message" pre={["error."]} type="string" required>
+          Always returns `An internal error occurred`.
         </ResponseField>
       </Expandable>
     </ResponseField>
@@ -755,6 +884,15 @@ Console.WriteLine(await response.Content.ReadAsStringAsync());
   "error": {
     "code": "insufficient_credits",
     "message": "Insufficient credits for image generation"
+  }
+}
+```
+
+```json 413 Reference file too large
+{
+  "error": {
+    "code": "reference_too_large",
+    "message": "Reference file exceeds the allowed size"
   }
 }
 ```

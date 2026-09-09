@@ -18,6 +18,8 @@ API v1 uses the `https://api.neural4d.com/openapi/v1` base path. Send your API k
 
 Upload one local image or video with `POST /files`. Store the returned file `id` for generation requests.
 
+If your reference file already has a public HTTPS URL, you can skip this upload and pass `url` directly in a generation request. Each reference must contain exactly one of `file_id` or `url`.
+
 <CodeGroup>
   ```bash cURL
   curl --request POST \

@@ -18,6 +18,8 @@ API v1 使用 `https://api.neural4d.com/openapi/v1` 基础路径。每个请求�
 
 通过 `POST /files` 上传一个本地图片或视频，并保存返回的文件 `id`，供生成请求引用。
 
+如果参考文件已有公网 HTTPS 地址，可以跳过上传，在生成请求中直接传入 `url`。每个素材必须且只能提供 `file_id` 或 `url` 中的一个。
+
 <CodeGroup>
   ```bash cURL
   curl --request POST \

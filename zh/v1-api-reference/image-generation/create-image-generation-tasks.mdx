@@ -1,7 +1,7 @@
 ---
 title: "创建图片生成任务"
 sidebarTitle: "创建图片生成任务"
-description: "根据文本提示词和可选图片参考素材创建异步图片生成任务。"
+description: "根据文本提示词和可选图片参考素材创建异步图片生成任务，参考素材支持文件 ID 或 HTTPS URL。"
 api: "POST https://api.neural4d.com/openapi/v1/images/generations"
 playground: simple
 authMethod: bearer
@@ -31,9 +31,9 @@ contentType: application/json
     </ParamField>
 
     <ParamField body="input_references" type="object[]">
-      通过 `POST /openapi/v1/files` 上传的可选参考图片。仅支持图片参考素材。支持 JPG、JPEG、PNG 和 WEBP 格式。
+      可选参考图片。可将 `POST /openapi/v1/files` 返回的 `id` 填入 `file_id`，或通过 `url` 直接传入图片的公网 HTTPS 地址。仅支持 JPG、JPEG、PNG 和 WEBP 图片，每张默认最多 10 MiB。图片须通过内容审核。
 
-      数组长度：`0 - 6` 个元素。
+      数组总长度：`0 - 6` 个元素。可混用文件 ID 和 URL，素材顺序保持不变。每个元素必须且只能提供 `file_id`、`url` 中的一个。
 
       <Expandable title="子属性" defaultOpen>
         <ParamField body="type" pre={["input_references."]} type="enum&lt;string&gt;" required>
@@ -41,8 +41,13 @@ contentType: application/json
 
           可选值：`image`。
         </ParamField>
-        <ParamField body="file_id" pre={["input_references."]} type="string&lt;uuid&gt;" required>
-          文件上传接口返回的 JPG、JPEG、PNG 或 WEBP 图片文件 ID。
+        <ParamField body="file_id" pre={["input_references."]} type="string&lt;uuid&gt;">
+          文件上传接口返回的当前账户文件 ID。不提供 `url` 时必填，不能同时提供这两个字段。
+        </ParamField>
+        <ParamField body="url" pre={["input_references."]} type="string&lt;uri&gt;">
+          公网 HTTPS 文件直链（443 端口），默认最长 2,048 个字符。未提供 `file_id` 时必填，两者不能同时传入。
+
+          文件须无需 Cookie 或额外鉴权头即可下载；支持签名链接，请确保下载期间有效。URL 不得包含用户名、密码或 `#...`。
         </ParamField>
       </Expandable>
     </ParamField>
@@ -80,9 +85,9 @@ contentType: application/json
     </ParamField>
 
     <ParamField body="input_references" type="object[]">
-      通过 `POST /openapi/v1/files` 上传的可选参考图片。仅支持图片参考素材。支持 JPG、JPEG、PNG 和 WEBP 格式。
+      可选参考图片。可将 `POST /openapi/v1/files` 返回的 `id` 填入 `file_id`，或通过 `url` 直接传入图片的公网 HTTPS 地址。仅支持 JPG、JPEG、PNG 和 WEBP 图片，每张默认最多 10 MiB。图片须通过内容审核。
 
-      数组长度：`0 - 6` 个元素。
+      数组总长度：`0 - 6` 个元素。可混用文件 ID 和 URL，素材顺序保持不变。每个元素必须且只能提供 `file_id`、`url` 中的一个。
 
       <Expandable title="子属性" defaultOpen>
         <ParamField body="type" pre={["input_references."]} type="enum&lt;string&gt;" required>
@@ -90,8 +95,13 @@ contentType: application/json
 
           可选值：`image`。
         </ParamField>
-        <ParamField body="file_id" pre={["input_references."]} type="string&lt;uuid&gt;" required>
-          文件上传接口返回的 JPG、JPEG、PNG 或 WEBP 图片文件 ID。
+        <ParamField body="file_id" pre={["input_references."]} type="string&lt;uuid&gt;">
+          文件上传接口返回的当前账户文件 ID。不提供 `url` 时必填，不能同时提供这两个字段。
+        </ParamField>
+        <ParamField body="url" pre={["input_references."]} type="string&lt;uri&gt;">
+          公网 HTTPS 文件直链（443 端口），默认最长 2,048 个字符。未提供 `file_id` 时必填，两者不能同时传入。
+
+          文件须无需 Cookie 或额外鉴权头即可下载；支持签名链接，请确保下载期间有效。URL 不得包含用户名、密码或 `#...`。
         </ParamField>
       </Expandable>
     </ParamField>
@@ -129,9 +139,9 @@ contentType: application/json
     </ParamField>
 
     <ParamField body="input_references" type="object[]">
-      通过 `POST /openapi/v1/files` 上传的可选参考图片。仅支持图片参考素材。支持 JPG、JPEG、PNG 和 WEBP 格式。
+      可选参考图片。可将 `POST /openapi/v1/files` 返回的 `id` 填入 `file_id`，或通过 `url` 直接传入图片的公网 HTTPS 地址。仅支持 JPG、JPEG、PNG 和 WEBP 图片，每张默认最多 10 MiB。图片须通过内容审核。
 
-      数组长度：`0 - 6` 个元素。
+      数组总长度：`0 - 6` 个元素。可混用文件 ID 和 URL，素材顺序保持不变。每个元素必须且只能提供 `file_id`、`url` 中的一个。
 
       <Expandable title="子属性" defaultOpen>
         <ParamField body="type" pre={["input_references."]} type="enum&lt;string&gt;" required>
@@ -139,8 +149,13 @@ contentType: application/json
 
           可选值：`image`。
         </ParamField>
-        <ParamField body="file_id" pre={["input_references."]} type="string&lt;uuid&gt;" required>
-          文件上传接口返回的 JPG、JPEG、PNG 或 WEBP 图片文件 ID。
+        <ParamField body="file_id" pre={["input_references."]} type="string&lt;uuid&gt;">
+          文件上传接口返回的当前账户文件 ID。不提供 `url` 时必填，不能同时提供这两个字段。
+        </ParamField>
+        <ParamField body="url" pre={["input_references."]} type="string&lt;uri&gt;">
+          公网 HTTPS 文件直链（443 端口），默认最长 2,048 个字符。未提供 `file_id` 时必填，两者不能同时传入。
+
+          文件须无需 Cookie 或额外鉴权头即可下载；支持签名链接，请确保下载期间有效。URL 不得包含用户名、密码或 `#...`。
         </ParamField>
       </Expandable>
     </ParamField>
@@ -178,9 +193,9 @@ contentType: application/json
     </ParamField>
 
     <ParamField body="input_references" type="object[]">
-      通过 `POST /openapi/v1/files` 上传的可选参考图片。仅支持图片参考素材。支持 JPG、JPEG、PNG 和 WEBP 格式。
+      可选参考图片。可将 `POST /openapi/v1/files` 返回的 `id` 填入 `file_id`，或通过 `url` 直接传入图片的公网 HTTPS 地址。仅支持 JPG、JPEG、PNG 和 WEBP 图片，每张默认最多 10 MiB。图片须通过内容审核。
 
-      数组长度：`0 - 6` 个元素。
+      数组总长度：`0 - 6` 个元素。可混用文件 ID 和 URL，素材顺序保持不变。每个元素必须且只能提供 `file_id`、`url` 中的一个。
 
       <Expandable title="子属性" defaultOpen>
         <ParamField body="type" pre={["input_references."]} type="enum&lt;string&gt;" required>
@@ -188,8 +203,13 @@ contentType: application/json
 
           可选值：`image`。
         </ParamField>
-        <ParamField body="file_id" pre={["input_references."]} type="string&lt;uuid&gt;" required>
-          文件上传接口返回的 JPG、JPEG、PNG 或 WEBP 图片文件 ID。
+        <ParamField body="file_id" pre={["input_references."]} type="string&lt;uuid&gt;">
+          文件上传接口返回的当前账户文件 ID。不提供 `url` 时必填，不能同时提供这两个字段。
+        </ParamField>
+        <ParamField body="url" pre={["input_references."]} type="string&lt;uri&gt;">
+          公网 HTTPS 文件直链（443 端口），默认最长 2,048 个字符。未提供 `file_id` 时必填，两者不能同时传入。
+
+          文件须无需 Cookie 或额外鉴权头即可下载；支持签名链接，请确保下载期间有效。URL 不得包含用户名、密码或 `#...`。
         </ParamField>
       </Expandable>
     </ParamField>
@@ -454,6 +474,8 @@ Console.WriteLine(await response.Content.ReadAsStringAsync());
 
 ## 响应
 
+请通过 `error.code` 区分错误原因，不要依赖错误消息文本。
+
 <Tabs sync={false}>
   <Tab title="202">
     已接受生成任务
@@ -572,6 +594,13 @@ Console.WriteLine(await response.Content.ReadAsStringAsync());
           稳定且可供程序读取的错误码。
 
           示例：`"invalid_prompt"`。
+
+          URL 素材错误：
+
+          - `invalid_reference_source`：每个素材必须且只能提供 `file_id` 或 `url`。
+          - `invalid_reference_url`：URL 格式或长度不符合要求。
+          - `unsafe_reference_url`：地址或重定向目标不符合安全要求，请使用符合上述要求的公网直链。
+          - `file_rejected`：图片未通过内容审核，请更换图片。
         </ResponseField>
         <ResponseField name="message" pre={["error."]} type="string" required>
           便于阅读的错误说明。
@@ -639,6 +668,84 @@ Console.WriteLine(await response.Content.ReadAsStringAsync());
     </ResponseField>
   </Tab>
 
+  <Tab title="408">
+    素材下载超时
+
+    <ResponseField name="error" type="object" required>
+      结构化错误详情。
+
+      <Expandable title="子属性" defaultOpen>
+        <ResponseField name="code" pre={["error."]} type="string" required>
+
+          - `reference_fetch_timeout`：文件下载超时，请检查源站后重试。
+        </ResponseField>
+
+        <ResponseField name="message" pre={["error."]} type="string" required>
+          便于阅读的错误说明，请通过 `error.code` 区分原因。
+        </ResponseField>
+      </Expandable>
+    </ResponseField>
+  </Tab>
+
+  <Tab title="413">
+    素材文件过大
+
+    <ResponseField name="error" type="object" required>
+      结构化错误详情。
+
+      <Expandable title="子属性" defaultOpen>
+        <ResponseField name="code" pre={["error."]} type="string" required>
+
+          - `reference_too_large`：图片超过大小限制，默认上限为 10 MiB。
+        </ResponseField>
+
+        <ResponseField name="message" pre={["error."]} type="string" required>
+          便于阅读的错误说明，请通过 `error.code` 区分原因。
+        </ResponseField>
+      </Expandable>
+    </ResponseField>
+  </Tab>
+
+  <Tab title="415">
+    素材文件无效或格式不支持
+
+    <ResponseField name="error" type="object" required>
+      结构化错误详情。
+
+      <Expandable title="子属性" defaultOpen>
+        <ResponseField name="code" pre={["error."]} type="string" required>
+
+          - `invalid_reference_file`：文件为空或无法检查内容。
+          - `invalid_reference_file_type`：文件格式不受支持，或与素材类型、响应 `Content-Type` 不一致。
+        </ResponseField>
+
+        <ResponseField name="message" pre={["error."]} type="string" required>
+          便于阅读的错误说明，请通过 `error.code` 区分原因。
+        </ResponseField>
+      </Expandable>
+    </ResponseField>
+  </Tab>
+
+  <Tab title="422">
+    素材下载失败
+
+    <ResponseField name="error" type="object" required>
+      结构化错误详情。
+
+      <Expandable title="子属性" defaultOpen>
+        <ResponseField name="code" pre={["error."]} type="string" required>
+
+          - `reference_fetch_failed`：文件无法下载，请检查链接是否有效且可公开访问。
+          - `reference_redirect_limit`：重定向次数超限，请使用文件直链。
+        </ResponseField>
+
+        <ResponseField name="message" pre={["error."]} type="string" required>
+          便于阅读的错误说明，请通过 `error.code` 区分原因。
+        </ResponseField>
+      </Expandable>
+    </ResponseField>
+  </Tab>
+
   <Tab title="429">
     已超过请求或配额限制
 
@@ -650,6 +757,10 @@ Console.WriteLine(await response.Content.ReadAsStringAsync());
           稳定且可供程序读取的错误码。
 
           示例：`"rate_limit_exceeded"`。
+
+          URL 素材错误：
+
+          - `reference_import_busy`：素材导入繁忙，请按响应头 `Retry-After` 指定的间隔重试。
         </ResponseField>
         <ResponseField name="message" pre={["error."]} type="string" required>
           便于阅读的错误说明。
@@ -686,6 +797,24 @@ Console.WriteLine(await response.Content.ReadAsStringAsync());
           包含此错误更多信息的可选文档 URL。
 
           示例：`"https://api.neural4d.com/docs/errors#internal_error"`。
+        </ResponseField>
+      </Expandable>
+    </ResponseField>
+  </Tab>
+  <Tab title="503">
+    图片审核服务不可用
+
+    <ResponseField name="error" type="object" required>
+      结构化错误详情。
+
+      <Expandable title="子属性" defaultOpen>
+        <ResponseField name="code" pre={["error."]} type="string" required>
+
+          - `file_moderation_unavailable`：图片审核服务暂不可用，请稍后重试。
+        </ResponseField>
+
+        <ResponseField name="message" pre={["error."]} type="string" required>
+          固定返回 `An internal error occurred`。
         </ResponseField>
       </Expandable>
     </ResponseField>
@@ -754,6 +883,15 @@ Console.WriteLine(await response.Content.ReadAsStringAsync());
   "error": {
     "code": "insufficient_credits",
     "message": "Insufficient credits for image generation"
+  }
+}
+```
+
+```json 413 素材文件过大
+{
+  "error": {
+    "code": "reference_too_large",
+    "message": "Reference file exceeds the allowed size"
   }
 }
 ```

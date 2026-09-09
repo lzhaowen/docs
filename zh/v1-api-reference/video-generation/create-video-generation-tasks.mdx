@@ -1,7 +1,7 @@
 ---
 title: "创建视频生成任务"
 sidebarTitle: "创建视频生成任务"
-description: "创建异步视频生成任务。生成方式根据必填提示词、帧图片和带类型的参考素材推断。"
+description: "根据提示词和可选首尾帧或参考素材创建异步视频生成任务，素材支持文件 ID 或 HTTPS URL。"
 api: "POST https://api.neural4d.com/openapi/v1/videos/generations"
 playground: simple
 authMethod: bearer
@@ -15,6 +15,8 @@ contentType: application/json
 </ParamField>
 
 ## 请求体 <span className="api-content-type">application/json</span>
+
+不传素材时使用文生视频；仅传 `frame_images` 时使用首帧或首尾帧生视频；传入 `input_references` 时使用参考素材生视频。所选模型须支持对应模式。
 
 <Tabs sync={false}>
   <Tab title="Option 1">
@@ -157,9 +159,9 @@ contentType: application/json
 </ParamField>
 
 <ParamField body="frame_images" type="object[]">
-  通过 `POST /openapi/v1/files` 上传的首帧和尾帧图片。支持 JPG、JPEG、PNG 和 WEBP。每个 `frame_type` 最多出现一次。
+  通过 `file_id` 或 `url` 传入的首帧和尾帧图片。支持 JPG、JPEG、PNG 和 WEBP，单张图片默认不超过 10 MiB。图片须通过内容审核。每个 `frame_type` 最多出现一次；传入 `last_frame` 时必须同时传入 `first_frame`。
 
-  数组长度：`1 - 2` 个元素。
+  提供此参数时数组长度为 `1 - 2` 个元素。每个元素必须且只能提供 `file_id` 或 `url` 中的一个。
 
   <Expandable title="子属性" defaultOpen>
     <ParamField body="type" pre={["frame_images."]} type="enum&lt;string&gt;" required>
@@ -174,16 +176,30 @@ contentType: application/json
       可选值：`first_frame`、`last_frame`。
     </ParamField>
 
-    <ParamField body="file_id" pre={["frame_images."]} type="string&lt;uuid&gt;" required>
-      文件上传接口返回的文件 ID。支持 JPG、JPEG、PNG 和 WEBP 格式。
+    <ParamField body="file_id" pre={["frame_images."]} type="string&lt;uuid&gt;">
+      `POST /openapi/v1/files` 返回的当前账户图片文件 ID。未提供 `url` 时必填，两者不能同时传入。
 
       示例：`"550e8400-e29b-41d4-a716-446655440000"`。
+    </ParamField>
+
+    <ParamField body="url" pre={["frame_images."]} type="string&lt;uri&gt;">
+      公网 HTTPS 文件直链（443 端口），默认最长 2,048 个字符。未提供 `file_id` 时必填，两者不能同时传入。
+
+      文件须无需 Cookie 或额外鉴权头即可下载；支持签名链接，请确保下载期间有效。URL 不得包含用户名、密码或 `#...`。
     </ParamField>
   </Expandable>
 </ParamField>
 
 <ParamField body="input_references" type="object[]">
-  已上传的图片、视频和音频参考素材。接口最多接受六张图片、四个视频和两个音频。音频必须与至少一个图片或视频同时使用。
+  通过 `file_id` 或 `url` 传入的图片、视频和音频参考素材。每个元素必须且只能提供一种来源，不同元素可以混用。音频必须搭配至少一张图片或一个视频，首尾帧图片也计入。
+
+  提供此参数时数组长度为 `1 - 12` 个元素，同时受各媒体类型的数量限制。
+
+  - 图片：每个请求最多 6 张（与 `frame_images` 合计）；支持 JPG/JPEG、PNG、WEBP，单文件默认不超过 10 MiB，须通过内容审核。
+  - 视频：每个请求最多 4 个；支持 MP4、MOV，单文件默认不超过 100 MiB。
+  - 音频：每个请求最多 2 个；支持 MP3、WAV，单文件默认不超过 15 MiB。
+
+  同类参考素材保持传入顺序；帧图片按首帧、尾帧排序。
 
   <Tabs sync={false}>
     <Tab title="Option 1">
@@ -194,8 +210,14 @@ contentType: application/json
           可选值：`image`。
         </ParamField>
 
-        <ParamField body="file_id" pre={["input_references."]} type="string&lt;uuid&gt;" required>
-          JPG、JPEG、PNG 或 WEBP 图片的文件 ID。
+        <ParamField body="file_id" pre={["input_references."]} type="string&lt;uuid&gt;">
+          当前账户上传的图片文件 ID。未提供 `url` 时必填，两者不能同时传入。
+        </ParamField>
+
+        <ParamField body="url" pre={["input_references."]} type="string&lt;uri&gt;">
+          公网 HTTPS 文件直链（443 端口），默认最长 2,048 个字符。未提供 `file_id` 时必填，两者不能同时传入。
+
+          文件须无需 Cookie 或额外鉴权头即可下载；支持签名链接，请确保下载期间有效。URL 不得包含用户名、密码或 `#...`。
         </ParamField>
       </Expandable>
     </Tab>
@@ -208,8 +230,14 @@ contentType: application/json
           可选值：`video`。
         </ParamField>
 
-        <ParamField body="file_id" pre={["input_references."]} type="string&lt;uuid&gt;" required>
-          MP4 或 MOV 视频的文件 ID。
+        <ParamField body="file_id" pre={["input_references."]} type="string&lt;uuid&gt;">
+          当前账户上传的视频文件 ID。未提供 `url` 时必填，两者不能同时传入。
+        </ParamField>
+
+        <ParamField body="url" pre={["input_references."]} type="string&lt;uri&gt;">
+          公网 HTTPS 文件直链（443 端口），默认最长 2,048 个字符。未提供 `file_id` 时必填，两者不能同时传入。
+
+          文件须无需 Cookie 或额外鉴权头即可下载；支持签名链接，请确保下载期间有效。URL 不得包含用户名、密码或 `#...`。
         </ParamField>
       </Expandable>
     </Tab>
@@ -222,14 +250,19 @@ contentType: application/json
           可选值：`audio`。
         </ParamField>
 
-        <ParamField body="file_id" pre={["input_references."]} type="string&lt;uuid&gt;" required>
-          MP3 或 WAV 音频的文件 ID。每个文件时长必须为 2 到 15 秒，且不超过 15 MB。
+        <ParamField body="file_id" pre={["input_references."]} type="string&lt;uuid&gt;">
+          当前账户上传的音频文件 ID。未提供 `url` 时必填，两者不能同时传入。
+        </ParamField>
+
+        <ParamField body="url" pre={["input_references."]} type="string&lt;uri&gt;">
+          公网 HTTPS 文件直链（443 端口），默认最长 2,048 个字符。未提供 `file_id` 时必填，两者不能同时传入。
+
+          文件须无需 Cookie 或额外鉴权头即可下载；支持签名链接，请确保下载期间有效。URL 不得包含用户名、密码或 `#...`。
         </ParamField>
       </Expandable>
     </Tab>
   </Tabs>
 </ParamField>
-
 
 <RequestExample>
 ```bash cURL · text_to_video
@@ -1063,6 +1096,8 @@ Console.WriteLine(await response.Content.ReadAsStringAsync());
 
 ## 响应
 
+请通过 `error.code` 区分错误原因，不要依赖错误消息文本。
+
 <Tabs sync={false}>
   <Tab title="202">
     已接受生成任务
@@ -1183,6 +1218,13 @@ Console.WriteLine(await response.Content.ReadAsStringAsync());
           稳定且可供程序读取的错误码。
 
         示例：`"invalid_prompt"`。
+
+          URL 素材错误：
+
+          - `invalid_reference_source`：每个素材必须且只能提供 `file_id` 或 `url`。
+          - `invalid_reference_url`：URL 格式或长度不符合要求。
+          - `unsafe_reference_url`：地址或重定向目标不符合安全要求，请使用符合上述要求的公网直链。
+          - `file_rejected`：图片未通过内容审核，请更换图片。
         </ResponseField>
 
         <ResponseField name="message" pre={["error."]} type="string" required>
@@ -1256,6 +1298,84 @@ Console.WriteLine(await response.Content.ReadAsStringAsync());
     </ResponseField>
   </Tab>
 
+  <Tab title="408">
+    素材下载超时
+
+    <ResponseField name="error" type="object" required>
+      结构化错误详情。
+
+      <Expandable title="子属性" defaultOpen>
+        <ResponseField name="code" pre={["error."]} type="string" required>
+
+          - `reference_fetch_timeout`：文件下载超时，请检查源站后重试。
+        </ResponseField>
+
+        <ResponseField name="message" pre={["error."]} type="string" required>
+          便于阅读的错误说明，请通过 `error.code` 区分原因。
+        </ResponseField>
+      </Expandable>
+    </ResponseField>
+  </Tab>
+
+  <Tab title="413">
+    素材文件过大
+
+    <ResponseField name="error" type="object" required>
+      结构化错误详情。
+
+      <Expandable title="子属性" defaultOpen>
+        <ResponseField name="code" pre={["error."]} type="string" required>
+
+          - `reference_too_large`：文件超过大小限制：图片默认 10 MiB、视频 100 MiB、音频 15 MiB。
+        </ResponseField>
+
+        <ResponseField name="message" pre={["error."]} type="string" required>
+          便于阅读的错误说明，请通过 `error.code` 区分原因。
+        </ResponseField>
+      </Expandable>
+    </ResponseField>
+  </Tab>
+
+  <Tab title="415">
+    素材文件无效或格式不支持
+
+    <ResponseField name="error" type="object" required>
+      结构化错误详情。
+
+      <Expandable title="子属性" defaultOpen>
+        <ResponseField name="code" pre={["error."]} type="string" required>
+
+          - `invalid_reference_file`：文件为空或无法检查内容。
+          - `invalid_reference_file_type`：文件格式不受支持，或与素材类型、响应 `Content-Type` 不一致。
+        </ResponseField>
+
+        <ResponseField name="message" pre={["error."]} type="string" required>
+          便于阅读的错误说明，请通过 `error.code` 区分原因。
+        </ResponseField>
+      </Expandable>
+    </ResponseField>
+  </Tab>
+
+  <Tab title="422">
+    素材下载失败
+
+    <ResponseField name="error" type="object" required>
+      结构化错误详情。
+
+      <Expandable title="子属性" defaultOpen>
+        <ResponseField name="code" pre={["error."]} type="string" required>
+
+          - `reference_fetch_failed`：文件无法下载，请检查链接是否有效且可公开访问。
+          - `reference_redirect_limit`：重定向次数超限，请使用文件直链。
+        </ResponseField>
+
+        <ResponseField name="message" pre={["error."]} type="string" required>
+          便于阅读的错误说明，请通过 `error.code` 区分原因。
+        </ResponseField>
+      </Expandable>
+    </ResponseField>
+  </Tab>
+
   <Tab title="429">
     已超过请求或配额限制
         
@@ -1267,6 +1387,10 @@ Console.WriteLine(await response.Content.ReadAsStringAsync());
           稳定且可供程序读取的错误码。
 
         示例：`"invalid_prompt"`。
+
+          URL 素材错误：
+
+          - `reference_import_busy`：素材导入繁忙，请按响应头 `Retry-After` 指定的间隔重试。
         </ResponseField>
 
         <ResponseField name="message" pre={["error."]} type="string" required>
@@ -1307,6 +1431,24 @@ Console.WriteLine(await response.Content.ReadAsStringAsync());
           包含此错误更多信息的可选文档 URL。
 
         示例：`"https://api.neural4d.com/docs/errors#invalid_prompt"`。
+        </ResponseField>
+      </Expandable>
+    </ResponseField>
+  </Tab>
+  <Tab title="503">
+    图片审核服务不可用
+
+    <ResponseField name="error" type="object" required>
+      结构化错误详情。
+
+      <Expandable title="子属性" defaultOpen>
+        <ResponseField name="code" pre={["error."]} type="string" required>
+
+          - `file_moderation_unavailable`：图片审核服务暂不可用，请稍后重试。
+        </ResponseField>
+
+        <ResponseField name="message" pre={["error."]} type="string" required>
+          固定返回 `An internal error occurred`。
         </ResponseField>
       </Expandable>
     </ResponseField>
@@ -1375,6 +1517,15 @@ Console.WriteLine(await response.Content.ReadAsStringAsync());
   "error": {
     "code": "insufficient_credits",
     "message": "Insufficient credits for video generation"
+  }
+}
+```
+
+```json 413 素材文件过大
+{
+  "error": {
+    "code": "reference_too_large",
+    "message": "Reference file exceeds the allowed size"
   }
 }
 ```
