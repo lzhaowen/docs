@@ -18,8 +18,12 @@ contentType: application/json
 
 不传素材时使用文生视频；仅传 `frame_images` 时使用首帧或首尾帧生视频；传入 `input_references` 时使用参考素材生视频。所选模型须支持对应模式。
 
+省略可选参数时使用所选模型的当前默认值。
+
+每张首帧、尾帧及参考图片最多 10 MiB，通过 `file_id` 或 `url` 传入时使用相同限制。
+
 <Tabs sync={false}>
-  <Tab title="Option 1">
+  <Tab title="seedance-2.0">
     <ParamField body="model" type="enum&lt;string&gt;" required>
       Seedance 2.0 模型。
 
@@ -53,7 +57,7 @@ contentType: application/json
     </ParamField>
   </Tab>
 
-  <Tab title="Option 2">
+  <Tab title="seedance-2.0-fast">
     <ParamField body="model" type="enum&lt;string&gt;" required>
       Seedance 2.0 Fast 模型。
 
@@ -87,7 +91,7 @@ contentType: application/json
     </ParamField>
   </Tab>
 
-  <Tab title="Option 3">
+  <Tab title="veo-3.1">
     <ParamField body="model" type="enum&lt;string&gt;" required>
       Veo 3.1 模型。
 
@@ -121,7 +125,41 @@ contentType: application/json
     </ParamField>
   </Tab>
 
-  <Tab title="Option 4">
+  <Tab title="kling-3.0">
+    <ParamField body="model" type="enum&lt;string&gt;" required>
+      Kling 3.0 模型。
+
+      可选值：`kuaishou/kling-3.0`。
+
+      支持文生视频和首帧图生视频。使用图片时，在 `frame_images` 中提供一个元素，设置 `type: "image"` 和 `frame_type: "first_frame"`；不支持尾帧或 `input_references`，这些请求会返回 `unsupported_input_mode`。
+    </ParamField>
+
+    <ParamField body="prompt" type="string" required>
+      描述待生成视频的文本提示词。
+
+      字符串长度：`1 - 1000`。
+    </ParamField>
+
+    <ParamField body="output_with_audio" type="boolean" default={false}>
+      是否生成原生音频。启用音频可能影响积分消耗，实际扣费通过 `usage.credits` 返回。
+    </ParamField>
+
+    <ParamField body="resolution" type="enum&lt;string&gt;" default="720p">
+      可选值：`720p`、`1080p`、`4K`。
+    </ParamField>
+
+    <ParamField body="aspect_ratio" type="enum&lt;string&gt;" default="16:9">
+      可选值：`16:9`、`9:16`。
+    </ParamField>
+
+    <ParamField body="duration" type="integer" default={10}>
+      视频时长，单位为秒。
+
+      取值范围：`3 <= x <= 15`，仅支持整数秒。
+    </ParamField>
+  </Tab>
+
+  <Tab title="grok-imagine">
     <ParamField body="model" type="enum&lt;string&gt;" required>
       Grok Imagine 模型。
 
@@ -159,17 +197,11 @@ contentType: application/json
 </ParamField>
 
 <ParamField body="frame_images" type="object[]">
-  通过 `file_id` 或 `url` 传入的首帧和尾帧图片。支持 JPG、JPEG、PNG 和 WEBP，单张图片默认不超过 10 MiB。图片须通过内容审核。每个 `frame_type` 最多出现一次；传入 `last_frame` 时必须同时传入 `first_frame`。
+  通过 `file_id` 或 `url` 传入的首帧和尾帧图片。支持 JPG、JPEG、PNG 和 WEBP，单张图片不超过 10 MiB。图片须通过内容审核。每个 `frame_type` 最多出现一次；传入 `last_frame` 时必须同时传入 `first_frame`。
 
   提供此参数时数组长度为 `1 - 2` 个元素。每个元素必须且只能提供 `file_id` 或 `url` 中的一个。
 
   <Expandable title="子属性" defaultOpen>
-    <ParamField body="type" pre={["frame_images."]} type="enum&lt;string&gt;" required>
-      帧素材的媒体类型。
-
-      可选值：`image`。
-    </ParamField>
-
     <ParamField body="frame_type" pre={["frame_images."]} type="enum&lt;string&gt;" required>
       图片表示的帧位置。
 
@@ -195,14 +227,14 @@ contentType: application/json
 
   提供此参数时数组长度为 `1 - 12` 个元素，同时受各媒体类型的数量限制。
 
-  - 图片：每个请求最多 6 张（与 `frame_images` 合计）；支持 JPG/JPEG、PNG、WEBP，单文件默认不超过 10 MiB，须通过内容审核。
+  - 图片：每个请求最多 6 张（与 `frame_images` 合计）；支持 JPG/JPEG、PNG、WEBP，单文件不超过 10 MiB，须通过内容审核。
   - 视频：每个请求最多 4 个；支持 MP4、MOV，单文件默认不超过 100 MiB。
   - 音频：每个请求最多 2 个；支持 MP3、WAV，单文件默认不超过 15 MiB。
 
   同类参考素材保持传入顺序；帧图片按首帧、尾帧排序。
 
   <Tabs sync={false}>
-    <Tab title="Option 1">
+    <Tab title="图片">
       <Expandable title="子属性" defaultOpen>
         <ParamField body="type" pre={["input_references."]} type="enum&lt;string&gt;" required>
           图片参考素材。
@@ -222,7 +254,7 @@ contentType: application/json
       </Expandable>
     </Tab>
 
-    <Tab title="Option 2">
+    <Tab title="视频">
       <Expandable title="子属性" defaultOpen>
         <ParamField body="type" pre={["input_references."]} type="enum&lt;string&gt;" required>
           视频参考素材。
@@ -242,7 +274,7 @@ contentType: application/json
       </Expandable>
     </Tab>
 
-    <Tab title="Option 3">
+    <Tab title="音频">
       <Expandable title="子属性" defaultOpen>
         <ParamField body="type" pre={["input_references."]} type="enum&lt;string&gt;" required>
           音频参考素材。
@@ -265,6 +297,45 @@ contentType: application/json
 </ParamField>
 
 <RequestExample>
+```bash cURL · kling-3.0 · text_to_video
+curl --request POST \
+  --url https://api.neural4d.com/openapi/v1/videos/generations \
+  --header 'Authorization: Bearer <token>' \
+  --header 'Content-Type: application/json' \
+  --data '{
+  "model": "kuaishou/kling-3.0",
+  "prompt": "电影感跟拍镜头，穿行于霓虹街道",
+  "duration": 10,
+  "n": 1,
+  "resolution": "720p",
+  "aspect_ratio": "16:9",
+  "output_with_audio": true
+}'
+```
+
+```bash cURL · kling-3.0 · first_frame_image_to_video
+curl --request POST \
+  --url https://api.neural4d.com/openapi/v1/videos/generations \
+  --header 'Authorization: Bearer <token>' \
+  --header 'Content-Type: application/json' \
+  --data '{
+  "model": "kuaishou/kling-3.0",
+  "prompt": "电影感跟拍镜头，穿行于霓虹街道",
+  "duration": 10,
+  "n": 1,
+  "resolution": "720p",
+  "aspect_ratio": "16:9",
+  "output_with_audio": true,
+  "frame_images": [
+    {
+      "type": "image",
+      "frame_type": "first_frame",
+      "url": "https://media.example.com/first-frame.png"
+    }
+  ]
+}'
+```
+
 ```bash cURL · text_to_video
 curl --request POST \
   --url https://api.neural4d.com/openapi/v1/videos/generations \
@@ -438,7 +509,6 @@ curl --request POST \
   "prompt": "The camera slowly pushes in while soft wind moves the leaves",
   "frame_images": [
     {
-      "type": "image",
       "frame_type": "first_frame",
       "file_id": "550e8400-e29b-41d4-a716-446655440000"
     }
@@ -467,7 +537,6 @@ response = requests.request(
       "prompt": "The camera slowly pushes in while soft wind moves the leaves",
       "frame_images": [
         {
-          "type": "image",
           "frame_type": "first_frame",
           "file_id": "550e8400-e29b-41d4-a716-446655440000"
         }
@@ -494,7 +563,6 @@ const response = await fetch("https://api.neural4d.com/openapi/v1/videos/generat
     "prompt": "The camera slowly pushes in while soft wind moves the leaves",
     "frame_images": [
       {
-        "type": "image",
         "frame_type": "first_frame",
         "file_id": "550e8400-e29b-41d4-a716-446655440000"
       }
@@ -522,7 +590,6 @@ const response: Response = await fetch("https://api.neural4d.com/openapi/v1/vide
     "prompt": "The camera slowly pushes in while soft wind moves the leaves",
     "frame_images": [
       {
-        "type": "image",
         "frame_type": "first_frame",
         "file_id": "550e8400-e29b-41d4-a716-446655440000"
       }
@@ -546,7 +613,7 @@ HttpRequest request = HttpRequest.newBuilder()
     .uri(URI.create("https://api.neural4d.com/openapi/v1/videos/generations"))
     .header("Authorization", "Bearer <token>")
     .header("Content-Type", "application/json")
-    .method("POST", HttpRequest.BodyPublishers.ofString("{\n      \"model\": \"bytedance/seedance-2.0\",\n      \"prompt\": \"The camera slowly pushes in while soft wind moves the leaves\",\n      \"frame_images\": [\n        {\n          \"type\": \"image\",\n          \"frame_type\": \"first_frame\",\n          \"file_id\": \"550e8400-e29b-41d4-a716-446655440000\"\n        }\n      ],\n      \"duration\": 5,\n      \"n\": 1,\n      \"resolution\": \"720p\",\n      \"aspect_ratio\": \"16:9\",\n      \"output_with_audio\": true\n    }"))
+    .method("POST", HttpRequest.BodyPublishers.ofString("{\n      \"model\": \"bytedance/seedance-2.0\",\n      \"prompt\": \"The camera slowly pushes in while soft wind moves the leaves\",\n      \"frame_images\": [\n        {\n          \"frame_type\": \"first_frame\",\n          \"file_id\": \"550e8400-e29b-41d4-a716-446655440000\"\n        }\n      ],\n      \"duration\": 5,\n      \"n\": 1,\n      \"resolution\": \"720p\",\n      \"aspect_ratio\": \"16:9\",\n      \"output_with_audio\": true\n    }"))
     .build();
 HttpResponse<String> response = HttpClient.newHttpClient().send(request, HttpResponse.BodyHandlers.ofString());
 System.out.println(response.body());
@@ -562,7 +629,7 @@ import (
   "strings"
 )
 
-payload := strings.NewReader("{\n  \"model\": \"bytedance/seedance-2.0\",\n  \"prompt\": \"The camera slowly pushes in while soft wind moves the leaves\",\n  \"frame_images\": [\n    {\n      \"type\": \"image\",\n      \"frame_type\": \"first_frame\",\n      \"file_id\": \"550e8400-e29b-41d4-a716-446655440000\"\n    }\n  ],\n  \"duration\": 5,\n  \"n\": 1,\n  \"resolution\": \"720p\",\n  \"aspect_ratio\": \"16:9\",\n  \"output_with_audio\": true\n}")
+payload := strings.NewReader("{\n  \"model\": \"bytedance/seedance-2.0\",\n  \"prompt\": \"The camera slowly pushes in while soft wind moves the leaves\",\n  \"frame_images\": [\n    {\n      \"frame_type\": \"first_frame\",\n      \"file_id\": \"550e8400-e29b-41d4-a716-446655440000\"\n    }\n  ],\n  \"duration\": 5,\n  \"n\": 1,\n  \"resolution\": \"720p\",\n  \"aspect_ratio\": \"16:9\",\n  \"output_with_audio\": true\n}")
 req, _ := http.NewRequest("POST", "https://api.neural4d.com/openapi/v1/videos/generations", payload)
 req.Header.Set("Authorization", "Bearer <token>")
 req.Header.Set("Content-Type", "application/json")
@@ -585,7 +652,6 @@ request.body = {
   "prompt": "The camera slowly pushes in while soft wind moves the leaves",
   "frame_images": [
     {
-      "type": "image",
       "frame_type": "first_frame",
       "file_id": "550e8400-e29b-41d4-a716-446655440000"
     }
@@ -609,7 +675,7 @@ curl_setopt_array($ch, [
     CURLOPT_CUSTOMREQUEST => "POST",
     CURLOPT_RETURNTRANSFER => true,
     CURLOPT_HTTPHEADER => ["Authorization: Bearer <token>", "Content-Type: application/json"],
-    CURLOPT_POSTFIELDS => "{\n  \"model\": \"bytedance/seedance-2.0\",\n  \"prompt\": \"The camera slowly pushes in while soft wind moves the leaves\",\n  \"frame_images\": [\n    {\n      \"type\": \"image\",\n      \"frame_type\": \"first_frame\",\n      \"file_id\": \"550e8400-e29b-41d4-a716-446655440000\"\n    }\n  ],\n  \"duration\": 5,\n  \"n\": 1,\n  \"resolution\": \"720p\",\n  \"aspect_ratio\": \"16:9\",\n  \"output_with_audio\": true\n}",
+    CURLOPT_POSTFIELDS => "{\n  \"model\": \"bytedance/seedance-2.0\",\n  \"prompt\": \"The camera slowly pushes in while soft wind moves the leaves\",\n  \"frame_images\": [\n    {\n      \"frame_type\": \"first_frame\",\n      \"file_id\": \"550e8400-e29b-41d4-a716-446655440000\"\n    }\n  ],\n  \"duration\": 5,\n  \"n\": 1,\n  \"resolution\": \"720p\",\n  \"aspect_ratio\": \"16:9\",\n  \"output_with_audio\": true\n}",
 ]);
 $response = curl_exec($ch);
 curl_close($ch);
@@ -624,7 +690,7 @@ using var client = new HttpClient();
 using var request = new HttpRequestMessage(HttpMethod.Post, "https://api.neural4d.com/openapi/v1/videos/generations");
 request.Headers.TryAddWithoutValidation("Authorization", "Bearer <token>");
 request.Headers.TryAddWithoutValidation("Content-Type", "application/json");
-request.Content = new StringContent("{\n  \"model\": \"bytedance/seedance-2.0\",\n  \"prompt\": \"The camera slowly pushes in while soft wind moves the leaves\",\n  \"frame_images\": [\n    {\n      \"type\": \"image\",\n      \"frame_type\": \"first_frame\",\n      \"file_id\": \"550e8400-e29b-41d4-a716-446655440000\"\n    }\n  ],\n  \"duration\": 5,\n  \"n\": 1,\n  \"resolution\": \"720p\",\n  \"aspect_ratio\": \"16:9\",\n  \"output_with_audio\": true\n}", Encoding.UTF8, "application/json");
+request.Content = new StringContent("{\n  \"model\": \"bytedance/seedance-2.0\",\n  \"prompt\": \"The camera slowly pushes in while soft wind moves the leaves\",\n  \"frame_images\": [\n    {\n      \"frame_type\": \"first_frame\",\n      \"file_id\": \"550e8400-e29b-41d4-a716-446655440000\"\n    }\n  ],\n  \"duration\": 5,\n  \"n\": 1,\n  \"resolution\": \"720p\",\n  \"aspect_ratio\": \"16:9\",\n  \"output_with_audio\": true\n}", Encoding.UTF8, "application/json");
 using var response = await client.SendAsync(request);
 Console.WriteLine(await response.Content.ReadAsStringAsync());
 ```
@@ -640,12 +706,10 @@ curl --request POST \
   "prompt": "Move naturally from the opening frame to the closing frame",
   "frame_images": [
     {
-      "type": "image",
       "frame_type": "first_frame",
       "file_id": "550e8400-e29b-41d4-a716-446655440000"
     },
     {
-      "type": "image",
       "frame_type": "last_frame",
       "file_id": "6ba7b810-9dad-11d1-80b4-00c04fd430c8"
     }
@@ -674,12 +738,10 @@ response = requests.request(
       "prompt": "Move naturally from the opening frame to the closing frame",
       "frame_images": [
         {
-          "type": "image",
           "frame_type": "first_frame",
           "file_id": "550e8400-e29b-41d4-a716-446655440000"
         },
         {
-          "type": "image",
           "frame_type": "last_frame",
           "file_id": "6ba7b810-9dad-11d1-80b4-00c04fd430c8"
         }
@@ -706,12 +768,10 @@ const response = await fetch("https://api.neural4d.com/openapi/v1/videos/generat
     "prompt": "Move naturally from the opening frame to the closing frame",
     "frame_images": [
       {
-        "type": "image",
         "frame_type": "first_frame",
         "file_id": "550e8400-e29b-41d4-a716-446655440000"
       },
       {
-        "type": "image",
         "frame_type": "last_frame",
         "file_id": "6ba7b810-9dad-11d1-80b4-00c04fd430c8"
       }
@@ -739,12 +799,10 @@ const response: Response = await fetch("https://api.neural4d.com/openapi/v1/vide
     "prompt": "Move naturally from the opening frame to the closing frame",
     "frame_images": [
       {
-        "type": "image",
         "frame_type": "first_frame",
         "file_id": "550e8400-e29b-41d4-a716-446655440000"
       },
       {
-        "type": "image",
         "frame_type": "last_frame",
         "file_id": "6ba7b810-9dad-11d1-80b4-00c04fd430c8"
       }
@@ -768,7 +826,7 @@ HttpRequest request = HttpRequest.newBuilder()
     .uri(URI.create("https://api.neural4d.com/openapi/v1/videos/generations"))
     .header("Authorization", "Bearer <token>")
     .header("Content-Type", "application/json")
-    .method("POST", HttpRequest.BodyPublishers.ofString("{\n      \"model\": \"bytedance/seedance-2.0-fast\",\n      \"prompt\": \"Move naturally from the opening frame to the closing frame\",\n      \"frame_images\": [\n        {\n          \"type\": \"image\",\n          \"frame_type\": \"first_frame\",\n          \"file_id\": \"550e8400-e29b-41d4-a716-446655440000\"\n        },\n        {\n          \"type\": \"image\",\n          \"frame_type\": \"last_frame\",\n          \"file_id\": \"6ba7b810-9dad-11d1-80b4-00c04fd430c8\"\n        }\n      ],\n      \"duration\": 5,\n      \"n\": 1,\n      \"resolution\": \"720p\",\n      \"aspect_ratio\": \"16:9\",\n      \"output_with_audio\": true\n    }"))
+    .method("POST", HttpRequest.BodyPublishers.ofString("{\n      \"model\": \"bytedance/seedance-2.0-fast\",\n      \"prompt\": \"Move naturally from the opening frame to the closing frame\",\n      \"frame_images\": [\n        {\n          \"frame_type\": \"first_frame\",\n          \"file_id\": \"550e8400-e29b-41d4-a716-446655440000\"\n        },\n        {\n          \"frame_type\": \"last_frame\",\n          \"file_id\": \"6ba7b810-9dad-11d1-80b4-00c04fd430c8\"\n        }\n      ],\n      \"duration\": 5,\n      \"n\": 1,\n      \"resolution\": \"720p\",\n      \"aspect_ratio\": \"16:9\",\n      \"output_with_audio\": true\n    }"))
     .build();
 HttpResponse<String> response = HttpClient.newHttpClient().send(request, HttpResponse.BodyHandlers.ofString());
 System.out.println(response.body());
@@ -784,7 +842,7 @@ import (
   "strings"
 )
 
-payload := strings.NewReader("{\n  \"model\": \"bytedance/seedance-2.0-fast\",\n  \"prompt\": \"Move naturally from the opening frame to the closing frame\",\n  \"frame_images\": [\n    {\n      \"type\": \"image\",\n      \"frame_type\": \"first_frame\",\n      \"file_id\": \"550e8400-e29b-41d4-a716-446655440000\"\n    },\n    {\n      \"type\": \"image\",\n      \"frame_type\": \"last_frame\",\n      \"file_id\": \"6ba7b810-9dad-11d1-80b4-00c04fd430c8\"\n    }\n  ],\n  \"duration\": 5,\n  \"n\": 1,\n  \"resolution\": \"720p\",\n  \"aspect_ratio\": \"16:9\",\n  \"output_with_audio\": true\n}")
+payload := strings.NewReader("{\n  \"model\": \"bytedance/seedance-2.0-fast\",\n  \"prompt\": \"Move naturally from the opening frame to the closing frame\",\n  \"frame_images\": [\n    {\n      \"frame_type\": \"first_frame\",\n      \"file_id\": \"550e8400-e29b-41d4-a716-446655440000\"\n    },\n    {\n      \"frame_type\": \"last_frame\",\n      \"file_id\": \"6ba7b810-9dad-11d1-80b4-00c04fd430c8\"\n    }\n  ],\n  \"duration\": 5,\n  \"n\": 1,\n  \"resolution\": \"720p\",\n  \"aspect_ratio\": \"16:9\",\n  \"output_with_audio\": true\n}")
 req, _ := http.NewRequest("POST", "https://api.neural4d.com/openapi/v1/videos/generations", payload)
 req.Header.Set("Authorization", "Bearer <token>")
 req.Header.Set("Content-Type", "application/json")
@@ -807,12 +865,10 @@ request.body = {
   "prompt": "Move naturally from the opening frame to the closing frame",
   "frame_images": [
     {
-      "type": "image",
       "frame_type": "first_frame",
       "file_id": "550e8400-e29b-41d4-a716-446655440000"
     },
     {
-      "type": "image",
       "frame_type": "last_frame",
       "file_id": "6ba7b810-9dad-11d1-80b4-00c04fd430c8"
     }
@@ -836,7 +892,7 @@ curl_setopt_array($ch, [
     CURLOPT_CUSTOMREQUEST => "POST",
     CURLOPT_RETURNTRANSFER => true,
     CURLOPT_HTTPHEADER => ["Authorization: Bearer <token>", "Content-Type: application/json"],
-    CURLOPT_POSTFIELDS => "{\n  \"model\": \"bytedance/seedance-2.0-fast\",\n  \"prompt\": \"Move naturally from the opening frame to the closing frame\",\n  \"frame_images\": [\n    {\n      \"type\": \"image\",\n      \"frame_type\": \"first_frame\",\n      \"file_id\": \"550e8400-e29b-41d4-a716-446655440000\"\n    },\n    {\n      \"type\": \"image\",\n      \"frame_type\": \"last_frame\",\n      \"file_id\": \"6ba7b810-9dad-11d1-80b4-00c04fd430c8\"\n    }\n  ],\n  \"duration\": 5,\n  \"n\": 1,\n  \"resolution\": \"720p\",\n  \"aspect_ratio\": \"16:9\",\n  \"output_with_audio\": true\n}",
+    CURLOPT_POSTFIELDS => "{\n  \"model\": \"bytedance/seedance-2.0-fast\",\n  \"prompt\": \"Move naturally from the opening frame to the closing frame\",\n  \"frame_images\": [\n    {\n      \"frame_type\": \"first_frame\",\n      \"file_id\": \"550e8400-e29b-41d4-a716-446655440000\"\n    },\n    {\n      \"frame_type\": \"last_frame\",\n      \"file_id\": \"6ba7b810-9dad-11d1-80b4-00c04fd430c8\"\n    }\n  ],\n  \"duration\": 5,\n  \"n\": 1,\n  \"resolution\": \"720p\",\n  \"aspect_ratio\": \"16:9\",\n  \"output_with_audio\": true\n}",
 ]);
 $response = curl_exec($ch);
 curl_close($ch);
@@ -851,7 +907,7 @@ using var client = new HttpClient();
 using var request = new HttpRequestMessage(HttpMethod.Post, "https://api.neural4d.com/openapi/v1/videos/generations");
 request.Headers.TryAddWithoutValidation("Authorization", "Bearer <token>");
 request.Headers.TryAddWithoutValidation("Content-Type", "application/json");
-request.Content = new StringContent("{\n  \"model\": \"bytedance/seedance-2.0-fast\",\n  \"prompt\": \"Move naturally from the opening frame to the closing frame\",\n  \"frame_images\": [\n    {\n      \"type\": \"image\",\n      \"frame_type\": \"first_frame\",\n      \"file_id\": \"550e8400-e29b-41d4-a716-446655440000\"\n    },\n    {\n      \"type\": \"image\",\n      \"frame_type\": \"last_frame\",\n      \"file_id\": \"6ba7b810-9dad-11d1-80b4-00c04fd430c8\"\n    }\n  ],\n  \"duration\": 5,\n  \"n\": 1,\n  \"resolution\": \"720p\",\n  \"aspect_ratio\": \"16:9\",\n  \"output_with_audio\": true\n}", Encoding.UTF8, "application/json");
+request.Content = new StringContent("{\n  \"model\": \"bytedance/seedance-2.0-fast\",\n  \"prompt\": \"Move naturally from the opening frame to the closing frame\",\n  \"frame_images\": [\n    {\n      \"frame_type\": \"first_frame\",\n      \"file_id\": \"550e8400-e29b-41d4-a716-446655440000\"\n    },\n    {\n      \"frame_type\": \"last_frame\",\n      \"file_id\": \"6ba7b810-9dad-11d1-80b4-00c04fd430c8\"\n    }\n  ],\n  \"duration\": 5,\n  \"n\": 1,\n  \"resolution\": \"720p\",\n  \"aspect_ratio\": \"16:9\",\n  \"output_with_audio\": true\n}", Encoding.UTF8, "application/json");
 using var response = await client.SendAsync(request);
 Console.WriteLine(await response.Content.ReadAsStringAsync());
 ```
@@ -1189,7 +1245,7 @@ Console.WriteLine(await response.Content.ReadAsStringAsync());
     <ResponseField name="model" type="enum&lt;string&gt;" required>
       本次提交任务使用的视频生成模型。
 
-    可选值：`bytedance/seedance-2.0`、`bytedance/seedance-2.0-fast`、`google/veo-3.1`、`xai/grok-imagine`。
+    可选值：`bytedance/seedance-2.0`、`bytedance/seedance-2.0-fast`、`google/veo-3.1`、`xai/grok-imagine`、`kuaishou/kling-3.0`。
     </ResponseField>
 
     <ResponseField name="usage" type="object">
@@ -1326,7 +1382,7 @@ Console.WriteLine(await response.Content.ReadAsStringAsync());
       <Expandable title="子属性" defaultOpen>
         <ResponseField name="code" pre={["error."]} type="string" required>
 
-          - `reference_too_large`：文件超过大小限制：图片默认 10 MiB、视频 100 MiB、音频 15 MiB。
+          - `reference_too_large`：文件超过大小限制：每张图片 10 MiB；视频默认 100 MiB、音频默认 15 MiB。文件 ID 和 URL 使用相同限制。
         </ResponseField>
 
         <ResponseField name="message" pre={["error."]} type="string" required>
@@ -1410,6 +1466,11 @@ Console.WriteLine(await response.Content.ReadAsStringAsync());
 
   <Tab title="500">
     内部或上游服务错误
+
+    当 `error.details.submission_accepted` 为 `true` 时，任务已经入队，但后续处理失败。
+    `error.details.task` 保留任务 ID、UUID 和已知积分，`retryable` 为 `false`。不要重新提交生成请求，以免重复扣费。
+    登记成功时，你可以按任务 ID 查询。如果 `error.details.registration_failed` 为 `true`，错误码为 `task_registration_failed`；登记修复前，查询可能返回 `404`。
+    当 `error.details.submission_uncertain` 为 `true` 时，响应保留本次尝试的任务 ID；先确认原提交结果，再决定是否重新提交。最终扣费未知时不返回积分用量。
         
     <ResponseField name="error" type="object" required>
       结构化错误详情。
@@ -1525,7 +1586,7 @@ Console.WriteLine(await response.Content.ReadAsStringAsync());
 {
   "error": {
     "code": "reference_too_large",
-    "message": "Reference file exceeds the allowed size"
+    "message": "Reference file must not exceed 10 MB"
   }
 }
 ```

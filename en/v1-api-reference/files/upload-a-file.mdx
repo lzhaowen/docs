@@ -18,7 +18,18 @@ contentType: multipart/form-data
 
 <ParamField body="file" type="string&lt;binary&gt;" required>
   File to upload. Supported image formats: JPG, JPEG, PNG, GIF, WEBP, BMP, HEIC, and HEIF. Supported video formats: MP4, MOV, WEBM, M4V, OGG, and OGV. Supported audio formats: MP3 and WAV.
-  </ParamField>
+
+  Default maximum size per file: 20 MiB for images, 100 MiB for videos, and 15 MiB for audio. Files above the upload limit return `400 file_too_large`.
+</ParamField>
+
+Generation requests check image sizes again based on their use. These limits apply to both the uploaded `file_id` and a public HTTPS `url`:
+
+| Image use | Maximum size per image |
+| --- | --- |
+| Image generation references | 10 MiB |
+| Video generation first frames, last frames, and image references | 10 MiB |
+| Single-image and batch image-to-3D | 20 MiB |
+| Multi-view-to-3D | 10 MiB |
 
 <RequestExample>
 ```bash cURL

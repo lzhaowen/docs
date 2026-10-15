@@ -1,270 +1,101 @@
 ---
 title: "快速开始"
-description: "创建视频生成任务并获取生成结果。"
+description: "使用文本提示词创建 3D 模型生成任务，并查询和下载结果。"
 keywords:
   - Neural4D
-  - 视频生成
-  - Seedance
+  - 3D
   - API
 ---
 
-API v1 使用 `https://api.neural4d.com/openapi/v1` 基础路径。每个请求都需要携带 API 密钥。
+API v1 基础地址为 `https://api.neural4d.com/openapi/v1`。以下通过文生 3D 演示核心调用流程。
 
-<Info>
-  API v1 仅对有效付费订阅用户开放。免费账户调用任意 API v1 接口时都会收到 `403 subscription_required` 响应。
-</Info>
+## 1. 配置 API 密钥
 
-## 上传参考文件
+使用有效付费订阅账户，在 [API Key 页面](https://www.neural4d.com/account?api) 获取密钥。
 
-通过 `POST /files` 上传一个本地图片或视频，并保存返回的文件 `id`，供生成请求引用。
+## 2. 创建 3D 生成任务
 
-如果参考文件已有公网 HTTPS 地址，可以跳过上传，在生成请求中直接传入 `url`。每个素材必须且只能提供 `file_id` 或 `url` 中的一个。
+提交提示词，生成带纹理的 3D 模型。每次请求都通过 `Authorization: Bearer` 携带密钥。
 
-<CodeGroup>
-  ```bash cURL
-  curl --request POST \
-    --url 'https://api.neural4d.com/openapi/v1/files' \
-    --header 'Authorization: Bearer ${YOUR_API_KEY}' \
-    --form 'file=@first-frame.png'
-  ```
-
-  ```python Python
-  import os
-  import requests
-
-  with open("first-frame.png", "rb") as file:
-      response = requests.post(
-          "https://api.neural4d.com/openapi/v1/files",
-          headers={"Authorization": f"Bearer {os.environ['YOUR_API_KEY']}"},
-          files={"file": ("first-frame.png", file, "image/png")},
-      )
-
-  print(response.json())
-  ```
-
-  ```javascript Node.js
-  import { openAsBlob } from "node:fs";
-
-  const form = new FormData();
-  form.append("file", await openAsBlob("first-frame.png"), "first-frame.png");
-
-  const response = await fetch("https://api.neural4d.com/openapi/v1/files", {
-    method: "POST",
-    headers: { Authorization: `Bearer ${process.env.YOUR_API_KEY}` },
-    body: form,
-  });
-
-  console.log(await response.json());
-  ```
-
-  ```go Go
-  package main
-
-  import (
-      "bytes"
-      "fmt"
-      "io"
-      "mime/multipart"
-      "net/http"
-      "os"
-      "path/filepath"
-  )
-
-  func main() {
-      file, _ := os.Open("first-frame.png")
-      defer file.Close()
-
-      body := &bytes.Buffer{}
-      writer := multipart.NewWriter(body)
-      part, _ := writer.CreateFormFile("file", filepath.Base(file.Name()))
-      _, _ = io.Copy(part, file)
-      _ = writer.Close()
-
-      request, _ := http.NewRequest("POST", "https://api.neural4d.com/openapi/v1/files", body)
-      request.Header.Set("Authorization", "Bearer "+os.Getenv("YOUR_API_KEY"))
-      request.Header.Set("Content-Type", writer.FormDataContentType())
-
-      response, _ := http.DefaultClient.Do(request)
-      defer response.Body.Close()
-      result, _ := io.ReadAll(response.Body)
-      fmt.Println(string(result))
-  }
-  ```
-</CodeGroup>
-
-```json 201 Created
-{
-  "id": "550e8400-e29b-41d4-a716-446655440000",
-  "filename": "first-frame.png",
-  "bytes": 245760,
-  "mime_type": "image/png",
-  "created_at": 1784044800
-}
+```bash cURL
+curl --request POST \
+  --url 'https://api.neural4d.com/openapi/v1/3dmodels/generations' \
+  --header "Authorization: Bearer ${YOUR_API_KEY}" \
+  --header 'Content-Type: application/json' \
+  --data '{
+    "model": "dreamtech/neural4d-2.5",
+    "prompt": "白色摄影棚背景中的陶瓷茶壶",
+    "with_texture": true
+  }'
 ```
 
-## 创建视频
-
-向 `POST /videos/generations` 提交 JSON 请求。首帧和尾帧图片放入 `frame_images`，其他图片、视频或音频参考素材放入 `input_references`。Seedance 2.0、Seedance 2.0 Fast 和 Veo 3.1 可通过 `output_with_audio` 控制是否生成原生音频；`xai/grok-imagine` 不支持此参数。支持的模型省略此参数时，使用该模型的当前默认值。以下示例通过文件 ID 引用已上传的首帧图片。接口返回 `202 Accepted` 和任务 ID。
-
-<CodeGroup>
-  ```bash cURL
-  curl --request POST \
-    --url 'https://api.neural4d.com/openapi/v1/videos/generations' \
-    --header 'Authorization: Bearer ${YOUR_API_KEY}' \
-    --header 'Content-Type: application/json' \
-    --data '{
-      "model": "bytedance/seedance-2.0-fast",
-      "prompt": "夜晚穿行霓虹街道的电影感跟拍镜头",
-      "frame_images": [
-        {
-          "type": "image",
-          "frame_type": "first_frame",
-          "file_id": "550e8400-e29b-41d4-a716-446655440000"
-        }
-      ],
-      "duration": 5,
-      "resolution": "720p",
-      "aspect_ratio": "16:9",
-      "output_with_audio": true,
-      "n": 1
-    }'
-  ```
-
-  ```python Python
-  import os
-  import requests
-
-  response = requests.post(
-      "https://api.neural4d.com/openapi/v1/videos/generations",
-      headers={"Authorization": f"Bearer {os.environ['YOUR_API_KEY']}"},
-      json={
-          "model": "bytedance/seedance-2.0-fast",
-          "prompt": "夜晚穿行霓虹街道的电影感跟拍镜头",
-          "frame_images": [
-              {
-                  "type": "image",
-                  "frame_type": "first_frame",
-                  "file_id": "550e8400-e29b-41d4-a716-446655440000",
-              },
-          ],
-          "duration": 5,
-          "resolution": "720p",
-          "aspect_ratio": "16:9",
-          "output_with_audio": True,
-          "n": 1,
-      },
-  )
-  print(response.json())
-  ```
-
-  ```javascript Node.js
-  const response = await fetch("https://api.neural4d.com/openapi/v1/videos/generations", {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${process.env.YOUR_API_KEY}`,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      model: "bytedance/seedance-2.0-fast",
-      prompt: "夜晚穿行霓虹街道的电影感跟拍镜头",
-      frame_images: [
-        {
-          type: "image",
-          frame_type: "first_frame",
-          file_id: "550e8400-e29b-41d4-a716-446655440000",
-        },
-      ],
-      duration: 5,
-      resolution: "720p",
-      aspect_ratio: "16:9",
-      output_with_audio: true,
-      n: 1,
-    }),
-  });
-
-  console.log(await response.json());
-  ```
-
-  ```go Go
-  package main
-
-  import (
-      "bytes"
-      "fmt"
-      "io"
-      "net/http"
-      "os"
-  )
-
-  func main() {
-      body := []byte(`{"model":"bytedance/seedance-2.0-fast","prompt":"夜晚穿行霓虹街道的电影感跟拍镜头","frame_images":[{"type":"image","frame_type":"first_frame","file_id":"550e8400-e29b-41d4-a716-446655440000"}],"duration":5,"resolution":"720p","aspect_ratio":"16:9","output_with_audio":true,"n":1}`)
-      request, _ := http.NewRequest("POST", "https://api.neural4d.com/openapi/v1/videos/generations", bytes.NewReader(body))
-      request.Header.Set("Authorization", "Bearer "+os.Getenv("YOUR_API_KEY"))
-      request.Header.Set("Content-Type", "application/json")
-
-      response, _ := http.DefaultClient.Do(request)
-      defer response.Body.Close()
-      result, _ := io.ReadAll(response.Body)
-      fmt.Println(string(result))
-  }
-  ```
-</CodeGroup>
+接口返回 `202 Accepted`。保存任务 `id`，用于后续查询。
 
 ```json 202 Accepted
 {
-  "id": "normal-video-c50fe63e-699d-4d61-93f5-2099ab159d6d",
+  "id": "normal-3d-c50fe63e-699d-4d61-93f5-2099ab159d6d",
   "status": "queued",
   "created_at": 1784044800,
-  "mode": "first_frame_image_to_video",
-  "model": "bytedance/seedance-2.0-fast",
+  "mode": "text_to_3d",
+  "model": "dreamtech/neural4d-2.5",
   "data": [
     {
-      "uuid": "7d1fa4bb-41e6-4a5d-88d8-1851f5342e87",
+      "uuid": "72e30159-a242-4491-a67c-2ad0cfc9efb6",
       "status": "queued",
       "created_at": 1784044800
     }
-  ]
+  ],
+  "usage": {
+    "credits": 30
+  }
 }
 ```
 
-## 查询任务
+## 3. 查询并下载结果
 
-将批次任务 `id` 或视频子项 `uuid` 中的一个传给 `GET /tasks/task-info`，不能同时传入。轮询直到 `status` 变为 `succeeded` 或 `failed`。`output.videos` 中的每个子项都会返回 UUID、宽高比、原生音频标识、生成模式、状态和时间。
+将下面的 `id` 替换为创建任务返回的值，间隔数秒查询一次。`queued` 和 `processing` 表示尚未完成；`succeeded` 表示成功，`failed` 表示失败，此时查看响应中的 `error`。
 
 ```bash cURL
 curl --request GET \
-  --url 'https://api.neural4d.com/openapi/v1/tasks/task-info?id=normal-video-c50fe63e-699d-4d61-93f5-2099ab159d6d' \
-  --header 'Authorization: Bearer ${YOUR_API_KEY}'
+  --url 'https://api.neural4d.com/openapi/v1/tasks/task-info?id=normal-3d-c50fe63e-699d-4d61-93f5-2099ab159d6d' \
+  --header "Authorization: Bearer ${YOUR_API_KEY}"
 ```
-
-需要按视频子项查询时，使用 `uuid` 代替 `id`：`GET /openapi/v1/tasks/task-info?uuid=7d1fa4bb-41e6-4a5d-88d8-1851f5342e87`。
 
 ```json 200 OK
 {
-  "id": "normal-video-c50fe63e-699d-4d61-93f5-2099ab159d6d",
+  "id": "normal-3d-c50fe63e-699d-4d61-93f5-2099ab159d6d",
   "status": "succeeded",
-  "mode": "first_frame_image_to_video",
-  "model": "bytedance/seedance-2.0-fast",
+  "model": "dreamtech/neural4d-2.5",
   "created_at": 1784044800,
   "updated_at": 1784044842,
+  "mode": "text_to_3d",
   "output": {
-    "videos": [
+    "models": [
       {
-        "uuid": "7d1fa4bb-41e6-4a5d-88d8-1851f5342e87",
-        "url": "https://cdn.neural4d.com/results/video.mp4",
-        "format": "mp4",
-        "duration": 5,
-        "resolution": "720p",
-        "aspect_ratio": "16:9",
-        "has_audio": true,
-        "mode": "first_frame_image_to_video",
+        "uuid": "72e30159-a242-4491-a67c-2ad0cfc9efb6",
+        "url": "https://cdn.neural4d.com/results/model.glb",
+        "format": "glb",
+        "thumbnail_url": "https://cdn.neural4d.com/results/t1.png",
+        "mesh_quality": "standard",
+        "pose": "auto",
+        "target_polycount": 500000,
+        "topology": "triangle",
+        "with_texture": true,
+        "with_pbr": false,
+        "image_enhancement": false,
+        "mode": "text_to_3d",
         "status": "succeeded",
         "created_at": 1784044800,
         "updated_at": 1784044842
       }
     ]
+  },
+  "usage": {
+    "credits": 30
   }
 }
 ```
 
-认证和请求追踪请参阅[通用请求头](/zh/common-headers)。
+成功后，使用 `output.models[0].url` 下载模型文件，使用 `output.models[0].thumbnail_url` 查看模型预览图。两个地址均为临时签名 URL，过期后可重新查询任务获取。
+
+更多用法：[3D 生成参数](/zh/v1-api-reference/3d-generation/create-3d-generation-tasks) · [完整任务响应](/zh/v1-api-reference/tasks/retrieve-a-task) · [上传参考文件](/zh/v1-api-reference/files/upload-a-file)。

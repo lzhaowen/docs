@@ -1,11 +1,13 @@
 ---
 title: "Retrieve a task"
 sidebarTitle: "Retrieve a task"
-description: "Returns task status and output by batch task ID or child image or video UUID. Provide exactly one of the id or uuid query parameters."
+description: "Returns image, video, or 3D task status and output by batch task ID or child item UUID. Provide exactly one of the id or uuid query parameters."
 api: "GET https://api.neural4d.com/openapi/v1/tasks/task-info"
 playground: simple
 authMethod: bearer
 ---
+
+Depending on the task type, `output` contains exactly one array: `models` (3D), `images`, or `videos`. Queued and processing entries also include generation parameters. Their `url` and `format` are `null` until a result file is available.
 
 ## Authorizations
 
@@ -18,18 +20,18 @@ authMethod: bearer
 <ParamField query="id" type="string">
   Batch task ID returned by a generation request. Provide this or uuid, but not both.
 
-Example: `"normal-video-c50fe63e-699d-4d61-93f5-2099ab159d6d"`.
+Example: `"normal-3d-c50fe63e-699d-4d61-93f5-2099ab159d6d"`.
 </ParamField>
 <ParamField query="uuid" type="string&lt;uuid&gt;">
-  Child image or video UUID returned in the generation response. Provide this or id, but not both.
+  Child image, video, or 3D UUID returned in the generation response. Provide this or id, but not both.
 
-Example: `"7d1fa4bb-41e6-4a5d-88d8-1851f5342e87"`.
+Example: `"72e30159-a242-4491-a67c-2ad0cfc9efb6"`.
 </ParamField>
 
 <RequestExample>
 ```bash cURL
 curl --request GET \
-  --url 'https://api.neural4d.com/openapi/v1/tasks/task-info?id=normal-video-c50fe63e-699d-4d61-93f5-2099ab159d6d' \
+  --url 'https://api.neural4d.com/openapi/v1/tasks/task-info?id=normal-3d-c50fe63e-699d-4d61-93f5-2099ab159d6d' \
   --header 'Authorization: Bearer <token>'
 ```
 
@@ -38,7 +40,7 @@ import requests
 
 response = requests.request(
     "GET",
-    "https://api.neural4d.com/openapi/v1/tasks/task-info?id=normal-video-c50fe63e-699d-4d61-93f5-2099ab159d6d",
+    "https://api.neural4d.com/openapi/v1/tasks/task-info?id=normal-3d-c50fe63e-699d-4d61-93f5-2099ab159d6d",
     headers={
     "Authorization": "Bearer <token>",
     },
@@ -47,7 +49,7 @@ print(response.json())
 ```
 
 ```javascript JavaScript
-const response = await fetch("https://api.neural4d.com/openapi/v1/tasks/task-info?id=normal-video-c50fe63e-699d-4d61-93f5-2099ab159d6d", {
+const response = await fetch("https://api.neural4d.com/openapi/v1/tasks/task-info?id=normal-3d-c50fe63e-699d-4d61-93f5-2099ab159d6d", {
   method: "GET",
   headers: {
     "Authorization": "Bearer <token>"
@@ -58,7 +60,7 @@ console.log(data);
 ```
 
 ```typescript TypeScript
-const response: Response = await fetch("https://api.neural4d.com/openapi/v1/tasks/task-info?id=normal-video-c50fe63e-699d-4d61-93f5-2099ab159d6d", {
+const response: Response = await fetch("https://api.neural4d.com/openapi/v1/tasks/task-info?id=normal-3d-c50fe63e-699d-4d61-93f5-2099ab159d6d", {
   method: "GET",
   headers: {
     "Authorization": "Bearer <token>"
@@ -73,7 +75,7 @@ import java.net.URI;
 import java.net.http.*;
 
 HttpRequest request = HttpRequest.newBuilder()
-    .uri(URI.create("https://api.neural4d.com/openapi/v1/tasks/task-info?id=normal-video-c50fe63e-699d-4d61-93f5-2099ab159d6d"))
+    .uri(URI.create("https://api.neural4d.com/openapi/v1/tasks/task-info?id=normal-3d-c50fe63e-699d-4d61-93f5-2099ab159d6d"))
     .header("Authorization", "Bearer <token>")
     .method("GET", HttpRequest.BodyPublishers.noBody())
     .build();
@@ -92,7 +94,7 @@ import (
 )
 
 payload := nil
-req, _ := http.NewRequest("GET", "https://api.neural4d.com/openapi/v1/tasks/task-info?id=normal-video-c50fe63e-699d-4d61-93f5-2099ab159d6d", payload)
+req, _ := http.NewRequest("GET", "https://api.neural4d.com/openapi/v1/tasks/task-info?id=normal-3d-c50fe63e-699d-4d61-93f5-2099ab159d6d", payload)
 req.Header.Set("Authorization", "Bearer <token>")
 resp, _ := http.DefaultClient.Do(req)
 defer resp.Body.Close()
@@ -104,7 +106,7 @@ fmt.Println(string(bodyBytes))
 require "net/http"
 require "json"
 
-uri = URI("https://api.neural4d.com/openapi/v1/tasks/task-info?id=normal-video-c50fe63e-699d-4d61-93f5-2099ab159d6d")
+uri = URI("https://api.neural4d.com/openapi/v1/tasks/task-info?id=normal-3d-c50fe63e-699d-4d61-93f5-2099ab159d6d")
 request = Net::HTTP::Get.new(uri)
 request["Authorization"] = "Bearer <token>"
 
@@ -115,7 +117,7 @@ puts response.body
 ```php PHP
 <?php
 
-$ch = curl_init("https://api.neural4d.com/openapi/v1/tasks/task-info?id=normal-video-c50fe63e-699d-4d61-93f5-2099ab159d6d");
+$ch = curl_init("https://api.neural4d.com/openapi/v1/tasks/task-info?id=normal-3d-c50fe63e-699d-4d61-93f5-2099ab159d6d");
 curl_setopt_array($ch, [
     CURLOPT_CUSTOMREQUEST => "GET",
     CURLOPT_RETURNTRANSFER => true,
@@ -131,7 +133,7 @@ using System.Net.Http;
 using System.Text;
 
 using var client = new HttpClient();
-using var request = new HttpRequestMessage(HttpMethod.Get, "https://api.neural4d.com/openapi/v1/tasks/task-info?id=normal-video-c50fe63e-699d-4d61-93f5-2099ab159d6d");
+using var request = new HttpRequestMessage(HttpMethod.Get, "https://api.neural4d.com/openapi/v1/tasks/task-info?id=normal-3d-c50fe63e-699d-4d61-93f5-2099ab159d6d");
 request.Headers.TryAddWithoutValidation("Authorization", "Bearer <token>");
 using var response = await client.SendAsync(request);
 Console.WriteLine(await response.Content.ReadAsStringAsync());
@@ -147,7 +149,7 @@ Console.WriteLine(await response.Content.ReadAsStringAsync());
     <ResponseField name="id" type="string" required>
       Batch task ID returned by a generation request.
 
-    Example: `"normal-video-c50fe63e-699d-4d61-93f5-2099ab159d6d"`.
+    Example: `"normal-3d-c50fe63e-699d-4d61-93f5-2099ab159d6d"`.
     </ResponseField>
 
     <ResponseField name="status" type="enum&lt;string&gt;" required>
@@ -161,9 +163,97 @@ Console.WriteLine(await response.Content.ReadAsStringAsync());
     </ResponseField>
 
     <ResponseField name="output" type="object" required>
-      Current child image or video task output, including entries that are still queued or processing.
+      Current child image, video, or 3D task output, including entries that are still queued or processing.
 
       <Expandable title="child attributes">
+        <ResponseField name="models" pre={["output."]} type="object[]">
+          All 3D child tasks and their current output information. `url` and `format` are `null` until a result file is available.
+
+          <Expandable title="Child attributes">
+            <ResponseField name="uuid" pre={["output.models[]."]} type="string&lt;uuid&gt;" required>
+              Generated 3D child UUID, matching the child UUID in the creation response.
+            </ResponseField>
+            <ResponseField name="url" pre={["output.models[]."]} type="string&lt;uri&gt; | null" required>
+              Temporary signed URL for downloading the model when available.
+            </ResponseField>
+            <ResponseField name="format" pre={["output.models[]."]} type="string | null" required>
+              Model file format when known, such as `glb`.
+            </ResponseField>
+            <ResponseField name="thumbnail_url" pre={["output.models[]."]} type="string&lt;uri&gt; | null" required>
+              Single temporary signed URL for the model preview image when available.
+            </ResponseField>
+            <ResponseField name="mesh_quality" pre={["output.models[]."]} type="enum&lt;string&gt;" required>
+              Mesh quality. Available options: `standard`, `high`, `extra_high`. Text-to-3D, single-image-to-3D, and batch image-to-3D default to `standard`. Multi-view generation always uses `high`.
+            </ResponseField>
+            <ResponseField name="pose" pre={["output.models[]."]} type="enum&lt;string&gt;" required>
+              Character pose. Available options: `auto`, `A-pose`, `T-pose`. Text-to-3D and single-image-to-3D return the requested pose, defaulting to `auto` when omitted. Batch image-to-3D and multi-view generation return `auto`.
+            </ResponseField>
+            <ResponseField name="target_polycount" pre={["output.models[]."]} type="integer" required>
+              Target polygon count used by the task, matching the requested `target_polycount` or its default. Triangle `standard` supports 100,000–500,000 and defaults to 500,000; triangle `high` and `extra_high` support 500,000–1,000,000 and default to 1,000,000; quad supports 1,000–100,000 and defaults to 50,000. Triangle counts increase in steps of 1,000 and quad counts in steps of 100. Multi-view generation uses a high-quality triangle mesh and defaults to 500,000 polygons.
+            </ResponseField>
+            <ResponseField name="topology" pre={["output.models[]."]} type="enum&lt;string&gt;" required>
+              Mesh topology, using the same values as the request parameter: `triangle` or `quad`.
+            </ResponseField>
+            <ResponseField name="with_texture" pre={["output.models[]."]} type="boolean" required>
+              Whether to generate textures, matching the requested `with_texture` value.
+            </ResponseField>
+            <ResponseField name="with_pbr" pre={["output.models[]."]} type="boolean" required>
+              Whether to generate PBR materials, matching the requested `with_pbr` value. This applies only when `with_texture` is `true`.
+            </ResponseField>
+            <ResponseField name="image_enhancement" pre={["output.models[]."]} type="boolean" required>
+              Whether input-image enhancement was enabled, matching the requested `image_enhancement` value. Defaults to `false` when omitted and is `false` for text-to-3D and multi-view generation.
+            </ResponseField>
+            <ResponseField name="mode" pre={["output.models[]."]} type="enum&lt;string&gt;" required>
+              Generation mode for this model. Available options: `text_to_3d` (text), `image_to_3d` (single image), `batch_image_to_3d` (batch images), `multi_view_to_3d` (multi-view images).
+            </ResponseField>
+            <ResponseField name="status" pre={["output.models[]."]} type="enum&lt;string&gt;" required>
+              Current status of this model. Available options: `queued`, `processing`, `succeeded`, `failed`.
+            </ResponseField>
+            <ResponseField name="created_at" pre={["output.models[]."]} type="integer&lt;int64&gt;" required>
+              Unix timestamp in seconds when this model was created.
+            </ResponseField>
+            <ResponseField name="updated_at" pre={["output.models[]."]} type="integer&lt;int64&gt;" required>
+              Unix timestamp in seconds when this model was last updated.
+            </ResponseField>
+          </Expandable>
+        </ResponseField>
+        <ResponseField name="images" pre={["output."]} type="object[]">
+          All child image tasks and their current output information. url and format are null until a result file is available.
+
+          <Expandable title="child attributes">
+            <ResponseField name="uuid" pre={["output.images[]."]} type="string&lt;uuid&gt;" required>
+              Generated image child UUID.
+            </ResponseField>
+            <ResponseField name="url" pre={["output.images[]."]} type="string&lt;uri&gt; | null" required>
+              Temporary signed URL for downloading the generated image when available.
+            </ResponseField>
+            <ResponseField name="format" pre={["output.images[]."]} type="string | null" required>
+              Image file format when known, such as png.
+            </ResponseField>
+            <ResponseField name="resolution" pre={["output.images[]."]} type="string | null" required>
+              Generated image resolution when available, such as 2K.
+            </ResponseField>
+            <ResponseField name="aspect_ratio" pre={["output.images[]."]} type="string | null" required>
+              Generated image aspect ratio when available, such as 1:1.
+            </ResponseField>
+            <ResponseField name="mode" pre={["output.images[]."]} type="enum&lt;string&gt;" required>
+              Generation mode used for this image.
+
+              Available options: `text_to_image`, `image_to_image`.
+            </ResponseField>
+            <ResponseField name="status" pre={["output.images[]."]} type="enum&lt;string&gt;" required>
+              Current status of this generated image.
+
+              Available options: `queued`, `processing`, `succeeded`, `failed`.
+            </ResponseField>
+            <ResponseField name="created_at" pre={["output.images[]."]} type="integer&lt;int64&gt;" required>
+              Unix timestamp in seconds when this generated image was created.
+            </ResponseField>
+            <ResponseField name="updated_at" pre={["output.images[]."]} type="integer&lt;int64&gt;" required>
+              Unix timestamp in seconds when this generated image was last updated.
+            </ResponseField>
+          </Expandable>
+        </ResponseField>
         <ResponseField name="videos" pre={["output."]} type="object[]">
           All child video tasks and their current output information. url and format are null until a result file is available.
 
@@ -171,7 +261,7 @@ Console.WriteLine(await response.Content.ReadAsStringAsync());
             <ResponseField name="uuid" pre={["output.videos[]."]} type="string&lt;uuid&gt;" required>
               Generated video child UUID.
 
-            Example: `"7d1fa4bb-41e6-4a5d-88d8-1851f5342e87"`.
+            Example: `"72e30159-a242-4491-a67c-2ad0cfc9efb6"`.
             </ResponseField>
 
             <ResponseField name="url" pre={["output.videos[]."]} type="string&lt;uri&gt; | null" required>
@@ -227,56 +317,19 @@ Console.WriteLine(await response.Content.ReadAsStringAsync());
             </ResponseField>
           </Expandable>
         </ResponseField>
-        <ResponseField name="images" pre={["output."]} type="object[]">
-          All child image tasks and their current output information. url and format are null until a result file is available.
-
-          <Expandable title="child attributes">
-            <ResponseField name="uuid" pre={["output.images[]."]} type="string&lt;uuid&gt;" required>
-              Generated image child UUID.
-            </ResponseField>
-            <ResponseField name="url" pre={["output.images[]."]} type="string&lt;uri&gt; | null" required>
-              Temporary signed URL for downloading the generated image when available.
-            </ResponseField>
-            <ResponseField name="format" pre={["output.images[]."]} type="string | null" required>
-              Image file format when known, such as png.
-            </ResponseField>
-            <ResponseField name="resolution" pre={["output.images[]."]} type="string | null" required>
-              Generated image resolution when available, such as 2K.
-            </ResponseField>
-            <ResponseField name="aspect_ratio" pre={["output.images[]."]} type="string | null" required>
-              Generated image aspect ratio when available, such as 1:1.
-            </ResponseField>
-            <ResponseField name="mode" pre={["output.images[]."]} type="enum&lt;string&gt;" required>
-              Generation mode used for this image.
-
-              Available options: `text_to_image`, `image_to_image`.
-            </ResponseField>
-            <ResponseField name="status" pre={["output.images[]."]} type="enum&lt;string&gt;" required>
-              Current status of this generated image.
-
-              Available options: `queued`, `processing`, `succeeded`, `failed`.
-            </ResponseField>
-            <ResponseField name="created_at" pre={["output.images[]."]} type="integer&lt;int64&gt;" required>
-              Unix timestamp in seconds when this generated image was created.
-            </ResponseField>
-            <ResponseField name="updated_at" pre={["output.images[]."]} type="integer&lt;int64&gt;" required>
-              Unix timestamp in seconds when this generated image was last updated.
-            </ResponseField>
-          </Expandable>
-        </ResponseField>
       </Expandable>
     </ResponseField>
 
     <ResponseField name="mode" type="enum&lt;string&gt;" required>
-      Image or video generation mode used by the task.
+      Image, video, or 3D generation mode used by the task.
 
-    Available options: `text_to_image`, `image_to_image`, `text_to_video`, `first_frame_image_to_video`, `first_last_frame_image_to_video`, `reference_to_video`.
+    Available options: `text_to_image`, `image_to_image`, `text_to_video`, `first_frame_image_to_video`, `first_last_frame_image_to_video`, `reference_to_video`, `text_to_3d`, `image_to_3d`, `batch_image_to_3d`, `multi_view_to_3d`.
     </ResponseField>
 
     <ResponseField name="model" type="enum&lt;string&gt; | null">
-      Image or video generation model used by the task.
+      Image, video, or 3D generation model used by the task.
 
-    Available options: `openai/gpt-image-2`, `google/nano-banana-pro`, `bytedance/seedream-4.5`, `black-forest-labs/flux-2-pro`, `bytedance/seedance-2.0`, `bytedance/seedance-2.0-fast`, `google/veo-3.1`, `xai/grok-imagine`.
+    Available options: `openai/gpt-image-2`, `google/nano-banana-pro`, `bytedance/seedream-4.5`, `black-forest-labs/flux-2-pro`, `google/nano-banana-2-lite`, `bytedance/seedance-2.0`, `bytedance/seedance-2.0-fast`, `google/veo-3.1`, `xai/grok-imagine`, `kuaishou/kling-3.0`, `dreamtech/neural4d-2.5`.
     </ResponseField>
 
     <ResponseField name="updated_at" type="integer&lt;int64&gt;">
@@ -490,7 +543,71 @@ Console.WriteLine(await response.Content.ReadAsStringAsync());
 </Tabs>
 
 <ResponseExample>
-```json 200 Example
+```json 200 3D generation succeeded
+{
+  "id": "normal-3d-c50fe63e-699d-4d61-93f5-2099ab159d6d",
+  "status": "succeeded",
+  "mode": "image_to_3d",
+  "model": "dreamtech/neural4d-2.5",
+  "created_at": 1784044800,
+  "updated_at": 1784044842,
+  "usage": {
+    "credits": 30
+  },
+  "output": {
+    "models": [
+      {
+        "uuid": "72e30159-a242-4491-a67c-2ad0cfc9efb6",
+        "url": "https://cdn.neural4d.com/results/model.glb",
+        "format": "glb",
+        "thumbnail_url": "https://cdn.neural4d.com/results/t1.png",
+        "mesh_quality": "high",
+        "pose": "T-pose",
+        "target_polycount": 1000000,
+        "topology": "triangle",
+        "with_texture": true,
+        "with_pbr": true,
+        "image_enhancement": true,
+        "mode": "image_to_3d",
+        "status": "succeeded",
+        "created_at": 1784044800,
+        "updated_at": 1784044842
+      }
+    ]
+  }
+}
+```
+
+```json 200 Image generation succeeded
+{
+  "id": "normal-image-c50fe63e-699d-4d61-93f5-2099ab159d6d",
+  "status": "succeeded",
+  "mode": "image_to_image",
+  "model": "openai/gpt-image-2",
+  "created_at": 1784044800,
+  "updated_at": 1784044842,
+  "usage": {
+    "credits": 13
+  },
+  "output": {
+    "images": [
+      {
+        "uuid": "c6f5dc4e-61ac-4694-9a8b-6a95f3ac4457",
+        "url": "https://cdn.neural4d.com/results/image.png",
+        "format": "png",
+        "resolution": "2K",
+        "aspect_ratio": "1:1",
+        "mode": "image_to_image",
+        "status": "succeeded",
+        "created_at": 1784044800,
+        "updated_at": 1784044842
+      }
+    ]
+  }
+}
+```
+
+```json 200 Video generation succeeded
 {
   "id": "normal-video-c50fe63e-699d-4d61-93f5-2099ab159d6d",
   "status": "succeeded",

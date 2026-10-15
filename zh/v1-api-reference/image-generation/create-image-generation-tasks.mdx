@@ -16,8 +16,12 @@ contentType: application/json
 
 ## 请求体 <span className="api-content-type">application/json</span>
 
+省略可选参数时使用所选模型的当前默认值。超出该模型支持范围的分辨率或宽高比会返回 `unsupported_resolution` 或 `unsupported_aspect_ratio`。
+
+每张参考图片最多 10 MiB，通过 `file_id` 或 `url` 传入时使用相同限制。
+
 <Tabs sync={false}>
-  <Tab title="Option 1">
+  <Tab title="gpt-image-2">
     <ParamField body="model" type="enum&lt;string&gt;" required>
       GPT Image 2 模型标识。
 
@@ -31,7 +35,7 @@ contentType: application/json
     </ParamField>
 
     <ParamField body="input_references" type="object[]">
-      可选参考图片。可将 `POST /openapi/v1/files` 返回的 `id` 填入 `file_id`，或通过 `url` 直接传入图片的公网 HTTPS 地址。仅支持 JPG、JPEG、PNG 和 WEBP 图片，每张默认最多 10 MiB。图片须通过内容审核。
+      可选参考图片。可将 `POST /openapi/v1/files` 返回的 `id` 填入 `file_id`，或通过 `url` 直接传入图片的公网 HTTPS 地址。仅支持 JPG、JPEG、PNG 和 WEBP 图片，每张最多 10 MiB。图片须通过内容审核。
 
       数组总长度：`0 - 6` 个元素。可混用文件 ID 和 URL，素材顺序保持不变。每个元素必须且只能提供 `file_id`、`url` 中的一个。
 
@@ -71,7 +75,7 @@ contentType: application/json
     </ParamField>
   </Tab>
 
-  <Tab title="Option 2">
+  <Tab title="nano-banana-pro">
     <ParamField body="model" type="enum&lt;string&gt;" required>
       Nano Banana Pro 模型标识。
 
@@ -85,7 +89,7 @@ contentType: application/json
     </ParamField>
 
     <ParamField body="input_references" type="object[]">
-      可选参考图片。可将 `POST /openapi/v1/files` 返回的 `id` 填入 `file_id`，或通过 `url` 直接传入图片的公网 HTTPS 地址。仅支持 JPG、JPEG、PNG 和 WEBP 图片，每张默认最多 10 MiB。图片须通过内容审核。
+      可选参考图片。可将 `POST /openapi/v1/files` 返回的 `id` 填入 `file_id`，或通过 `url` 直接传入图片的公网 HTTPS 地址。仅支持 JPG、JPEG、PNG 和 WEBP 图片，每张最多 10 MiB。图片须通过内容审核。
 
       数组总长度：`0 - 6` 个元素。可混用文件 ID 和 URL，素材顺序保持不变。每个元素必须且只能提供 `file_id`、`url` 中的一个。
 
@@ -125,7 +129,61 @@ contentType: application/json
     </ParamField>
   </Tab>
 
-  <Tab title="Option 3">
+  <Tab title="nano-banana-2-lite">
+    <ParamField body="model" type="enum&lt;string&gt;" required>
+      Nano Banana 2 Lite 模型标识。
+
+      可选值：`google/nano-banana-2-lite`。
+    </ParamField>
+
+    <ParamField body="prompt" type="string" required>
+      描述待生成或编辑图片的文本提示词。
+
+      字符串长度：`1 - 500`。
+    </ParamField>
+
+    <ParamField body="input_references" type="object[]">
+      可选参考图片。可将 `POST /openapi/v1/files` 返回的 `id` 填入 `file_id`，或通过 `url` 直接传入图片的公网 HTTPS 地址。仅支持 JPG、JPEG、PNG 和 WEBP 图片，每张最多 10 MiB。图片须通过内容审核。
+
+      数组总长度：`0 - 6` 个元素。可混用文件 ID 和 URL，素材顺序保持不变。每个元素必须且只能提供 `file_id`、`url` 中的一个。
+
+      <Expandable title="子属性" defaultOpen>
+        <ParamField body="type" pre={["input_references."]} type="enum&lt;string&gt;" required>
+          参考素材类型。
+
+          可选值：`image`。
+        </ParamField>
+        <ParamField body="file_id" pre={["input_references."]} type="string&lt;uuid&gt;">
+          文件上传接口返回的当前账户文件 ID。不提供 `url` 时必填，不能同时提供这两个字段。
+        </ParamField>
+        <ParamField body="url" pre={["input_references."]} type="string&lt;uri&gt;">
+          公网 HTTPS 文件直链（443 端口），默认最长 2,048 个字符。未提供 `file_id` 时必填，两者不能同时传入。
+
+          文件须无需 Cookie 或额外鉴权头即可下载；支持签名链接，请确保下载期间有效。URL 不得包含用户名、密码或 `#...`。
+        </ParamField>
+      </Expandable>
+    </ParamField>
+
+    <ParamField body="n" type="integer" default={1}>
+      要创建的图片生成任务数量。
+
+      取值范围：`1 <= x <= 4`。
+    </ParamField>
+
+    <ParamField body="resolution" type="enum&lt;string&gt;" default="1K">
+      命名输出分辨率。
+
+      可选值：`1K`。
+    </ParamField>
+
+    <ParamField body="aspect_ratio" type="enum&lt;string&gt;" default="1:1">
+      目标图片宽高比。
+
+      可选值：`1:1`、`16:9`、`9:16`、`4:3`、`3:4`。
+    </ParamField>
+  </Tab>
+
+  <Tab title="seedream-4.5">
     <ParamField body="model" type="enum&lt;string&gt;" required>
       Seedream 4.5 模型标识。
 
@@ -139,7 +197,7 @@ contentType: application/json
     </ParamField>
 
     <ParamField body="input_references" type="object[]">
-      可选参考图片。可将 `POST /openapi/v1/files` 返回的 `id` 填入 `file_id`，或通过 `url` 直接传入图片的公网 HTTPS 地址。仅支持 JPG、JPEG、PNG 和 WEBP 图片，每张默认最多 10 MiB。图片须通过内容审核。
+      可选参考图片。可将 `POST /openapi/v1/files` 返回的 `id` 填入 `file_id`，或通过 `url` 直接传入图片的公网 HTTPS 地址。仅支持 JPG、JPEG、PNG 和 WEBP 图片，每张最多 10 MiB。图片须通过内容审核。
 
       数组总长度：`0 - 6` 个元素。可混用文件 ID 和 URL，素材顺序保持不变。每个元素必须且只能提供 `file_id`、`url` 中的一个。
 
@@ -179,7 +237,7 @@ contentType: application/json
     </ParamField>
   </Tab>
 
-  <Tab title="Option 4">
+  <Tab title="flux-2-pro">
     <ParamField body="model" type="enum&lt;string&gt;" required>
       Flux 2 Pro 模型标识。
 
@@ -193,7 +251,7 @@ contentType: application/json
     </ParamField>
 
     <ParamField body="input_references" type="object[]">
-      可选参考图片。可将 `POST /openapi/v1/files` 返回的 `id` 填入 `file_id`，或通过 `url` 直接传入图片的公网 HTTPS 地址。仅支持 JPG、JPEG、PNG 和 WEBP 图片，每张默认最多 10 MiB。图片须通过内容审核。
+      可选参考图片。可将 `POST /openapi/v1/files` 返回的 `id` 填入 `file_id`，或通过 `url` 直接传入图片的公网 HTTPS 地址。仅支持 JPG、JPEG、PNG 和 WEBP 图片，每张最多 10 MiB。图片须通过内容审核。
 
       数组总长度：`0 - 6` 个元素。可混用文件 ID 和 URL，素材顺序保持不变。每个元素必须且只能提供 `file_id`、`url` 中的一个。
 
@@ -235,6 +293,20 @@ contentType: application/json
 </Tabs>
 
 <RequestExample>
+```bash cURL · google/nano-banana-2-lite
+curl --request POST \
+  --url https://api.neural4d.com/openapi/v1/images/generations \
+  --header 'Authorization: Bearer <token>' \
+  --header 'Content-Type: application/json' \
+  --data '{
+  "model": "google/nano-banana-2-lite",
+  "prompt": "白色摄影棚背景上的陶瓷茶壶",
+  "n": 1,
+  "resolution": "1K",
+  "aspect_ratio": "1:1"
+}'
+```
+
 ```bash cURL · openai/gpt-image-2
 curl --request POST \
   --url https://api.neural4d.com/openapi/v1/images/generations \
@@ -567,7 +639,7 @@ Console.WriteLine(await response.Content.ReadAsStringAsync());
     <ResponseField name="model" type="enum&lt;string&gt;" required>
       本次提交任务使用的图片生成模型。
 
-      可选值：`openai/gpt-image-2`、`google/nano-banana-pro`、`bytedance/seedream-4.5`、`black-forest-labs/flux-2-pro`。
+      可选值：`openai/gpt-image-2`、`google/nano-banana-pro`、`bytedance/seedream-4.5`、`black-forest-labs/flux-2-pro`、`google/nano-banana-2-lite`。
     </ResponseField>
 
     <ResponseField name="usage" type="object">
@@ -696,7 +768,7 @@ Console.WriteLine(await response.Content.ReadAsStringAsync());
       <Expandable title="子属性" defaultOpen>
         <ResponseField name="code" pre={["error."]} type="string" required>
 
-          - `reference_too_large`：图片超过大小限制，默认上限为 10 MiB。
+          - `reference_too_large`：图片超过每张 10 MiB 的大小上限，文件 ID 和 URL 使用相同限制。
         </ResponseField>
 
         <ResponseField name="message" pre={["error."]} type="string" required>
@@ -778,6 +850,11 @@ Console.WriteLine(await response.Content.ReadAsStringAsync());
 
   <Tab title="500">
     内部或上游服务错误
+
+    当 `error.details.submission_accepted` 为 `true` 时，任务已经入队，但后续处理失败。
+    `error.details.task` 保留任务 ID、UUID 和已知积分，`retryable` 为 `false`。不要重新提交生成请求，以免重复扣费。
+    登记成功时，你可以按任务 ID 查询。如果 `error.details.registration_failed` 为 `true`，错误码为 `task_registration_failed`；登记修复前，查询可能返回 `404`。
+    当 `error.details.submission_uncertain` 为 `true` 时，响应保留本次尝试的任务 ID；先确认原提交结果，再决定是否重新提交。最终扣费未知时不返回积分用量。
 
     <ResponseField name="error" type="object" required>
       结构化错误详情。
@@ -891,7 +968,7 @@ Console.WriteLine(await response.Content.ReadAsStringAsync());
 {
   "error": {
     "code": "reference_too_large",
-    "message": "Reference file exceeds the allowed size"
+    "message": "Reference file must not exceed 10 MB"
   }
 }
 ```

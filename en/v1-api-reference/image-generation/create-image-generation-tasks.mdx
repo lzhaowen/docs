@@ -16,8 +16,12 @@ contentType: application/json
 
 ## Body <span className="api-content-type">application/json</span>
 
+Omitted optional parameters use the selected model's current defaults. Values outside its supported resolutions or aspect ratios return `unsupported_resolution` or `unsupported_aspect_ratio`.
+
+Each reference image must be at most 10 MiB, whether supplied by `file_id` or `url`.
+
 <Tabs sync={false}>
-  <Tab title="Option 1">
+  <Tab title="gpt-image-2">
     <ParamField body="model" type="enum&lt;string&gt;" required>
       GPT Image 2 model identifier.
 
@@ -31,7 +35,7 @@ contentType: application/json
     </ParamField>
 
     <ParamField body="input_references" type="object[]">
-      Optional reference images. Set `file_id` to the `id` returned by `POST /openapi/v1/files`, or provide the image's public HTTPS URL directly in `url`. Only JPG, JPEG, PNG, and WEBP images are supported, up to 10 MiB per image by default. Images must pass content moderation.
+      Optional reference images. Set `file_id` to the `id` returned by `POST /openapi/v1/files`, or provide the image's public HTTPS URL directly in `url`. Only JPG, JPEG, PNG, and WEBP images are supported, up to 10 MiB per image. Images must pass content moderation.
 
       Allowed array length: `0 - 6` elements in total. You can mix file IDs and URLs; reference order is preserved. Each item must contain exactly one of `file_id` or `url`.
 
@@ -72,7 +76,7 @@ contentType: application/json
     </ParamField>
   </Tab>
 
-  <Tab title="Option 2">
+  <Tab title="nano-banana-pro">
     <ParamField body="model" type="enum&lt;string&gt;" required>
       Nano Banana Pro model identifier.
 
@@ -86,7 +90,7 @@ contentType: application/json
     </ParamField>
 
     <ParamField body="input_references" type="object[]">
-      Optional reference images. Set `file_id` to the `id` returned by `POST /openapi/v1/files`, or provide the image's public HTTPS URL directly in `url`. Only JPG, JPEG, PNG, and WEBP images are supported, up to 10 MiB per image by default. Images must pass content moderation.
+      Optional reference images. Set `file_id` to the `id` returned by `POST /openapi/v1/files`, or provide the image's public HTTPS URL directly in `url`. Only JPG, JPEG, PNG, and WEBP images are supported, up to 10 MiB per image. Images must pass content moderation.
 
       Allowed array length: `0 - 6` elements in total. You can mix file IDs and URLs; reference order is preserved. Each item must contain exactly one of `file_id` or `url`.
 
@@ -126,7 +130,61 @@ contentType: application/json
     </ParamField>
   </Tab>
 
-  <Tab title="Option 3">
+  <Tab title="nano-banana-2-lite">
+    <ParamField body="model" type="enum&lt;string&gt;" required>
+      Nano Banana 2 Lite model identifier.
+
+      Available option: `google/nano-banana-2-lite`.
+    </ParamField>
+
+    <ParamField body="prompt" type="string" required>
+      Text instruction describing the image to generate or edit.
+
+      Required string length: `1 - 500`.
+    </ParamField>
+
+    <ParamField body="input_references" type="object[]">
+      Optional reference images. Set `file_id` to the `id` returned by `POST /openapi/v1/files`, or provide the image's public HTTPS URL directly in `url`. Only JPG, JPEG, PNG, and WEBP images are supported, up to 10 MiB per image. Images must pass content moderation.
+
+      Allowed array length: `0 - 6` elements in total. You can mix file IDs and URLs; reference order is preserved. Each item must contain exactly one of `file_id` or `url`.
+
+      <Expandable title="Child attributes" defaultOpen>
+        <ParamField body="type" pre={["input_references."]} type="enum&lt;string&gt;" required>
+          Reference media type.
+
+          Available option: `image`.
+        </ParamField>
+        <ParamField body="file_id" pre={["input_references."]} type="string&lt;uuid&gt;">
+          File ID returned by the file upload endpoint for your account. Required when `url` is omitted; do not provide both fields.
+        </ParamField>
+        <ParamField body="url" pre={["input_references."]} type="string&lt;uri&gt;">
+          Public HTTPS file URL on port 443, up to 2,048 characters by default. Required when `file_id` is omitted; do not send both.
+
+          The file must be downloadable without cookies or extra authorization headers. Signed URLs are supported; keep them valid during download. Do not include a username, password, or `#...`.
+        </ParamField>
+      </Expandable>
+    </ParamField>
+
+    <ParamField body="n" type="integer" default={1}>
+      Number of image generation tasks to create.
+
+      Required range: `1 <= x <= 4`.
+    </ParamField>
+
+    <ParamField body="resolution" type="enum&lt;string&gt;" default="1K">
+      Named output resolution.
+
+      Available option: `1K`.
+    </ParamField>
+
+    <ParamField body="aspect_ratio" type="enum&lt;string&gt;" default="1:1">
+      Target image width-to-height ratio.
+
+      Available options: `1:1`, `16:9`, `9:16`, `4:3`, `3:4`.
+    </ParamField>
+  </Tab>
+
+  <Tab title="seedream-4.5">
     <ParamField body="model" type="enum&lt;string&gt;" required>
       Seedream 4.5 model identifier.
 
@@ -140,7 +198,7 @@ contentType: application/json
     </ParamField>
 
     <ParamField body="input_references" type="object[]">
-      Optional reference images. Set `file_id` to the `id` returned by `POST /openapi/v1/files`, or provide the image's public HTTPS URL directly in `url`. Only JPG, JPEG, PNG, and WEBP images are supported, up to 10 MiB per image by default. Images must pass content moderation.
+      Optional reference images. Set `file_id` to the `id` returned by `POST /openapi/v1/files`, or provide the image's public HTTPS URL directly in `url`. Only JPG, JPEG, PNG, and WEBP images are supported, up to 10 MiB per image. Images must pass content moderation.
 
       Allowed array length: `0 - 6` elements in total. You can mix file IDs and URLs; reference order is preserved. Each item must contain exactly one of `file_id` or `url`.
 
@@ -180,7 +238,7 @@ contentType: application/json
     </ParamField>
   </Tab>
 
-  <Tab title="Option 4">
+  <Tab title="flux-2-pro">
     <ParamField body="model" type="enum&lt;string&gt;" required>
       Flux 2 Pro model identifier.
 
@@ -194,7 +252,7 @@ contentType: application/json
     </ParamField>
 
     <ParamField body="input_references" type="object[]">
-      Optional reference images. Set `file_id` to the `id` returned by `POST /openapi/v1/files`, or provide the image's public HTTPS URL directly in `url`. Only JPG, JPEG, PNG, and WEBP images are supported, up to 10 MiB per image by default. Images must pass content moderation.
+      Optional reference images. Set `file_id` to the `id` returned by `POST /openapi/v1/files`, or provide the image's public HTTPS URL directly in `url`. Only JPG, JPEG, PNG, and WEBP images are supported, up to 10 MiB per image. Images must pass content moderation.
 
       Allowed array length: `0 - 6` elements in total. You can mix file IDs and URLs; reference order is preserved. Each item must contain exactly one of `file_id` or `url`.
 
@@ -236,6 +294,20 @@ contentType: application/json
 </Tabs>
 
 <RequestExample>
+```bash cURL · google/nano-banana-2-lite
+curl --request POST \
+  --url https://api.neural4d.com/openapi/v1/images/generations \
+  --header 'Authorization: Bearer <token>' \
+  --header 'Content-Type: application/json' \
+  --data '{
+  "model": "google/nano-banana-2-lite",
+  "prompt": "A ceramic teapot on a white studio background",
+  "n": 1,
+  "resolution": "1K",
+  "aspect_ratio": "1:1"
+}'
+```
+
 ```bash cURL · openai/gpt-image-2
 curl --request POST \
   --url https://api.neural4d.com/openapi/v1/images/generations \
@@ -568,7 +640,7 @@ Identify errors by `error.code`, not by matching message text.
     <ResponseField name="model" type="enum&lt;string&gt;" required>
       Image generation model used by the submitted tasks.
 
-      Available options: `openai/gpt-image-2`, `google/nano-banana-pro`, `bytedance/seedream-4.5`, `black-forest-labs/flux-2-pro`.
+      Available options: `openai/gpt-image-2`, `google/nano-banana-pro`, `bytedance/seedream-4.5`, `black-forest-labs/flux-2-pro`, `google/nano-banana-2-lite`.
     </ResponseField>
 
     <ResponseField name="usage" type="object">
@@ -697,7 +769,7 @@ Identify errors by `error.code`, not by matching message text.
       <Expandable title="Child attributes" defaultOpen>
         <ResponseField name="code" pre={["error."]} type="string" required>
 
-          - `reference_too_large`: The image exceeds the size limit, which defaults to 10 MiB.
+          - `reference_too_large`: The image exceeds the 10 MiB limit. This limit applies to both file IDs and URLs.
         </ResponseField>
 
         <ResponseField name="message" pre={["error."]} type="string" required>
@@ -779,6 +851,11 @@ Identify errors by `error.code`, not by matching message text.
 
   <Tab title="500">
     Internal or upstream service error
+
+    When `error.details.submission_accepted` is `true`, your generation task is already queued but a later operation failed.
+    `error.details.task` retains the task ID, UUIDs, and known credit usage. `retryable` is `false`; do not resubmit the generation request, as doing so can charge you again.
+    If registration succeeded, you can query the task by its ID. If `error.details.registration_failed` is `true`, the error code is `task_registration_failed` and task lookup may return `404` until registration is repaired.
+    When `error.details.submission_uncertain` is `true`, the response retains the attempted task ID; check the original submission before resubmitting. Credit usage is omitted when the final charge is unknown.
 
     <ResponseField name="error" type="object" required>
       Structured error details.
@@ -892,7 +969,7 @@ Identify errors by `error.code`, not by matching message text.
 {
   "error": {
     "code": "reference_too_large",
-    "message": "Reference file exceeds the allowed size"
+    "message": "Reference file must not exceed 10 MB"
   }
 }
 ```

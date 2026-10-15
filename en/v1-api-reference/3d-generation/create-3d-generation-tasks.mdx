@@ -1,0 +1,862 @@
+---
+title: "Create 3D model generation tasks"
+sidebarTitle: "Create 3D model generation tasks"
+description: "Create asynchronous 3D model generation tasks from a text prompt, reference images, or multi-view images."
+api: "POST https://api.neural4d.com/openapi/v1/3dmodels/generations"
+playground: simple
+authMethod: bearer
+contentType: application/json
+---
+
+## Authorizations
+
+<ParamField header="Authorization" type="string" required default={'Bearer ${YOUR_API_KEY}'}>
+  Neural4D API key using the Bearer scheme.
+</ParamField>
+
+## Body <span className="api-content-type">application/json</span>
+
+<Tabs sync={false}>
+  <Tab title="Text-to-3D">
+    <ParamField body="model" type="enum&lt;string&gt;" required>
+      Public model identifier. Available option: `dreamtech/neural4d-2.5`.
+    </ParamField>
+    <ParamField body="prompt" type="string" required>
+      Text describing the model to generate. Must not be empty and is limited to 500 characters.
+    </ParamField>
+    <ParamField body="with_texture" type="boolean" default={false}>
+      Whether to generate a texture. When `false`, the task creates only a mesh and does not generate PBR materials.
+    </ParamField>
+    <ParamField body="with_pbr" type="boolean" default={false}>
+      Whether to generate PBR materials. This applies only when `with_texture` is `true`.
+    </ParamField>
+    <ParamField body="mesh_quality" type="enum&lt;string&gt;" default="standard">
+      Mesh quality: `standard`, `high`, or `extra_high`.
+    </ParamField>
+    <ParamField body="topology" type="enum&lt;string&gt;" default="triangle">
+      Mesh topology: `triangle` or `quad`.
+    </ParamField>
+    <ParamField body="target_polycount" type="integer" default={500000}>
+      Target face count. Triangle `standard` supports 100,000–500,000 and defaults to 500,000. Triangle `high` and `extra_high` support 500,000–1,000,000 and default to 1,000,000. Quad supports 1,000–100,000 and defaults to 50,000. Triangle counts increase in steps of 1,000; quad counts increase in steps of 100.
+    </ParamField>
+    <ParamField body="pose" type="enum&lt;string&gt;" default="auto">
+      Character pose: `auto`, `A-pose`, or `T-pose`.
+    </ParamField>
+    <ParamField body="n" type="integer" default={1}>
+      Number of models to generate, from 1 to 4.
+    </ParamField>
+  </Tab>
+
+  <Tab title="Single-image-to-3D">
+    <ParamField body="model" type="enum&lt;string&gt;" required>
+      Public model identifier. Available option: `dreamtech/neural4d-2.5`.
+    </ParamField>
+    <ParamField body="input_references" type="object[]" required>
+      A reference image array containing exactly one item. Only JPG, JPEG, PNG, and WEBP are supported, with a maximum size of 20 MiB per image. The item must contain either `file_id` or `url`, but not both. Do not combine it with `multi_view_images`.
+
+      The size limit applies to both `file_id` and `url`.
+
+      <Expandable title="Child attributes" defaultOpen>
+        <ParamField body="type" pre={["input_references."]} type="enum&lt;string&gt;" required>
+          Reference media type, set to `image`.
+        </ParamField>
+        <ParamField body="file_id" pre={["input_references."]} type="string&lt;uuid&gt;">
+          The file `id` returned by `POST /openapi/v1/files`. Required when `url` is omitted.
+        </ParamField>
+        <ParamField body="url" pre={["input_references."]} type="string&lt;uri&gt;">
+          A publicly downloadable HTTPS image URL. Required when `file_id` is omitted.
+        </ParamField>
+      </Expandable>
+    </ParamField>
+    <ParamField body="image_enhancement" type="boolean" default={false}>
+      Whether to enhance the input image before 3D model generation to help improve results. Set to `true` to enable. Disabled by default.
+    </ParamField>
+    <ParamField body="with_texture" type="boolean" default={false}>
+      Whether to generate a texture. When `false`, the task creates only a mesh and does not generate PBR materials.
+    </ParamField>
+    <ParamField body="with_pbr" type="boolean" default={false}>
+      Whether to generate PBR materials. This applies only when `with_texture` is `true`.
+    </ParamField>
+    <ParamField body="mesh_quality" type="enum&lt;string&gt;" default="standard">
+      Mesh quality: `standard`, `high`, or `extra_high`.
+    </ParamField>
+    <ParamField body="topology" type="enum&lt;string&gt;" default="triangle">
+      Mesh topology: `triangle` or `quad`.
+    </ParamField>
+    <ParamField body="target_polycount" type="integer" default={500000}>
+      Target face count. Triangle `standard` supports 100,000–500,000 and defaults to 500,000. Triangle `high` and `extra_high` support 500,000–1,000,000 and default to 1,000,000. Quad supports 1,000–100,000 and defaults to 50,000. Triangle counts increase in steps of 1,000; quad counts increase in steps of 100.
+    </ParamField>
+    <ParamField body="pose" type="enum&lt;string&gt;" default="auto">
+      Character pose: `auto`, `A-pose`, or `T-pose`.
+    </ParamField>
+    <ParamField body="n" type="integer" default={1}>
+      Number of models to generate from this one reference image, from 1 to 4.
+    </ParamField>
+  </Tab>
+
+  <Tab title="Batch image-to-3D">
+    <ParamField body="model" type="enum&lt;string&gt;" required>
+      Public model identifier. Available option: `dreamtech/neural4d-2.5`.
+    </ParamField>
+    <ParamField body="input_references" type="object[]" required>
+      An array of 2–10 reference images. Only JPG, JPEG, PNG, and WEBP are supported, with a maximum size of 20 MiB per image. Each image generates one model. Each item must contain either `file_id` or `url`, but not both. Do not combine it with `multi_view_images`.
+
+      The size limit applies to both `file_id` and `url`.
+
+      <Expandable title="Child attributes" defaultOpen>
+        <ParamField body="type" pre={["input_references."]} type="enum&lt;string&gt;" required>
+          Reference media type, set to `image`.
+        </ParamField>
+        <ParamField body="file_id" pre={["input_references."]} type="string&lt;uuid&gt;">
+          The file `id` returned by `POST /openapi/v1/files`. Required when `url` is omitted.
+        </ParamField>
+        <ParamField body="url" pre={["input_references."]} type="string&lt;uri&gt;">
+          A publicly downloadable HTTPS image URL. Required when `file_id` is omitted.
+        </ParamField>
+      </Expandable>
+    </ParamField>
+    <ParamField body="image_enhancement" type="boolean" default={false}>
+      Whether to enhance each input image in the batch before 3D model generation to help improve results. Set to `true` to enable. Disabled by default.
+    </ParamField>
+    <ParamField body="with_texture" type="boolean" default={false}>
+      Whether to generate a texture. When `false`, the task creates only a mesh and does not generate PBR materials.
+    </ParamField>
+    <ParamField body="with_pbr" type="boolean" default={false}>
+      Whether to generate PBR materials. This applies only when `with_texture` is `true`.
+    </ParamField>
+    <ParamField body="mesh_quality" type="enum&lt;string&gt;" default="standard">
+      Mesh quality: `standard`, `high`, or `extra_high`.
+    </ParamField>
+    <ParamField body="topology" type="enum&lt;string&gt;" default="triangle">
+      Mesh topology: `triangle` or `quad`.
+    </ParamField>
+    <ParamField body="target_polycount" type="integer" default={500000}>
+      Target face count. Triangle `standard` supports 100,000–500,000 and defaults to 500,000. Triangle `high` and `extra_high` support 500,000–1,000,000 and default to 1,000,000. Quad supports 1,000–100,000 and defaults to 50,000. Triangle counts increase in steps of 1,000; quad counts increase in steps of 100.
+    </ParamField>
+  </Tab>
+
+  <Tab title="Multi-view-to-3D">
+    <ParamField body="model" type="enum&lt;string&gt;" required>
+      Public model identifier. Available option: `dreamtech/neural4d-2.5`.
+    </ParamField>
+    <ParamField body="multi_view_images" type="object[]" required>
+      An array of 2–6 multi-view reference images. Supported formats are JPG, JPEG, PNG, and WEBP, with a maximum size of 10 MiB per image. It must include `front` and `back`; other views are optional and each view may appear at most once. Each item must contain either `file_id` or `url`, but not both. Do not combine it with `input_references`.
+
+      The size limit applies to both `file_id` and `url`. This mode always uses a triangle mesh with `high` quality. Do not pass `mesh_quality`, `topology`, or `pose`.
+
+      <Expandable title="Child attributes" defaultOpen>
+        <ParamField body="view_type" pre={["multi_view_images."]} type="enum&lt;string&gt;" required>
+          The view shown in the image. Available options: `front`, `back`, `left`, `right`, `top`, and `bottom`.
+        </ParamField>
+        <ParamField body="file_id" pre={["multi_view_images."]} type="string&lt;uuid&gt;">
+          The file `id` returned by `POST /openapi/v1/files`. Required when `url` is omitted.
+        </ParamField>
+        <ParamField body="url" pre={["multi_view_images."]} type="string&lt;uri&gt;">
+          A publicly downloadable HTTPS image URL. Required when `file_id` is omitted.
+        </ParamField>
+      </Expandable>
+    </ParamField>
+    <ParamField body="with_texture" type="boolean" default={false}>
+      Whether to generate a texture. When `false`, the task creates only a mesh and does not generate PBR materials.
+    </ParamField>
+    <ParamField body="with_pbr" type="boolean" default={false}>
+      Whether to generate PBR materials. This applies only when `with_texture` is `true`.
+    </ParamField>
+    <ParamField body="target_polycount" type="integer" default={500000}>
+      Target face count. Multi-view generation uses a `high`-quality triangle mesh. The range is 500,000–1,000,000, the default is 500,000, and counts increase in steps of 1,000.
+    </ParamField>
+    <ParamField body="n" type="integer" default={1}>
+      Number of models to generate, from 1 to 4.
+    </ParamField>
+  </Tab>
+</Tabs>
+
+<RequestExample>
+```json Text-to-3D request body
+{
+  "model": "dreamtech/neural4d-2.5",
+  "prompt": "A ceramic teapot on a white studio background",
+  "mesh_quality": "standard",
+  "topology": "triangle",
+  "target_polycount": 500000,
+  "with_texture": false,
+  "with_pbr": false,
+  "n": 1
+}
+```
+
+```json Single-image-to-3D request body
+{
+  "model": "dreamtech/neural4d-2.5",
+  "input_references": [
+    { "type": "image", "file_id": "550e8400-e29b-41d4-a716-446655440000" }
+  ],
+  "image_enhancement": true,
+  "pose": "T-pose",
+  "mesh_quality": "standard",
+  "n": 2
+}
+```
+
+```json Batch image-to-3D request body
+{
+  "model": "dreamtech/neural4d-2.5",
+  "input_references": [
+    { "type": "image", "file_id": "550e8400-e29b-41d4-a716-446655440000" },
+    { "type": "image", "file_id": "550e8400-e29b-41d4-a716-446655440001" }
+  ],
+  "image_enhancement": true,
+  "mesh_quality": "standard",
+  "target_polycount": 500000
+}
+```
+
+```json Multi-view-to-3D request body
+{
+  "model": "dreamtech/neural4d-2.5",
+  "multi_view_images": [
+    { "view_type": "front", "file_id": "550e8400-e29b-41d4-a716-446655440001" },
+    { "view_type": "back", "file_id": "550e8400-e29b-41d4-a716-446655440002" },
+    { "view_type": "left", "file_id": "550e8400-e29b-41d4-a716-446655440003" },
+    { "view_type": "right", "file_id": "550e8400-e29b-41d4-a716-446655440004" },
+    { "view_type": "top", "file_id": "550e8400-e29b-41d4-a716-446655440005" },
+    { "view_type": "bottom", "file_id": "550e8400-e29b-41d4-a716-446655440006" }
+  ],
+  "target_polycount": 500000,
+  "with_texture": false,
+  "with_pbr": false,
+  "n": 1
+}
+```
+</RequestExample>
+
+## Response
+
+Identify errors by `error.code`.
+
+<Tabs sync={false}>
+  <Tab title="202">
+    Successful requests return `202 Accepted`, a batch task ID, and generated child items. A batch image request creates one child item per image. For example, two images produce two items in `data`.
+
+    <ResponseField name="id" type="string" required>
+      Batch task ID for this generation request. Use it to retrieve task status.
+    </ResponseField>
+    <ResponseField name="status" type="enum&lt;string&gt;" required>
+      Batch task status. Available options: `queued`, `processing`, `succeeded`, `failed`.
+    </ResponseField>
+    <ResponseField name="created_at" type="integer&lt;int64&gt;" required>
+      Unix timestamp in seconds when the batch task was created.
+    </ResponseField>
+    <ResponseField name="mode" type="enum&lt;string&gt;" required>
+      Generation mode. Available options: `text_to_3d` (text), `image_to_3d` (single image), `batch_image_to_3d` (batch images), `multi_view_to_3d` (multi-view images).
+    </ResponseField>
+    <ResponseField name="model" type="string" required>
+      Public model identifier used for this generation.
+    </ResponseField>
+    <ResponseField name="data" type="object[]" required>
+      Generated child items created by this request.
+
+      <Expandable title="Child attributes" defaultOpen>
+        <ResponseField name="uuid" pre={["data[]."]} type="string&lt;uuid&gt;" required>
+          Generated child item UUID.
+        </ResponseField>
+        <ResponseField name="status" pre={["data[]."]} type="enum&lt;string&gt;" required>
+          Child task status. Available options: `queued`, `processing`, `succeeded`, `failed`.
+        </ResponseField>
+        <ResponseField name="created_at" pre={["data[]."]} type="integer&lt;int64&gt;" required>
+          Unix timestamp in seconds when the child item was created.
+        </ResponseField>
+        <ResponseField name="updated_at" pre={["data[]."]} type="integer&lt;int64&gt;">
+          Unix timestamp in seconds when the child item was updated.
+        </ResponseField>
+        <ResponseField name="usage" pre={["data[]."]} type="object">
+          Credits charged for this child item when available.
+
+          <Expandable title="Child attributes">
+            <ResponseField name="credits" pre={["data[].usage."]} type="number&lt;float&gt;" required>
+              Credits charged for this child item.
+            </ResponseField>
+          </Expandable>
+        </ResponseField>
+        <ResponseField name="error" pre={["data[]."]} type="object">
+          Failure details when asynchronous processing fails.
+
+          <Expandable title="Child attributes">
+            <ResponseField name="code" pre={["data[].error."]} type="string" required>
+              Stable task failure code.
+            </ResponseField>
+            <ResponseField name="message" pre={["data[].error."]} type="string" required>
+              Explanation of the task failure.
+            </ResponseField>
+            <ResponseField name="failed_at" pre={["data[].error."]} type="integer&lt;int64&gt;">
+              Unix timestamp in seconds when the task failed.
+            </ResponseField>
+            <ResponseField name="retryable" pre={["data[].error."]} type="boolean">
+              Whether retrying the same operation may succeed.
+            </ResponseField>
+          </Expandable>
+        </ResponseField>
+      </Expandable>
+    </ResponseField>
+    <ResponseField name="usage" type="object">
+      Request billing information when available, including credits charged in `credits`.
+
+      <Expandable title="Child attributes">
+        <ResponseField name="credits" pre={["usage."]} type="number&lt;float&gt;" required>
+          Total credits charged for this request.
+        </ResponseField>
+      </Expandable>
+    </ResponseField>
+  </Tab>
+
+  <Tab title="400">
+    Invalid request.
+
+    <ResponseField name="error" type="object" required>
+      Structured error details.
+
+      <Expandable title="Child attributes" defaultOpen>
+        <ResponseField name="code" pre={["error."]} type="string" required>
+          Stable machine-readable error code.
+
+          - `file_rejected`: The reference image did not pass content validation.
+          - `invalid_content_type`: Content-Type must be application/json.
+          - `invalid_file_id`: The uploaded file ID is invalid or unavailable.
+          - `invalid_file_type`: The uploaded file is not a supported reference image.
+          - `invalid_generation_request`: The requested 3D generation is not supported.
+          - `invalid_multi_view_images`: Multi-view images must include front and back without duplicate views.
+          - `invalid_prompt`: The prompt is empty, exceeds 500 characters, or fails content validation.
+          - `invalid_reference_source`: Each reference must contain exactly one of file_id or url.
+          - `invalid_reference_url`: The reference URL format or length is invalid.
+          - `invalid_request`: Request parameters are invalid.
+          - `invalid_target_polycount`: The target polygon count does not match the allowed range or step.
+          - `unsafe_reference_url`: The reference URL or redirect destination is not allowed.
+        </ResponseField>
+
+        <ResponseField name="message" pre={["error."]} type="string" required>
+          Human-readable explanation. Identify the cause by error.code.
+        </ResponseField>
+
+        <ResponseField name="details" pre={["error."]} type="object[]">
+          Validation issues when available; each item contains field, rule, and message.
+        </ResponseField>
+      </Expandable>
+    </ResponseField>
+  </Tab>
+
+  <Tab title="401">
+    Authentication failed.
+
+    <ResponseField name="error" type="object" required>
+      Structured error details.
+
+      <Expandable title="Child attributes" defaultOpen>
+        <ResponseField name="code" pre={["error."]} type="string" required>
+          Stable machine-readable error code.
+
+          - `invalid_api_key`: The API key is missing, invalid, or expired.
+        </ResponseField>
+
+        <ResponseField name="message" pre={["error."]} type="string" required>
+          Human-readable explanation. Identify the cause by error.code.
+        </ResponseField>
+      </Expandable>
+    </ResponseField>
+  </Tab>
+
+  <Tab title="403">
+    Subscription or credit requirements not met.
+
+    <ResponseField name="error" type="object" required>
+      Structured error details.
+
+      <Expandable title="Child attributes" defaultOpen>
+        <ResponseField name="code" pre={["error."]} type="string" required>
+          Stable machine-readable error code.
+
+          - `insufficient_credits`: The available credits are insufficient.
+          - `subscription_required`: An active paid subscription is required.
+        </ResponseField>
+
+        <ResponseField name="message" pre={["error."]} type="string" required>
+          Human-readable explanation. Identify the cause by error.code.
+        </ResponseField>
+
+        <ResponseField name="details" pre={["error."]} type="object">
+          Submitted-task details when available. partial, task, and submission_uncertain describe partial or uncertain submission.
+        </ResponseField>
+      </Expandable>
+    </ResponseField>
+  </Tab>
+
+  <Tab title="408">
+    Reference download timed out.
+
+    <ResponseField name="error" type="object" required>
+      Structured error details.
+
+      <Expandable title="Child attributes" defaultOpen>
+        <ResponseField name="code" pre={["error."]} type="string" required>
+          Stable machine-readable error code.
+
+          - `reference_fetch_timeout`: The reference image download timed out.
+        </ResponseField>
+
+        <ResponseField name="message" pre={["error."]} type="string" required>
+          Human-readable explanation. Identify the cause by error.code.
+        </ResponseField>
+      </Expandable>
+    </ResponseField>
+  </Tab>
+
+  <Tab title="413">
+    Reference image too large.
+
+    <ResponseField name="error" type="object" required>
+      Structured error details.
+
+      <Expandable title="Child attributes" defaultOpen>
+        <ResponseField name="code" pre={["error."]} type="string" required>
+          Stable machine-readable error code.
+
+          - `reference_too_large`: The reference image exceeds the size limit for its use. Single-image and batch references allow 20 MiB per image; multi-view allows 10 MiB. File IDs and URLs use the same limits.
+        </ResponseField>
+
+        <ResponseField name="message" pre={["error."]} type="string" required>
+          Human-readable explanation. Identify the cause by error.code.
+        </ResponseField>
+      </Expandable>
+    </ResponseField>
+  </Tab>
+
+  <Tab title="415">
+    Invalid or unsupported reference image.
+
+    <ResponseField name="error" type="object" required>
+      Structured error details.
+
+      <Expandable title="Child attributes" defaultOpen>
+        <ResponseField name="code" pre={["error."]} type="string" required>
+          Stable machine-readable error code.
+
+          - `invalid_reference_file`: The reference image is empty or its content cannot be inspected.
+          - `invalid_reference_file_type`: The reference image format or Content-Type is unsupported or inconsistent.
+        </ResponseField>
+
+        <ResponseField name="message" pre={["error."]} type="string" required>
+          Human-readable explanation. Identify the cause by error.code.
+        </ResponseField>
+      </Expandable>
+    </ResponseField>
+  </Tab>
+
+  <Tab title="422">
+    Reference download failed.
+
+    <ResponseField name="error" type="object" required>
+      Structured error details.
+
+      <Expandable title="Child attributes" defaultOpen>
+        <ResponseField name="code" pre={["error."]} type="string" required>
+          Stable machine-readable error code.
+
+          - `reference_fetch_failed`: The reference image cannot be downloaded.
+          - `reference_redirect_limit`: The reference URL redirects too many times.
+        </ResponseField>
+
+        <ResponseField name="message" pre={["error."]} type="string" required>
+          Human-readable explanation. Identify the cause by error.code.
+        </ResponseField>
+      </Expandable>
+    </ResponseField>
+  </Tab>
+
+  <Tab title="429">
+    Limit exceeded.
+
+    When the response includes `Retry-After`, wait the indicated number of seconds before retrying.
+
+    <ResponseField name="error" type="object" required>
+      Structured error details.
+
+      <Expandable title="Child attributes" defaultOpen>
+        <ResponseField name="code" pre={["error."]} type="string" required>
+          Stable machine-readable error code.
+
+          - `generation_limit_exceeded`: A generation quota or concurrency limit was reached.
+          - `rate_limit_exceeded`: The request rate limit was reached.
+          - `reference_import_busy`: Reference import is busy; retry after the indicated interval.
+        </ResponseField>
+
+        <ResponseField name="message" pre={["error."]} type="string" required>
+          Human-readable explanation. Identify the cause by error.code.
+        </ResponseField>
+      </Expandable>
+    </ResponseField>
+  </Tab>
+
+  <Tab title="500">
+    Internal error.
+
+    When `error.details.registration_failed` is `true`, your generation task is already queued but task registration failed. A complete submission returns `task_registration_failed`; a partial 3D submission keeps its original error code.
+    `error.details.task` retains the task ID, UUIDs, and known credit usage. `submission_accepted` is `true` and `retryable` is `false`.
+    Do not resubmit the generation request, as doing so can charge you again. Task lookup may return `404` until registration is repaired.
+
+    <ResponseField name="error" type="object" required>
+      Structured error details.
+
+      <Expandable title="Child attributes" defaultOpen>
+        <ResponseField name="code" pre={["error."]} type="string" required>
+          Stable machine-readable error code.
+
+          - `internal_error`: An internal error occurred.
+          - `task_registration_failed`: Your task was queued but registration failed. Do not resubmit it.
+        </ResponseField>
+
+        <ResponseField name="message" pre={["error."]} type="string" required>
+          Returns `An internal error occurred`.
+        </ResponseField>
+
+        <ResponseField name="details" pre={["error."]} type="object">
+          Submitted-task details when available. partial, task, and submission_uncertain describe partial or uncertain submission.
+        </ResponseField>
+      </Expandable>
+    </ResponseField>
+  </Tab>
+
+  <Tab title="503">
+    Service unavailable.
+
+    <ResponseField name="error" type="object" required>
+      Structured error details.
+
+      <Expandable title="Child attributes" defaultOpen>
+        <ResponseField name="code" pre={["error."]} type="string" required>
+          Stable machine-readable error code.
+
+          - `file_moderation_unavailable`: Image content validation is temporarily unavailable.
+          - `prompt_moderation_unavailable`: Prompt content validation is temporarily unavailable.
+          - `rate_limit_unavailable`: The rate-limit service is temporarily unavailable.
+        </ResponseField>
+
+        <ResponseField name="message" pre={["error."]} type="string" required>
+          Returns `An internal error occurred`.
+        </ResponseField>
+      </Expandable>
+    </ResponseField>
+  </Tab>
+</Tabs>
+
+<ResponseExample>
+```json 202 Accepted
+{
+  "id": "normal-3d-c50fe63e-699d-4d61-93f5-2099ab159d6d",
+  "status": "queued",
+  "created_at": 1784044800,
+  "mode": "batch_image_to_3d",
+  "model": "dreamtech/neural4d-2.5",
+  "data": [
+    {
+      "uuid": "72e30159-a242-4491-a67c-2ad0cfc9efb6",
+      "status": "queued",
+      "created_at": 1784044800
+    },
+    {
+      "uuid": "72e30159-a242-4491-a67c-2ad0cfc9efb7",
+      "status": "queued",
+      "created_at": 1784044800
+    }
+  ],
+  "usage": {
+    "credits": 60
+  }
+}
+```
+
+```json 400 file_rejected
+{
+  "error": {
+    "code": "file_rejected",
+    "message": "The uploaded image did not pass content validation"
+  }
+}
+```
+
+```json 400 invalid_content_type
+{
+  "error": {
+    "code": "invalid_content_type",
+    "message": "Content-Type must be application/json"
+  }
+}
+```
+
+```json 400 invalid_file_id
+{
+  "error": {
+    "code": "invalid_file_id",
+    "message": "Request body validation failed"
+  }
+}
+```
+
+```json 400 invalid_file_type
+{
+  "error": {
+    "code": "invalid_file_type",
+    "message": "Unsupported reference type"
+  }
+}
+```
+
+```json 400 invalid_generation_request
+{
+  "error": {
+    "code": "invalid_generation_request",
+    "message": "Invalid 3D generation request"
+  }
+}
+```
+
+```json 400 invalid_multi_view_images
+{
+  "error": {
+    "code": "invalid_multi_view_images",
+    "message": "Request body validation failed",
+    "details": [
+      {
+        "field": "/multi_view_images",
+        "rule": "custom",
+        "message": "Views must include front and back without duplicates"
+      }
+    ]
+  }
+}
+```
+
+```json 400 invalid_prompt
+{
+  "error": {
+    "code": "invalid_prompt",
+    "message": "Request body validation failed",
+    "details": [
+      {
+        "field": "/prompt",
+        "rule": "too_small",
+        "message": "String must contain at least 1 character(s)"
+      }
+    ]
+  }
+}
+```
+
+```json 400 invalid_reference_source
+{
+  "error": {
+    "code": "invalid_reference_source",
+    "message": "Request body validation failed",
+    "details": [
+      {
+        "field": "/input_references/0",
+        "rule": "custom",
+        "message": "Provide exactly one of file_id or url"
+      }
+    ]
+  }
+}
+```
+
+```json 400 invalid_reference_url
+{
+  "error": {
+    "code": "invalid_reference_url",
+    "message": "Request body validation failed",
+    "details": [
+      {
+        "field": "/input_references/0/url",
+        "rule": "custom",
+        "message": "url must be an HTTPS URL without embedded credentials"
+      }
+    ]
+  }
+}
+```
+
+```json 400 invalid_request
+{
+  "error": {
+    "code": "invalid_request",
+    "message": "Request body validation failed",
+    "details": [
+      {
+        "field": "/model",
+        "rule": "invalid_enum_value",
+        "message": "Invalid enum value. Expected 'dreamtech/neural4d-2.5', received 'unsupported-model'"
+      }
+    ]
+  }
+}
+```
+
+```json 400 invalid_target_polycount
+{
+  "error": {
+    "code": "invalid_target_polycount",
+    "message": "target_polycount must be between 100000 and 500000 in steps of 1000"
+  }
+}
+```
+
+```json 400 unsafe_reference_url
+{
+  "error": {
+    "code": "unsafe_reference_url",
+    "message": "Reference URL is not allowed"
+  }
+}
+```
+
+```json 401 invalid_api_key
+{
+  "error": {
+    "code": "invalid_api_key",
+    "message": "A Bearer API key is required"
+  }
+}
+```
+
+```json 403 insufficient_credits
+{
+  "error": {
+    "code": "insufficient_credits",
+    "message": "User insufficient points, only have 0 now"
+  }
+}
+```
+
+```json 403 subscription_required
+{
+  "error": {
+    "code": "subscription_required",
+    "message": "OpenAPI v1 is available to subscribed users only"
+  }
+}
+```
+
+```json 408 reference_fetch_timeout
+{
+  "error": {
+    "code": "reference_fetch_timeout",
+    "message": "Reference host resolution timed out"
+  }
+}
+```
+
+```json 413 reference_too_large
+{
+  "error": {
+    "code": "reference_too_large",
+    "message": "Reference file must not exceed 20 MB"
+  }
+}
+```
+
+```json 415 invalid_reference_file
+{
+  "error": {
+    "code": "invalid_reference_file",
+    "message": "Reference file is empty"
+  }
+}
+```
+
+```json 415 invalid_reference_file_type
+{
+  "error": {
+    "code": "invalid_reference_file_type",
+    "message": "Reference response Content-Type does not match its file content"
+  }
+}
+```
+
+```json 422 reference_fetch_failed
+{
+  "error": {
+    "code": "reference_fetch_failed",
+    "message": "Reference host could not be resolved"
+  }
+}
+```
+
+```json 422 reference_redirect_limit
+{
+  "error": {
+    "code": "reference_redirect_limit",
+    "message": "Reference URL redirected too many times"
+  }
+}
+```
+
+```json 429 generation_limit_exceeded
+{
+  "error": {
+    "code": "generation_limit_exceeded",
+    "message": "Generation limit exceeded"
+  }
+}
+```
+
+```json 429 rate_limit_exceeded
+{
+  "error": {
+    "code": "rate_limit_exceeded",
+    "message": "Too many requests. Retry after the indicated interval."
+  }
+}
+```
+
+```json 429 reference_import_busy
+{
+  "error": {
+    "code": "reference_import_busy",
+    "message": "Too many reference files are being imported"
+  }
+}
+```
+
+```json 500 internal_error
+{
+  "error": {
+    "code": "internal_error",
+    "message": "An internal error occurred"
+  }
+}
+```
+
+```json 503 file_moderation_unavailable
+{
+  "error": {
+    "code": "file_moderation_unavailable",
+    "message": "An internal error occurred"
+  }
+}
+```
+
+```json 503 rate_limit_unavailable
+{
+  "error": {
+    "code": "rate_limit_unavailable",
+    "message": "An internal error occurred"
+  }
+}
+```
+
+```json 413 reference_too_large (multi-view)
+{
+  "error": {
+    "code": "reference_too_large",
+    "message": "Reference file must not exceed 10 MB"
+  }
+}
+```
+</ResponseExample>

@@ -1,0 +1,862 @@
+---
+title: "创建 3D 模型生成任务"
+sidebarTitle: "创建 3D 模型生成任务"
+description: "根据文本提示词、参考图片或多视图图片创建异步 3D 模型生成任务。"
+api: "POST https://api.neural4d.com/openapi/v1/3dmodels/generations"
+playground: simple
+authMethod: bearer
+contentType: application/json
+---
+
+## 授权
+
+<ParamField header="Authorization" type="string" required default={'Bearer ${YOUR_API_KEY}'}>
+  使用 Bearer 方式发送的 Neural4D API 密钥。
+</ParamField>
+
+## 请求体 <span className="api-content-type">application/json</span>
+
+<Tabs sync={false}>
+  <Tab title="文生 3D">
+    <ParamField body="model" type="enum&lt;string&gt;" required>
+      公开模型标识。可选值：`dreamtech/neural4d-2.5`。
+    </ParamField>
+    <ParamField body="prompt" type="string" required>
+      描述待生成模型的文本提示词。不能为空，最多 500 个字符。
+    </ParamField>
+    <ParamField body="with_texture" type="boolean" default={false}>
+      是否生成纹理。设为 `false` 时仅生成网格，也不会生成 PBR 材质。
+    </ParamField>
+    <ParamField body="with_pbr" type="boolean" default={false}>
+      是否生成 PBR 材质。只有 `with_texture` 为 `true` 时才有效。
+    </ParamField>
+    <ParamField body="mesh_quality" type="enum&lt;string&gt;" default="standard">
+      网格质量：`standard`、`high` 或 `extra_high`。
+    </ParamField>
+    <ParamField body="topology" type="enum&lt;string&gt;" default="triangle">
+      网格拓扑：`triangle` 或 `quad`。
+    </ParamField>
+    <ParamField body="target_polycount" type="integer" default={500000}>
+      目标面数。三角面 `standard` 为 100,000–500,000，默认 500,000；三角面 `high`、`extra_high` 为 500,000–1,000,000，默认 1,000,000；四边面为 1,000–100,000，默认 50,000。三角面以 1,000 递增，四边面以 100 递增。
+    </ParamField>
+    <ParamField body="pose" type="enum&lt;string&gt;" default="auto">
+      角色姿态：`auto`、`A-pose` 或 `T-pose`。
+    </ParamField>
+    <ParamField body="n" type="integer" default={1}>
+      生成的模型数量，范围为 1–4。
+    </ParamField>
+  </Tab>
+
+  <Tab title="单图生 3D">
+    <ParamField body="model" type="enum&lt;string&gt;" required>
+      公开模型标识。可选值：`dreamtech/neural4d-2.5`。
+    </ParamField>
+    <ParamField body="input_references" type="object[]" required>
+      参考图片数组，长度必须为 `1`。图片仅支持 JPG、JPEG、PNG、WEBP，每张大小不超过 20 MiB。元素只能提供 `file_id` 或 `url` 中的一个。不能与 `multi_view_images` 同时使用。
+
+      大小限制同时适用于 `file_id` 和 `url`。
+
+      <Expandable title="子属性" defaultOpen>
+        <ParamField body="type" pre={["input_references."]} type="enum&lt;string&gt;" required>
+          参考素材的媒体类型，值为 `image`。
+        </ParamField>
+        <ParamField body="file_id" pre={["input_references."]} type="string&lt;uuid&gt;">
+          `POST /openapi/v1/files` 返回的文件 `id`。未提供 `url` 时必填。
+        </ParamField>
+        <ParamField body="url" pre={["input_references."]} type="string&lt;uri&gt;">
+          可直接下载的公网 HTTPS 图片地址。未提供 `file_id` 时必填。
+        </ParamField>
+      </Expandable>
+    </ParamField>
+    <ParamField body="image_enhancement" type="boolean" default={false}>
+      是否在生成 3D 模型前增强输入图片，帮助改善生成效果。设为 `true` 时开启，默认关闭。
+    </ParamField>
+    <ParamField body="with_texture" type="boolean" default={false}>
+      是否生成纹理。设为 `false` 时仅生成网格，也不会生成 PBR 材质。
+    </ParamField>
+    <ParamField body="with_pbr" type="boolean" default={false}>
+      是否生成 PBR 材质。只有 `with_texture` 为 `true` 时才有效。
+    </ParamField>
+    <ParamField body="mesh_quality" type="enum&lt;string&gt;" default="standard">
+      网格质量：`standard`、`high` 或 `extra_high`。
+    </ParamField>
+    <ParamField body="topology" type="enum&lt;string&gt;" default="triangle">
+      网格拓扑：`triangle` 或 `quad`。
+    </ParamField>
+    <ParamField body="target_polycount" type="integer" default={500000}>
+      目标面数。三角面 `standard` 为 100,000–500,000，默认 500,000；三角面 `high`、`extra_high` 为 500,000–1,000,000，默认 1,000,000；四边面为 1,000–100,000，默认 50,000。三角面以 1,000 递增，四边面以 100 递增。
+    </ParamField>
+    <ParamField body="pose" type="enum&lt;string&gt;" default="auto">
+      角色姿态：`auto`、`A-pose` 或 `T-pose`。
+    </ParamField>
+    <ParamField body="n" type="integer" default={1}>
+      根据这一张参考图片生成的模型数量，范围为 1–4。
+    </ParamField>
+  </Tab>
+
+  <Tab title="批量图生 3D">
+    <ParamField body="model" type="enum&lt;string&gt;" required>
+      公开模型标识。可选值：`dreamtech/neural4d-2.5`。
+    </ParamField>
+    <ParamField body="input_references" type="object[]" required>
+      参考图片数组，长度为 `2–10`。图片仅支持 JPG、JPEG、PNG、WEBP，每张大小不超过 20 MiB。每张图片分别生成一个模型。每个元素只能提供 `file_id` 或 `url` 中的一个。不能与 `multi_view_images` 同时使用。
+
+      大小限制同时适用于 `file_id` 和 `url`。
+
+      <Expandable title="子属性" defaultOpen>
+        <ParamField body="type" pre={["input_references."]} type="enum&lt;string&gt;" required>
+          参考素材的媒体类型，值为 `image`。
+        </ParamField>
+        <ParamField body="file_id" pre={["input_references."]} type="string&lt;uuid&gt;">
+          `POST /openapi/v1/files` 返回的文件 `id`。未提供 `url` 时必填。
+        </ParamField>
+        <ParamField body="url" pre={["input_references."]} type="string&lt;uri&gt;">
+          可直接下载的公网 HTTPS 图片地址。未提供 `file_id` 时必填。
+        </ParamField>
+      </Expandable>
+    </ParamField>
+    <ParamField body="image_enhancement" type="boolean" default={false}>
+      是否在生成 3D 模型前增强批次中的每张输入图片，帮助改善生成效果。设为 `true` 时开启，默认关闭。
+    </ParamField>
+    <ParamField body="with_texture" type="boolean" default={false}>
+      是否生成纹理。设为 `false` 时仅生成网格，也不会生成 PBR 材质。
+    </ParamField>
+    <ParamField body="with_pbr" type="boolean" default={false}>
+      是否生成 PBR 材质。只有 `with_texture` 为 `true` 时才有效。
+    </ParamField>
+    <ParamField body="mesh_quality" type="enum&lt;string&gt;" default="standard">
+      网格质量：`standard`、`high` 或 `extra_high`。
+    </ParamField>
+    <ParamField body="topology" type="enum&lt;string&gt;" default="triangle">
+      网格拓扑：`triangle` 或 `quad`。
+    </ParamField>
+    <ParamField body="target_polycount" type="integer" default={500000}>
+      目标面数。三角面 `standard` 为 100,000–500,000，默认 500,000；三角面 `high`、`extra_high` 为 500,000–1,000,000，默认 1,000,000；四边面为 1,000–100,000，默认 50,000。三角面以 1,000 递增，四边面以 100 递增。
+    </ParamField>
+  </Tab>
+
+  <Tab title="多视图生 3D">
+    <ParamField body="model" type="enum&lt;string&gt;" required>
+      公开模型标识。可选值：`dreamtech/neural4d-2.5`。
+    </ParamField>
+    <ParamField body="multi_view_images" type="object[]" required>
+      多视图参考图片数组，长度为 `2–6`。图片支持 JPG、JPEG、PNG、WEBP，每张大小不超过 10 MiB。必须包含 `front` 和 `back`；其余视角可选，同一视角最多出现一次。每个元素只能提供 `file_id` 或 `url` 中的一个。不能与 `input_references` 同时使用。
+
+      大小限制同时适用于 `file_id` 和 `url`。此模式固定使用 `high` 质量的三角网格，不能传入 `mesh_quality`、`topology` 或 `pose`。
+
+      <Expandable title="子属性" defaultOpen>
+        <ParamField body="view_type" pre={["multi_view_images."]} type="enum&lt;string&gt;" required>
+          图片对应的视角。可选值：`front`（正面）、`back`（背面）、`left`（左侧）、`right`（右侧）、`top`（顶部）、`bottom`（底部）。
+        </ParamField>
+        <ParamField body="file_id" pre={["multi_view_images."]} type="string&lt;uuid&gt;">
+          `POST /openapi/v1/files` 返回的文件 `id`。未提供 `url` 时必填。
+        </ParamField>
+        <ParamField body="url" pre={["multi_view_images."]} type="string&lt;uri&gt;">
+          可直接下载的公网 HTTPS 图片地址。未提供 `file_id` 时必填。
+        </ParamField>
+      </Expandable>
+    </ParamField>
+    <ParamField body="with_texture" type="boolean" default={false}>
+      是否生成纹理。设为 `false` 时仅生成网格，也不会生成 PBR 材质。
+    </ParamField>
+    <ParamField body="with_pbr" type="boolean" default={false}>
+      是否生成 PBR 材质。只有 `with_texture` 为 `true` 时才有效。
+    </ParamField>
+    <ParamField body="target_polycount" type="integer" default={500000}>
+      目标面数。多视图使用 `high` 质量的三角网格，可设为 500,000–1,000,000，默认 500,000，以 1,000 递增。
+    </ParamField>
+    <ParamField body="n" type="integer" default={1}>
+      生成的模型数量，范围为 1–4。
+    </ParamField>
+  </Tab>
+</Tabs>
+
+<RequestExample>
+```json 文生 3D 请求体
+{
+  "model": "dreamtech/neural4d-2.5",
+  "prompt": "白色摄影棚背景中的陶瓷茶壶",
+  "mesh_quality": "standard",
+  "topology": "triangle",
+  "target_polycount": 500000,
+  "with_texture": false,
+  "with_pbr": false,
+  "n": 1
+}
+```
+
+```json 单图生 3D 请求体
+{
+  "model": "dreamtech/neural4d-2.5",
+  "input_references": [
+    { "type": "image", "file_id": "550e8400-e29b-41d4-a716-446655440000" }
+  ],
+  "image_enhancement": true,
+  "pose": "T-pose",
+  "mesh_quality": "standard",
+  "n": 2
+}
+```
+
+```json 批量图生 3D 请求体
+{
+  "model": "dreamtech/neural4d-2.5",
+  "input_references": [
+    { "type": "image", "file_id": "550e8400-e29b-41d4-a716-446655440000" },
+    { "type": "image", "file_id": "550e8400-e29b-41d4-a716-446655440001" }
+  ],
+  "image_enhancement": true,
+  "mesh_quality": "standard",
+  "target_polycount": 500000
+}
+```
+
+```json 多视图生 3D 请求体
+{
+  "model": "dreamtech/neural4d-2.5",
+  "multi_view_images": [
+    { "view_type": "front", "file_id": "550e8400-e29b-41d4-a716-446655440001" },
+    { "view_type": "back", "file_id": "550e8400-e29b-41d4-a716-446655440002" },
+    { "view_type": "left", "file_id": "550e8400-e29b-41d4-a716-446655440003" },
+    { "view_type": "right", "file_id": "550e8400-e29b-41d4-a716-446655440004" },
+    { "view_type": "top", "file_id": "550e8400-e29b-41d4-a716-446655440005" },
+    { "view_type": "bottom", "file_id": "550e8400-e29b-41d4-a716-446655440006" }
+  ],
+  "target_polycount": 500000,
+  "with_texture": false,
+  "with_pbr": false,
+  "n": 1
+}
+```
+</RequestExample>
+
+## 响应
+
+请通过 `error.code` 判断错误原因。
+
+<Tabs sync={false}>
+  <Tab title="202">
+    成功请求返回 `202 Accepted`、批次任务 ID 和生成结果子项。批量图片请求会为每张图片创建一个子任务；例如传入 2 张图片，`data` 中返回 2 个子项。
+
+    <ResponseField name="id" type="string" required>
+      本次生成请求的批次任务 ID，可用于查询任务状态。
+    </ResponseField>
+    <ResponseField name="status" type="enum&lt;string&gt;" required>
+      批次任务状态。可选值：`queued`、`processing`、`succeeded`、`failed`。
+    </ResponseField>
+    <ResponseField name="created_at" type="integer&lt;int64&gt;" required>
+      批次任务创建时间的 Unix 时间戳，单位为秒。
+    </ResponseField>
+    <ResponseField name="mode" type="enum&lt;string&gt;" required>
+      生成模式。可选值：`text_to_3d`（文生）、`image_to_3d`（单图生）、`batch_image_to_3d`（批量图生）、`multi_view_to_3d`（多视图生）。
+    </ResponseField>
+    <ResponseField name="model" type="string" required>
+      本次生成使用的公开模型标识。
+    </ResponseField>
+    <ResponseField name="data" type="object[]" required>
+      本次请求创建的生成结果子项。
+
+      <Expandable title="子属性" defaultOpen>
+        <ResponseField name="uuid" pre={["data[]."]} type="string&lt;uuid&gt;" required>
+          生成结果子项 UUID。
+        </ResponseField>
+        <ResponseField name="status" pre={["data[]."]} type="enum&lt;string&gt;" required>
+          子任务状态。可选值：`queued`、`processing`、`succeeded`、`failed`。
+        </ResponseField>
+        <ResponseField name="created_at" pre={["data[]."]} type="integer&lt;int64&gt;" required>
+          子任务创建时间的 Unix 时间戳，单位为秒。
+        </ResponseField>
+        <ResponseField name="updated_at" pre={["data[]."]} type="integer&lt;int64&gt;">
+          子任务更新时间的 Unix 时间戳，单位为秒。
+        </ResponseField>
+        <ResponseField name="usage" pre={["data[]."]} type="object">
+          可用时返回此子任务扣除的点数。
+
+          <Expandable title="子属性">
+            <ResponseField name="credits" pre={["data[].usage."]} type="number&lt;float&gt;" required>
+              此子任务扣除的点数。
+            </ResponseField>
+          </Expandable>
+        </ResponseField>
+        <ResponseField name="error" pre={["data[]."]} type="object">
+          异步处理失败时返回的错误详情。
+
+          <Expandable title="子属性">
+            <ResponseField name="code" pre={["data[].error."]} type="string" required>
+              稳定的任务失败代码。
+            </ResponseField>
+            <ResponseField name="message" pre={["data[].error."]} type="string" required>
+              任务失败说明。
+            </ResponseField>
+            <ResponseField name="failed_at" pre={["data[].error."]} type="integer&lt;int64&gt;">
+              任务失败时间的 Unix 时间戳，单位为秒。
+            </ResponseField>
+            <ResponseField name="retryable" pre={["data[].error."]} type="boolean">
+              重试相同操作是否可能成功。
+            </ResponseField>
+          </Expandable>
+        </ResponseField>
+      </Expandable>
+    </ResponseField>
+    <ResponseField name="usage" type="object">
+      可用时返回本次请求的计费信息，包含扣除的点数 `credits`。
+
+      <Expandable title="子属性">
+        <ResponseField name="credits" pre={["usage."]} type="number&lt;float&gt;" required>
+          本次请求扣除的总点数。
+        </ResponseField>
+      </Expandable>
+    </ResponseField>
+  </Tab>
+
+  <Tab title="400">
+    请求无效。
+
+    <ResponseField name="error" type="object" required>
+      结构化错误详情。
+
+      <Expandable title="子属性" defaultOpen>
+        <ResponseField name="code" pre={["error."]} type="string" required>
+          稳定且可供程序读取的错误码。
+
+          - `file_rejected`: 参考图片未通过内容校验。
+          - `invalid_content_type`: Content-Type 必须为 application/json。
+          - `invalid_file_id`: 上传文件 ID 无效或不可用。
+          - `invalid_file_type`: 上传文件不是受支持的参考图片。
+          - `invalid_generation_request`: 不支持当前 3D 生成请求。
+          - `invalid_multi_view_images`: 多视图必须包含正面和背面，且视角不能重复。
+          - `invalid_prompt`: 提示词为空、超过 500 个字符或未通过内容校验。
+          - `invalid_reference_source`: 每个参考素材必须且只能提供 file_id 或 url 中的一个。
+          - `invalid_reference_url`: 参考素材 URL 的格式或长度无效。
+          - `invalid_request`: 请求参数无效。
+          - `invalid_target_polycount`: 目标面数不满足允许的范围或步长。
+          - `unsafe_reference_url`: 参考素材 URL 或重定向目标不被允许。
+        </ResponseField>
+
+        <ResponseField name="message" pre={["error."]} type="string" required>
+          便于阅读的错误说明，请通过 error.code 区分原因。
+        </ResponseField>
+
+        <ResponseField name="details" pre={["error."]} type="object[]">
+          可用时返回参数校验问题，每项包含 field、rule 和 message。
+        </ResponseField>
+      </Expandable>
+    </ResponseField>
+  </Tab>
+
+  <Tab title="401">
+    鉴权失败。
+
+    <ResponseField name="error" type="object" required>
+      结构化错误详情。
+
+      <Expandable title="子属性" defaultOpen>
+        <ResponseField name="code" pre={["error."]} type="string" required>
+          稳定且可供程序读取的错误码。
+
+          - `invalid_api_key`: API 密钥缺失、无效或已过期。
+        </ResponseField>
+
+        <ResponseField name="message" pre={["error."]} type="string" required>
+          便于阅读的错误说明，请通过 error.code 区分原因。
+        </ResponseField>
+      </Expandable>
+    </ResponseField>
+  </Tab>
+
+  <Tab title="403">
+    订阅或积分要求未满足。
+
+    <ResponseField name="error" type="object" required>
+      结构化错误详情。
+
+      <Expandable title="子属性" defaultOpen>
+        <ResponseField name="code" pre={["error."]} type="string" required>
+          稳定且可供程序读取的错误码。
+
+          - `insufficient_credits`: 可用积分不足。
+          - `subscription_required`: 需要有效的付费订阅。
+        </ResponseField>
+
+        <ResponseField name="message" pre={["error."]} type="string" required>
+          便于阅读的错误说明，请通过 error.code 区分原因。
+        </ResponseField>
+
+        <ResponseField name="details" pre={["error."]} type="object">
+          可用时返回已提交任务的详情。partial、task 和 submission_uncertain 描述部分提交或提交状态不确定的情况。
+        </ResponseField>
+      </Expandable>
+    </ResponseField>
+  </Tab>
+
+  <Tab title="408">
+    参考素材下载超时。
+
+    <ResponseField name="error" type="object" required>
+      结构化错误详情。
+
+      <Expandable title="子属性" defaultOpen>
+        <ResponseField name="code" pre={["error."]} type="string" required>
+          稳定且可供程序读取的错误码。
+
+          - `reference_fetch_timeout`: 参考图片下载超时。
+        </ResponseField>
+
+        <ResponseField name="message" pre={["error."]} type="string" required>
+          便于阅读的错误说明，请通过 error.code 区分原因。
+        </ResponseField>
+      </Expandable>
+    </ResponseField>
+  </Tab>
+
+  <Tab title="413">
+    参考图片过大。
+
+    <ResponseField name="error" type="object" required>
+      结构化错误详情。
+
+      <Expandable title="子属性" defaultOpen>
+        <ResponseField name="code" pre={["error."]} type="string" required>
+          稳定且可供程序读取的错误码。
+
+          - `reference_too_large`: 参考图片超过对应场景的大小上限。单图及批量图生每张 20 MiB，多视图每张 10 MiB；file_id 和 url 使用相同限制。
+        </ResponseField>
+
+        <ResponseField name="message" pre={["error."]} type="string" required>
+          便于阅读的错误说明，请通过 error.code 区分原因。
+        </ResponseField>
+      </Expandable>
+    </ResponseField>
+  </Tab>
+
+  <Tab title="415">
+    参考图片无效或不受支持。
+
+    <ResponseField name="error" type="object" required>
+      结构化错误详情。
+
+      <Expandable title="子属性" defaultOpen>
+        <ResponseField name="code" pre={["error."]} type="string" required>
+          稳定且可供程序读取的错误码。
+
+          - `invalid_reference_file`: 参考图片为空，或无法检查其内容。
+          - `invalid_reference_file_type`: 参考图片格式或 Content-Type 不受支持或不一致。
+        </ResponseField>
+
+        <ResponseField name="message" pre={["error."]} type="string" required>
+          便于阅读的错误说明，请通过 error.code 区分原因。
+        </ResponseField>
+      </Expandable>
+    </ResponseField>
+  </Tab>
+
+  <Tab title="422">
+    参考素材下载失败。
+
+    <ResponseField name="error" type="object" required>
+      结构化错误详情。
+
+      <Expandable title="子属性" defaultOpen>
+        <ResponseField name="code" pre={["error."]} type="string" required>
+          稳定且可供程序读取的错误码。
+
+          - `reference_fetch_failed`: 无法下载参考图片。
+          - `reference_redirect_limit`: 参考素材 URL 重定向次数超过限制。
+        </ResponseField>
+
+        <ResponseField name="message" pre={["error."]} type="string" required>
+          便于阅读的错误说明，请通过 error.code 区分原因。
+        </ResponseField>
+      </Expandable>
+    </ResponseField>
+  </Tab>
+
+  <Tab title="429">
+    超过限制。
+
+    响应包含 `Retry-After` 时，请按该请求头指定的秒数等待后再重试。
+
+    <ResponseField name="error" type="object" required>
+      结构化错误详情。
+
+      <Expandable title="子属性" defaultOpen>
+        <ResponseField name="code" pre={["error."]} type="string" required>
+          稳定且可供程序读取的错误码。
+
+          - `generation_limit_exceeded`: 生成配额或并发数量超过限制。
+          - `rate_limit_exceeded`: 请求频率超过限制。
+          - `reference_import_busy`: 参考素材导入繁忙，请按指定间隔重试。
+        </ResponseField>
+
+        <ResponseField name="message" pre={["error."]} type="string" required>
+          便于阅读的错误说明，请通过 error.code 区分原因。
+        </ResponseField>
+      </Expandable>
+    </ResponseField>
+  </Tab>
+
+  <Tab title="500">
+    内部错误。
+
+    当 `error.details.registration_failed` 为 `true` 时，任务已经入队，但任务登记失败；完整提交返回 `task_registration_failed`，3D 部分提交保留原错误码。
+    `error.details.task` 保留任务 ID、UUID 和已知积分；`submission_accepted` 为 `true`，`retryable` 为 `false`。
+    不要重新提交生成请求，以免重复扣费。登记恢复前，任务查询可能返回 `404`。
+
+    <ResponseField name="error" type="object" required>
+      结构化错误详情。
+
+      <Expandable title="子属性" defaultOpen>
+        <ResponseField name="code" pre={["error."]} type="string" required>
+          稳定且可供程序读取的错误码。
+
+          - `internal_error`: 发生内部错误。
+          - `task_registration_failed`: 任务已入队，但登记失败。不要重新提交。
+        </ResponseField>
+
+        <ResponseField name="message" pre={["error."]} type="string" required>
+          返回 `An internal error occurred`。
+        </ResponseField>
+
+        <ResponseField name="details" pre={["error."]} type="object">
+          可用时返回已提交任务的详情。partial、task 和 submission_uncertain 描述部分提交或提交状态不确定的情况。
+        </ResponseField>
+      </Expandable>
+    </ResponseField>
+  </Tab>
+
+  <Tab title="503">
+    服务暂不可用。
+
+    <ResponseField name="error" type="object" required>
+      结构化错误详情。
+
+      <Expandable title="子属性" defaultOpen>
+        <ResponseField name="code" pre={["error."]} type="string" required>
+          稳定且可供程序读取的错误码。
+
+          - `file_moderation_unavailable`: 图片内容校验暂时不可用。
+          - `prompt_moderation_unavailable`: 提示词内容校验暂时不可用。
+          - `rate_limit_unavailable`: 限流服务暂时不可用。
+        </ResponseField>
+
+        <ResponseField name="message" pre={["error."]} type="string" required>
+          返回 `An internal error occurred`。
+        </ResponseField>
+      </Expandable>
+    </ResponseField>
+  </Tab>
+</Tabs>
+
+<ResponseExample>
+```json 202 Accepted
+{
+  "id": "normal-3d-c50fe63e-699d-4d61-93f5-2099ab159d6d",
+  "status": "queued",
+  "created_at": 1784044800,
+  "mode": "batch_image_to_3d",
+  "model": "dreamtech/neural4d-2.5",
+  "data": [
+    {
+      "uuid": "72e30159-a242-4491-a67c-2ad0cfc9efb6",
+      "status": "queued",
+      "created_at": 1784044800
+    },
+    {
+      "uuid": "72e30159-a242-4491-a67c-2ad0cfc9efb7",
+      "status": "queued",
+      "created_at": 1784044800
+    }
+  ],
+  "usage": {
+    "credits": 60
+  }
+}
+```
+
+```json 400 file_rejected
+{
+  "error": {
+    "code": "file_rejected",
+    "message": "The uploaded image did not pass content validation"
+  }
+}
+```
+
+```json 400 invalid_content_type
+{
+  "error": {
+    "code": "invalid_content_type",
+    "message": "Content-Type must be application/json"
+  }
+}
+```
+
+```json 400 invalid_file_id
+{
+  "error": {
+    "code": "invalid_file_id",
+    "message": "Request body validation failed"
+  }
+}
+```
+
+```json 400 invalid_file_type
+{
+  "error": {
+    "code": "invalid_file_type",
+    "message": "Unsupported reference type"
+  }
+}
+```
+
+```json 400 invalid_generation_request
+{
+  "error": {
+    "code": "invalid_generation_request",
+    "message": "Invalid 3D generation request"
+  }
+}
+```
+
+```json 400 invalid_multi_view_images
+{
+  "error": {
+    "code": "invalid_multi_view_images",
+    "message": "Request body validation failed",
+    "details": [
+      {
+        "field": "/multi_view_images",
+        "rule": "custom",
+        "message": "Views must include front and back without duplicates"
+      }
+    ]
+  }
+}
+```
+
+```json 400 invalid_prompt
+{
+  "error": {
+    "code": "invalid_prompt",
+    "message": "Request body validation failed",
+    "details": [
+      {
+        "field": "/prompt",
+        "rule": "too_small",
+        "message": "String must contain at least 1 character(s)"
+      }
+    ]
+  }
+}
+```
+
+```json 400 invalid_reference_source
+{
+  "error": {
+    "code": "invalid_reference_source",
+    "message": "Request body validation failed",
+    "details": [
+      {
+        "field": "/input_references/0",
+        "rule": "custom",
+        "message": "Provide exactly one of file_id or url"
+      }
+    ]
+  }
+}
+```
+
+```json 400 invalid_reference_url
+{
+  "error": {
+    "code": "invalid_reference_url",
+    "message": "Request body validation failed",
+    "details": [
+      {
+        "field": "/input_references/0/url",
+        "rule": "custom",
+        "message": "url must be an HTTPS URL without embedded credentials"
+      }
+    ]
+  }
+}
+```
+
+```json 400 invalid_request
+{
+  "error": {
+    "code": "invalid_request",
+    "message": "Request body validation failed",
+    "details": [
+      {
+        "field": "/model",
+        "rule": "invalid_enum_value",
+        "message": "Invalid enum value. Expected 'dreamtech/neural4d-2.5', received 'unsupported-model'"
+      }
+    ]
+  }
+}
+```
+
+```json 400 invalid_target_polycount
+{
+  "error": {
+    "code": "invalid_target_polycount",
+    "message": "target_polycount must be between 100000 and 500000 in steps of 1000"
+  }
+}
+```
+
+```json 400 unsafe_reference_url
+{
+  "error": {
+    "code": "unsafe_reference_url",
+    "message": "Reference URL is not allowed"
+  }
+}
+```
+
+```json 401 invalid_api_key
+{
+  "error": {
+    "code": "invalid_api_key",
+    "message": "A Bearer API key is required"
+  }
+}
+```
+
+```json 403 insufficient_credits
+{
+  "error": {
+    "code": "insufficient_credits",
+    "message": "User insufficient points, only have 0 now"
+  }
+}
+```
+
+```json 403 subscription_required
+{
+  "error": {
+    "code": "subscription_required",
+    "message": "OpenAPI v1 is available to subscribed users only"
+  }
+}
+```
+
+```json 408 reference_fetch_timeout
+{
+  "error": {
+    "code": "reference_fetch_timeout",
+    "message": "Reference host resolution timed out"
+  }
+}
+```
+
+```json 413 reference_too_large
+{
+  "error": {
+    "code": "reference_too_large",
+    "message": "Reference file must not exceed 20 MB"
+  }
+}
+```
+
+```json 415 invalid_reference_file
+{
+  "error": {
+    "code": "invalid_reference_file",
+    "message": "Reference file is empty"
+  }
+}
+```
+
+```json 415 invalid_reference_file_type
+{
+  "error": {
+    "code": "invalid_reference_file_type",
+    "message": "Reference response Content-Type does not match its file content"
+  }
+}
+```
+
+```json 422 reference_fetch_failed
+{
+  "error": {
+    "code": "reference_fetch_failed",
+    "message": "Reference host could not be resolved"
+  }
+}
+```
+
+```json 422 reference_redirect_limit
+{
+  "error": {
+    "code": "reference_redirect_limit",
+    "message": "Reference URL redirected too many times"
+  }
+}
+```
+
+```json 429 generation_limit_exceeded
+{
+  "error": {
+    "code": "generation_limit_exceeded",
+    "message": "Generation limit exceeded"
+  }
+}
+```
+
+```json 429 rate_limit_exceeded
+{
+  "error": {
+    "code": "rate_limit_exceeded",
+    "message": "Too many requests. Retry after the indicated interval."
+  }
+}
+```
+
+```json 429 reference_import_busy
+{
+  "error": {
+    "code": "reference_import_busy",
+    "message": "Too many reference files are being imported"
+  }
+}
+```
+
+```json 500 internal_error
+{
+  "error": {
+    "code": "internal_error",
+    "message": "An internal error occurred"
+  }
+}
+```
+
+```json 503 file_moderation_unavailable
+{
+  "error": {
+    "code": "file_moderation_unavailable",
+    "message": "An internal error occurred"
+  }
+}
+```
+
+```json 503 rate_limit_unavailable
+{
+  "error": {
+    "code": "rate_limit_unavailable",
+    "message": "An internal error occurred"
+  }
+}
+```
+
+```json 413 reference_too_large (multi-view)
+{
+  "error": {
+    "code": "reference_too_large",
+    "message": "Reference file must not exceed 10 MB"
+  }
+}
+```
+</ResponseExample>

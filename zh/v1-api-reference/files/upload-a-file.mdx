@@ -18,7 +18,18 @@ contentType: multipart/form-data
 
 <ParamField body="file" type="string&lt;binary&gt;" required>
   需要上传的文件。图片支持 JPG、JPEG、PNG、GIF、WEBP、BMP、HEIC 和 HEIF；视频支持 MP4、MOV、WEBM、M4V、OGG 和 OGV；音频支持 MP3 和 WAV。
-  </ParamField>
+
+  默认单文件上限：图片 20 MiB、视频 100 MiB、音频 15 MiB。超过上传上限返回 `400 file_too_large`。
+</ParamField>
+
+生成请求会根据图片用途再次校验大小，以下上限同时适用于上传返回的 `file_id` 和公网 HTTPS `url`：
+
+| 图片用途 | 每张图片上限 |
+| --- | --- |
+| 生图参考图片 | 10 MiB |
+| 生视频首帧、尾帧及参考图片 | 10 MiB |
+| 单图、批量图生 3D | 20 MiB |
+| 多视图生 3D | 10 MiB |
 
 <RequestExample>
 ```bash cURL

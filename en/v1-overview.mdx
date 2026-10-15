@@ -1,270 +1,101 @@
 ---
 title: "Quickstart"
-description: "Create a video generation task and retrieve its result."
+description: "Create a 3D model generation task from a text prompt, then retrieve and download the result."
 keywords:
   - Neural4D
-  - video generation
-  - Seedance
+  - 3D
   - API
 ---
 
-API v1 uses the `https://api.neural4d.com/openapi/v1` base path. Send your API key with every request.
+The API v1 base URL is `https://api.neural4d.com/openapi/v1`. This guide uses text-to-3D to show the core workflow.
 
-<Info>
-  API v1 requires an active paid subscription. Free accounts receive a `403 subscription_required` response for every API v1 endpoint.
-</Info>
+## 1. Set your API key
 
-## Upload a reference file
+Use an account with an active paid subscription to get your key from the [API key page](https://www.neural4d.com/account?api).
 
-Upload one local image or video with `POST /files`. Store the returned file `id` for generation requests.
+## 2. Create a 3D generation task
 
-If your reference file already has a public HTTPS URL, you can skip this upload and pass `url` directly in a generation request. Each reference must contain exactly one of `file_id` or `url`.
+Submit a prompt to generate a textured 3D model. Send your key in the `Authorization: Bearer` header with every request.
 
-<CodeGroup>
-  ```bash cURL
-  curl --request POST \
-    --url 'https://api.neural4d.com/openapi/v1/files' \
-    --header 'Authorization: Bearer ${YOUR_API_KEY}' \
-    --form 'file=@first-frame.png'
-  ```
-
-  ```python Python
-  import os
-  import requests
-
-  with open("first-frame.png", "rb") as file:
-      response = requests.post(
-          "https://api.neural4d.com/openapi/v1/files",
-          headers={"Authorization": f"Bearer {os.environ['YOUR_API_KEY']}"},
-          files={"file": ("first-frame.png", file, "image/png")},
-      )
-
-  print(response.json())
-  ```
-
-  ```javascript Node.js
-  import { openAsBlob } from "node:fs";
-
-  const form = new FormData();
-  form.append("file", await openAsBlob("first-frame.png"), "first-frame.png");
-
-  const response = await fetch("https://api.neural4d.com/openapi/v1/files", {
-    method: "POST",
-    headers: { Authorization: `Bearer ${process.env.YOUR_API_KEY}` },
-    body: form,
-  });
-
-  console.log(await response.json());
-  ```
-
-  ```go Go
-  package main
-
-  import (
-      "bytes"
-      "fmt"
-      "io"
-      "mime/multipart"
-      "net/http"
-      "os"
-      "path/filepath"
-  )
-
-  func main() {
-      file, _ := os.Open("first-frame.png")
-      defer file.Close()
-
-      body := &bytes.Buffer{}
-      writer := multipart.NewWriter(body)
-      part, _ := writer.CreateFormFile("file", filepath.Base(file.Name()))
-      _, _ = io.Copy(part, file)
-      _ = writer.Close()
-
-      request, _ := http.NewRequest("POST", "https://api.neural4d.com/openapi/v1/files", body)
-      request.Header.Set("Authorization", "Bearer "+os.Getenv("YOUR_API_KEY"))
-      request.Header.Set("Content-Type", writer.FormDataContentType())
-
-      response, _ := http.DefaultClient.Do(request)
-      defer response.Body.Close()
-      result, _ := io.ReadAll(response.Body)
-      fmt.Println(string(result))
-  }
-  ```
-</CodeGroup>
-
-```json 201 Created
-{
-  "id": "550e8400-e29b-41d4-a716-446655440000",
-  "filename": "first-frame.png",
-  "bytes": 245760,
-  "mime_type": "image/png",
-  "created_at": 1784044800
-}
+```bash cURL
+curl --request POST \
+  --url 'https://api.neural4d.com/openapi/v1/3dmodels/generations' \
+  --header "Authorization: Bearer ${YOUR_API_KEY}" \
+  --header 'Content-Type: application/json' \
+  --data '{
+    "model": "dreamtech/neural4d-2.5",
+    "prompt": "A ceramic teapot on a white studio background",
+    "with_texture": true
+  }'
 ```
 
-## Create a video
-
-Submit a JSON request to `POST /videos/generations`. Put first-frame and last-frame images in `frame_images`; use `input_references` for other image, video, or audio references. Set `output_with_audio` for Seedance 2.0, Seedance 2.0 Fast, or Veo 3.1 to control native audio generation. Omit it for `xai/grok-imagine`; if you omit it for a supported model, that model's configured default applies. This example animates the uploaded first-frame image by its file ID. The API returns `202 Accepted` with a task ID.
-
-<CodeGroup>
-  ```bash cURL
-  curl --request POST \
-    --url 'https://api.neural4d.com/openapi/v1/videos/generations' \
-    --header 'Authorization: Bearer ${YOUR_API_KEY}' \
-    --header 'Content-Type: application/json' \
-    --data '{
-      "model": "bytedance/seedance-2.0-fast",
-      "prompt": "A cinematic tracking shot through a neon-lit street at night",
-      "frame_images": [
-        {
-          "type": "image",
-          "frame_type": "first_frame",
-          "file_id": "550e8400-e29b-41d4-a716-446655440000"
-        }
-      ],
-      "duration": 5,
-      "resolution": "720p",
-      "aspect_ratio": "16:9",
-      "output_with_audio": true,
-      "n": 1
-    }'
-  ```
-
-  ```python Python
-  import os
-  import requests
-
-  response = requests.post(
-      "https://api.neural4d.com/openapi/v1/videos/generations",
-      headers={"Authorization": f"Bearer {os.environ['YOUR_API_KEY']}"},
-      json={
-          "model": "bytedance/seedance-2.0-fast",
-          "prompt": "A cinematic tracking shot through a neon-lit street at night",
-          "frame_images": [
-              {
-                  "type": "image",
-                  "frame_type": "first_frame",
-                  "file_id": "550e8400-e29b-41d4-a716-446655440000",
-              },
-          ],
-          "duration": 5,
-          "resolution": "720p",
-          "aspect_ratio": "16:9",
-          "output_with_audio": True,
-          "n": 1,
-      },
-  )
-  print(response.json())
-  ```
-
-  ```javascript Node.js
-  const response = await fetch("https://api.neural4d.com/openapi/v1/videos/generations", {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${process.env.YOUR_API_KEY}`,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      model: "bytedance/seedance-2.0-fast",
-      prompt: "A cinematic tracking shot through a neon-lit street at night",
-      frame_images: [
-        {
-          type: "image",
-          frame_type: "first_frame",
-          file_id: "550e8400-e29b-41d4-a716-446655440000",
-        },
-      ],
-      duration: 5,
-      resolution: "720p",
-      aspect_ratio: "16:9",
-      output_with_audio: true,
-      n: 1,
-    }),
-  });
-
-  console.log(await response.json());
-  ```
-
-  ```go Go
-  package main
-
-  import (
-      "bytes"
-      "fmt"
-      "io"
-      "net/http"
-      "os"
-  )
-
-  func main() {
-      body := []byte(`{"model":"bytedance/seedance-2.0-fast","prompt":"A cinematic tracking shot through a neon-lit street at night","frame_images":[{"type":"image","frame_type":"first_frame","file_id":"550e8400-e29b-41d4-a716-446655440000"}],"duration":5,"resolution":"720p","aspect_ratio":"16:9","output_with_audio":true,"n":1}`)
-      request, _ := http.NewRequest("POST", "https://api.neural4d.com/openapi/v1/videos/generations", bytes.NewReader(body))
-      request.Header.Set("Authorization", "Bearer "+os.Getenv("YOUR_API_KEY"))
-      request.Header.Set("Content-Type", "application/json")
-
-      response, _ := http.DefaultClient.Do(request)
-      defer response.Body.Close()
-      result, _ := io.ReadAll(response.Body)
-      fmt.Println(string(result))
-  }
-  ```
-</CodeGroup>
+The API returns `202 Accepted`. Save the task `id` for the next step.
 
 ```json 202 Accepted
 {
-  "id": "normal-video-c50fe63e-699d-4d61-93f5-2099ab159d6d",
+  "id": "normal-3d-c50fe63e-699d-4d61-93f5-2099ab159d6d",
   "status": "queued",
   "created_at": 1784044800,
-  "mode": "first_frame_image_to_video",
-  "model": "bytedance/seedance-2.0-fast",
+  "mode": "text_to_3d",
+  "model": "dreamtech/neural4d-2.5",
   "data": [
     {
-      "uuid": "7d1fa4bb-41e6-4a5d-88d8-1851f5342e87",
+      "uuid": "72e30159-a242-4491-a67c-2ad0cfc9efb6",
       "status": "queued",
       "created_at": 1784044800
     }
-  ]
+  ],
+  "usage": {
+    "credits": 30
+  }
 }
 ```
 
-## Retrieve the task
+## 3. Retrieve and download the result
 
-Pass exactly one of the batch task `id` or child video `uuid` to `GET /tasks/task-info`. Poll until `status` is `succeeded` or `failed`. Each item in `output.videos` includes its child UUID, aspect ratio, native audio flag, generation mode, status, and timestamps.
+Replace the sample `id` with the value returned when you created the task, then query every few seconds. `queued` and `processing` mean the task is still running. Stop at `succeeded` or `failed`; check `error` if it failed.
 
 ```bash cURL
 curl --request GET \
-  --url 'https://api.neural4d.com/openapi/v1/tasks/task-info?id=normal-video-c50fe63e-699d-4d61-93f5-2099ab159d6d' \
-  --header 'Authorization: Bearer ${YOUR_API_KEY}'
+  --url 'https://api.neural4d.com/openapi/v1/tasks/task-info?id=normal-3d-c50fe63e-699d-4d61-93f5-2099ab159d6d' \
+  --header "Authorization: Bearer ${YOUR_API_KEY}"
 ```
-
-To query directly by a generated video UUID, use `uuid` instead of `id`: `GET /openapi/v1/tasks/task-info?uuid=7d1fa4bb-41e6-4a5d-88d8-1851f5342e87`.
 
 ```json 200 OK
 {
-  "id": "normal-video-c50fe63e-699d-4d61-93f5-2099ab159d6d",
+  "id": "normal-3d-c50fe63e-699d-4d61-93f5-2099ab159d6d",
   "status": "succeeded",
-  "mode": "first_frame_image_to_video",
-  "model": "bytedance/seedance-2.0-fast",
+  "model": "dreamtech/neural4d-2.5",
   "created_at": 1784044800,
   "updated_at": 1784044842,
+  "mode": "text_to_3d",
   "output": {
-    "videos": [
+    "models": [
       {
-        "uuid": "7d1fa4bb-41e6-4a5d-88d8-1851f5342e87",
-        "url": "https://cdn.neural4d.com/results/video.mp4",
-        "format": "mp4",
-        "duration": 5,
-        "resolution": "720p",
-        "aspect_ratio": "16:9",
-        "has_audio": true,
-        "mode": "first_frame_image_to_video",
+        "uuid": "72e30159-a242-4491-a67c-2ad0cfc9efb6",
+        "url": "https://cdn.neural4d.com/results/model.glb",
+        "format": "glb",
+        "thumbnail_url": "https://cdn.neural4d.com/results/t1.png",
+        "mesh_quality": "standard",
+        "pose": "auto",
+        "target_polycount": 500000,
+        "topology": "triangle",
+        "with_texture": true,
+        "with_pbr": false,
+        "image_enhancement": false,
+        "mode": "text_to_3d",
         "status": "succeeded",
         "created_at": 1784044800,
         "updated_at": 1784044842
       }
     ]
+  },
+  "usage": {
+    "credits": 30
   }
 }
 ```
 
-See [Common headers](/en/common-headers) for authentication and request tracing.
+After the task succeeds, download the model from `output.models[0].url` and view its preview image at `output.models[0].thumbnail_url`. Both are temporary signed URLs. Retrieve the task again to get fresh URLs after they expire.
+
+More examples: [3D generation parameters](/en/v1-api-reference/3d-generation/create-3d-generation-tasks) · [Complete task response](/en/v1-api-reference/tasks/retrieve-a-task) · [Upload a reference file](/en/v1-api-reference/files/upload-a-file).

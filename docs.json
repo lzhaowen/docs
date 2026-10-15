@@ -37,12 +37,18 @@
                     "pages": ["en/v1-api-reference/files/upload-a-file"]
                   },
                   {
-                    "group": "Image generation",
+                    "group": "Images",
                     "pages": ["en/v1-api-reference/image-generation/create-image-generation-tasks"]
                   },
                   {
-                    "group": "Video generation",
+                    "group": "Videos",
                     "pages": ["en/v1-api-reference/video-generation/create-video-generation-tasks"]
+                  },
+                  {
+                    "group": "3D",
+                    "pages": [
+                      "en/v1-api-reference/3d-generation/create-3d-generation-tasks"
+                    ]
                   },
                   {
                     "group": "Tasks",
@@ -127,12 +133,18 @@
                     "pages": ["zh/v1-api-reference/files/upload-a-file"]
                   },
                   {
-                    "group": "图片生成",
+                    "group": "图片",
                     "pages": ["zh/v1-api-reference/image-generation/create-image-generation-tasks"]
                   },
                   {
-                    "group": "视频生成",
+                    "group": "视频",
                     "pages": ["zh/v1-api-reference/video-generation/create-video-generation-tasks"]
+                  },
+                  {
+                    "group": "3D",
+                    "pages": [
+                      "zh/v1-api-reference/3d-generation/create-3d-generation-tasks"
+                    ]
                   },
                   {
                     "group": "任务",
@@ -199,8 +211,8 @@
     ]
   },
   "logo": {
-    "light": "/logo/n4d-black.png",
-    "dark": "/logo/n4d-white.png",
+    "light": "/logo/n4d-black.svg",
+    "dark": "/logo/n4d-white.svg",
     "href": "/en/quickstart"
   },
   "api": {
