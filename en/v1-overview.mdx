@@ -73,9 +73,13 @@ curl --request GET \
     "models": [
       {
         "uuid": "72e30159-a242-4491-a67c-2ad0cfc9efb6",
-        "url": "https://cdn.neural4d.com/results/model.glb",
         "format": "glb",
-        "thumbnail_url": "https://cdn.neural4d.com/results/t1.png",
+        "model_urls": {
+          "glb": "https://cdn.neural4d.com/results/model.glb"
+        },
+        "thumbnail_urls": {
+          "front": "https://cdn.neural4d.com/results/t1.png"
+        },
         "mesh_quality": "standard",
         "pose": "auto",
         "target_polycount": 500000,
@@ -96,6 +100,8 @@ curl --request GET \
 }
 ```
 
-After the task succeeds, download the model from `output.models[0].url` and view its preview image at `output.models[0].thumbnail_url`. Both are temporary signed URLs. Retrieve the task again to get fresh URLs after they expire.
+Download models from `model_urls` and view the thumbnail at `thumbnail_urls.front`. `thumbnail_urls` is `{}` until available. Retrieve the task again when the URLs expire.
+
+`model_urls` only includes original generation files, unaffected by format conversions: `glb` for triangle models and `obj` for quad models. Textured quad models also return `mtl` if the material file has been generated. Texture maps are in `texture_urls`.
 
 More examples: [3D generation parameters](/en/v1-api-reference/3d-generation/create-3d-generation-tasks) · [Complete task response](/en/v1-api-reference/tasks/retrieve-a-task) · [Upload a reference file](/en/v1-api-reference/files/upload-a-file).

@@ -73,9 +73,13 @@ curl --request GET \
     "models": [
       {
         "uuid": "72e30159-a242-4491-a67c-2ad0cfc9efb6",
-        "url": "https://cdn.neural4d.com/results/model.glb",
         "format": "glb",
-        "thumbnail_url": "https://cdn.neural4d.com/results/t1.png",
+        "model_urls": {
+          "glb": "https://cdn.neural4d.com/results/model.glb"
+        },
+        "thumbnail_urls": {
+          "front": "https://cdn.neural4d.com/results/t1.png"
+        },
         "mesh_quality": "standard",
         "pose": "auto",
         "target_polycount": 500000,
@@ -96,6 +100,8 @@ curl --request GET \
 }
 ```
 
-成功后，使用 `output.models[0].url` 下载模型文件，使用 `output.models[0].thumbnail_url` 查看模型预览图。两个地址均为临时签名 URL，过期后可重新查询任务获取。
+使用 `model_urls` 下载模型，`thumbnail_urls.front` 查看缩略图；未生成时 `thumbnail_urls` 为 `{}`。链接过期后重新查询任务获取。
+
+`model_urls` 仅返回原始生成文件，不受格式转换影响：三角面为 `glb`，四边面为 `obj`；仅带纹理且已生成材质文件时，另返回 `mtl`。贴图见 `texture_urls`。
 
 更多用法：[3D 生成参数](/zh/v1-api-reference/3d-generation/create-3d-generation-tasks) · [完整任务响应](/zh/v1-api-reference/tasks/retrieve-a-task) · [上传参考文件](/zh/v1-api-reference/files/upload-a-file)。

@@ -7,7 +7,7 @@ playground: simple
 authMethod: bearer
 ---
 
-Depending on the task type, `output` contains exactly one array: `models` (3D), `images`, or `videos`. Queued and processing entries also include generation parameters. Their `url` and `format` are `null` until a result file is available.
+Depending on the task type, `output` contains a `models` (3D), `images`, or `videos` array. Queued and processing entries also include generation parameters.
 
 ## Authorizations
 
@@ -167,20 +167,56 @@ Console.WriteLine(await response.Content.ReadAsStringAsync());
 
       <Expandable title="child attributes">
         <ResponseField name="models" pre={["output."]} type="object[]">
-          All 3D child tasks and their current output information. `url` and `format` are `null` until a result file is available.
+          3D child tasks and their current results.
 
           <Expandable title="Child attributes">
             <ResponseField name="uuid" pre={["output.models[]."]} type="string&lt;uuid&gt;" required>
               Generated 3D child UUID, matching the child UUID in the creation response.
             </ResponseField>
-            <ResponseField name="url" pre={["output.models[]."]} type="string&lt;uri&gt; | null" required>
-              Temporary signed URL for downloading the model when available.
-            </ResponseField>
             <ResponseField name="format" pre={["output.models[]."]} type="string | null" required>
-              Model file format when known, such as `glb`.
+              Primary model format, usually `glb` for triangle models or `obj` for quad models. `null` until available.
             </ResponseField>
-            <ResponseField name="thumbnail_url" pre={["output.models[]."]} type="string&lt;uri&gt; | null" required>
-              Single temporary signed URL for the model preview image when available.
+            <ResponseField name="model_urls" pre={["output.models[]."]} type="object" required>
+              Temporary signed URLs for original generation files, unaffected by format conversions. `{}` until available. Triangle models return `glb`; quad models return `obj` and an `mtl` when available.
+
+              <Expandable title="Child attributes">
+                <ResponseField name="glb" pre={["output.models[].model_urls."]} type="string&lt;uri&gt;">
+                  Triangle GLB model URL.
+                </ResponseField>
+                <ResponseField name="obj" pre={["output.models[].model_urls."]} type="string&lt;uri&gt;">
+                  Original quad OBJ file URL.
+                </ResponseField>
+                <ResponseField name="mtl" pre={["output.models[].model_urls."]} type="string&lt;uri&gt;">
+                  Material file URL for the quad OBJ. Returned only when `with_texture=true` and the file has been generated; otherwise omitted.
+                </ResponseField>
+              </Expandable>
+            </ResponseField>
+            <ResponseField name="thumbnail_urls" pre={["output.models[]."]} type="object" required>
+              Model thumbnail URLs. `{}` until available.
+
+              <Expandable title="Child attributes">
+                <ResponseField name="front" pre={["output.models[].thumbnail_urls."]} type="string&lt;uri&gt;">
+                  Model thumbnail URL.
+                </ResponseField>
+              </Expandable>
+            </ResponseField>
+            <ResponseField name="texture_urls" pre={["output.models[]."]} type="object">
+              Returned only for textured quad models. Contains temporary signed URLs for available texture maps; missing types are omitted. `{}` until maps are available.
+
+              <Expandable title="Child attributes">
+                <ResponseField name="albedo" pre={["output.models[].texture_urls."]} type="string&lt;uri&gt;">
+                  Color map URL.
+                </ResponseField>
+                <ResponseField name="normal" pre={["output.models[].texture_urls."]} type="string&lt;uri&gt;">
+                  Normal map URL.
+                </ResponseField>
+                <ResponseField name="roughness" pre={["output.models[].texture_urls."]} type="string&lt;uri&gt;">
+                  Roughness map URL.
+                </ResponseField>
+                <ResponseField name="metallic" pre={["output.models[].texture_urls."]} type="string&lt;uri&gt;">
+                  Metallic map URL.
+                </ResponseField>
+              </Expandable>
             </ResponseField>
             <ResponseField name="mesh_quality" pre={["output.models[]."]} type="enum&lt;string&gt;" required>
               Mesh quality. Available options: `standard`, `high`, `extra_high`. Text-to-3D, single-image-to-3D, and batch image-to-3D default to `standard`. Multi-view generation always uses `high`.
@@ -542,6 +578,19 @@ Console.WriteLine(await response.Content.ReadAsStringAsync());
   </Tab>
 </Tabs>
 
+## 3D rendering resources
+
+Examples with all resources available, excluding thumbnails. Actual file counts depend on which files have been generated.
+
+| Model type | `model_urls` | `texture_urls` | Example file count |
+| --- | --- | --- | --- |
+| Triangle mesh, textured model, or PBR model | `glb` | Omitted; materials and textures load with the GLB | 1 |
+| Untextured quad mesh | `obj` | Omitted | 1 |
+| Quad model with ordinary textures | `obj`, `mtl` | `albedo` | 3 |
+| Quad PBR model | `obj`, `mtl` | `albedo`, `normal`, `roughness`, `metallic` | 6 |
+
+Texture filenames must match the references in the MTL.
+
 <ResponseExample>
 ```json 200 3D generation succeeded
 {
@@ -558,13 +607,60 @@ Console.WriteLine(await response.Content.ReadAsStringAsync());
     "models": [
       {
         "uuid": "72e30159-a242-4491-a67c-2ad0cfc9efb6",
-        "url": "https://cdn.neural4d.com/results/model.glb",
         "format": "glb",
-        "thumbnail_url": "https://cdn.neural4d.com/results/t1.png",
+        "model_urls": {
+          "glb": "https://cdn.neural4d.com/results/model.glb"
+        },
+        "thumbnail_urls": {
+          "front": "https://cdn.neural4d.com/results/t1.png"
+        },
         "mesh_quality": "high",
         "pose": "T-pose",
         "target_polycount": 1000000,
         "topology": "triangle",
+        "with_texture": true,
+        "with_pbr": true,
+        "image_enhancement": true,
+        "mode": "image_to_3d",
+        "status": "succeeded",
+        "created_at": 1784044800,
+        "updated_at": 1784044842
+      }
+    ]
+  }
+}
+```
+
+```json 200 Quad PBR generation succeeded
+{
+  "id": "normal-3d-d60fe63e-699d-4d61-93f5-2099ab159d6d",
+  "status": "succeeded",
+  "mode": "image_to_3d",
+  "model": "dreamtech/neural4d-2.5",
+  "created_at": 1784044800,
+  "updated_at": 1784044842,
+  "output": {
+    "models": [
+      {
+        "uuid": "83f41260-b353-45a2-92c8-3be1dfe0a067",
+        "format": "obj",
+        "model_urls": {
+          "obj": "https://cdn.neural4d.com/results/quad/model.obj",
+          "mtl": "https://cdn.neural4d.com/results/quad/model.mtl"
+        },
+        "thumbnail_urls": {
+          "front": "https://cdn.neural4d.com/results/quad/front.png"
+        },
+        "texture_urls": {
+          "albedo": "https://cdn.neural4d.com/results/quad/albedo.png",
+          "normal": "https://cdn.neural4d.com/results/quad/normal.png",
+          "roughness": "https://cdn.neural4d.com/results/quad/roughness.png",
+          "metallic": "https://cdn.neural4d.com/results/quad/metallic.png"
+        },
+        "mesh_quality": "standard",
+        "pose": "auto",
+        "target_polycount": 50000,
+        "topology": "quad",
         "with_texture": true,
         "with_pbr": true,
         "image_enhancement": true,

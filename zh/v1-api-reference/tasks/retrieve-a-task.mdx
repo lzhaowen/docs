@@ -7,7 +7,7 @@ playground: simple
 authMethod: bearer
 ---
 
-根据任务类型，`output` 仅包含 `models`（3D）、`images`（图片）或 `videos`（视频）中的一个数组。排队和处理中的条目也会返回生成参数；结果文件可用前，`url` 和 `format` 为 `null`。
+根据任务类型，`output` 返回 `models`（3D）、`images`（图片）或 `videos`（视频）数组。排队和处理中的条目也会返回生成参数。
 
 ## 授权
 
@@ -167,20 +167,56 @@ Console.WriteLine(await response.Content.ReadAsStringAsync());
 
       <Expandable title="child attributes">
         <ResponseField name="models" pre={["output."]} type="object[]">
-          所有 3D 子任务及其当前输出信息；结果文件可用前 `url` 和 `format` 为 `null`。
+          3D 子任务及其当前结果。
 
           <Expandable title="子属性">
             <ResponseField name="uuid" pre={["output.models[]."]} type="string&lt;uuid&gt;" required>
               生成 3D 子项 UUID，与创建任务响应中的子项 UUID 一致。
             </ResponseField>
-            <ResponseField name="url" pre={["output.models[]."]} type="string&lt;uri&gt; | null" required>
-              模型可用时用于下载的临时签名 URL。
-            </ResponseField>
             <ResponseField name="format" pre={["output.models[]."]} type="string | null" required>
-              已知时返回模型文件格式，例如 `glb`。
+              主要模型格式，通常为 `glb`（三角面）或 `obj`（四边面）；未就绪时为 `null`。
             </ResponseField>
-            <ResponseField name="thumbnail_url" pre={["output.models[]."]} type="string&lt;uri&gt; | null" required>
-              模型预览图可用时返回单个临时签名 URL。
+            <ResponseField name="model_urls" pre={["output.models[]."]} type="object" required>
+              原始生成文件的临时签名链接，不受格式转换影响；未就绪时为 `{}`。三角面返回 `glb`，四边面返回 `obj` 和可用的 `mtl`。
+
+              <Expandable title="子属性">
+                <ResponseField name="glb" pre={["output.models[].model_urls."]} type="string&lt;uri&gt;">
+                  三角面 GLB 模型链接。
+                </ResponseField>
+                <ResponseField name="obj" pre={["output.models[].model_urls."]} type="string&lt;uri&gt;">
+                  四边面原始 OBJ 文件链接。
+                </ResponseField>
+                <ResponseField name="mtl" pre={["output.models[].model_urls."]} type="string&lt;uri&gt;">
+                  四边面 OBJ 的配套材质文件链接。仅 `with_texture=true` 且文件已生成时返回，否则省略。
+                </ResponseField>
+              </Expandable>
+            </ResponseField>
+            <ResponseField name="thumbnail_urls" pre={["output.models[]."]} type="object" required>
+              模型缩略图链接，未生成时为 `{}`。
+
+              <Expandable title="子属性">
+                <ResponseField name="front" pre={["output.models[].thumbnail_urls."]} type="string&lt;uri&gt;">
+                  模型缩略图链接。
+                </ResponseField>
+              </Expandable>
+            </ResponseField>
+            <ResponseField name="texture_urls" pre={["output.models[]."]} type="object">
+              仅带纹理的四边面模型返回。包含可用贴图的临时签名链接，未生成的类型省略；暂无贴图时为 `{}`。
+
+              <Expandable title="子属性">
+                <ResponseField name="albedo" pre={["output.models[].texture_urls."]} type="string&lt;uri&gt;">
+                  颜色贴图链接。
+                </ResponseField>
+                <ResponseField name="normal" pre={["output.models[].texture_urls."]} type="string&lt;uri&gt;">
+                  法线贴图链接。
+                </ResponseField>
+                <ResponseField name="roughness" pre={["output.models[].texture_urls."]} type="string&lt;uri&gt;">
+                  粗糙度贴图链接。
+                </ResponseField>
+                <ResponseField name="metallic" pre={["output.models[].texture_urls."]} type="string&lt;uri&gt;">
+                  金属度贴图链接。
+                </ResponseField>
+              </Expandable>
             </ResponseField>
             <ResponseField name="mesh_quality" pre={["output.models[]."]} type="enum&lt;string&gt;" required>
               网格质量。可选值：`standard`、`high`、`extra_high`。文生、单图生和批量图生 3D 默认使用 `standard`；多视图生 3D 固定使用 `high`。
@@ -542,6 +578,19 @@ Console.WriteLine(await response.Content.ReadAsStringAsync());
   </Tab>
 </Tabs>
 
+## 3D 渲染资源
+
+下表为产物齐全时的渲染资源示例，不含缩略图；实际返回数量取决于已生成的文件。
+
+| 模型类型 | `model_urls` | `texture_urls` | 示例文件数 |
+| --- | --- | --- | --- |
+| 三角面白模、纹理或 PBR 模型 | `glb` | 不返回，材质与贴图随 GLB 加载 | 1 |
+| 四边面白模 | `obj` | 不返回 | 1 |
+| 四边面普通纹理模型 | `obj`、`mtl` | `albedo` | 3 |
+| 四边面 PBR 模型 | `obj`、`mtl` | `albedo`、`normal`、`roughness`、`metallic` | 6 |
+
+贴图文件名需与 MTL 中的引用一致。
+
 <ResponseExample>
 ```json 200 3D 生成成功
 {
@@ -558,13 +607,60 @@ Console.WriteLine(await response.Content.ReadAsStringAsync());
     "models": [
       {
         "uuid": "72e30159-a242-4491-a67c-2ad0cfc9efb6",
-        "url": "https://cdn.neural4d.com/results/model.glb",
         "format": "glb",
-        "thumbnail_url": "https://cdn.neural4d.com/results/t1.png",
+        "model_urls": {
+          "glb": "https://cdn.neural4d.com/results/model.glb"
+        },
+        "thumbnail_urls": {
+          "front": "https://cdn.neural4d.com/results/t1.png"
+        },
         "mesh_quality": "high",
         "pose": "T-pose",
         "target_polycount": 1000000,
         "topology": "triangle",
+        "with_texture": true,
+        "with_pbr": true,
+        "image_enhancement": true,
+        "mode": "image_to_3d",
+        "status": "succeeded",
+        "created_at": 1784044800,
+        "updated_at": 1784044842
+      }
+    ]
+  }
+}
+```
+
+```json 200 四边面 PBR 生成成功
+{
+  "id": "normal-3d-d60fe63e-699d-4d61-93f5-2099ab159d6d",
+  "status": "succeeded",
+  "mode": "image_to_3d",
+  "model": "dreamtech/neural4d-2.5",
+  "created_at": 1784044800,
+  "updated_at": 1784044842,
+  "output": {
+    "models": [
+      {
+        "uuid": "83f41260-b353-45a2-92c8-3be1dfe0a067",
+        "format": "obj",
+        "model_urls": {
+          "obj": "https://cdn.neural4d.com/results/quad/model.obj",
+          "mtl": "https://cdn.neural4d.com/results/quad/model.mtl"
+        },
+        "thumbnail_urls": {
+          "front": "https://cdn.neural4d.com/results/quad/front.png"
+        },
+        "texture_urls": {
+          "albedo": "https://cdn.neural4d.com/results/quad/albedo.png",
+          "normal": "https://cdn.neural4d.com/results/quad/normal.png",
+          "roughness": "https://cdn.neural4d.com/results/quad/roughness.png",
+          "metallic": "https://cdn.neural4d.com/results/quad/metallic.png"
+        },
+        "mesh_quality": "standard",
+        "pose": "auto",
+        "target_polycount": 50000,
+        "topology": "quad",
         "with_texture": true,
         "with_pbr": true,
         "image_enhancement": true,
