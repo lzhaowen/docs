@@ -25,10 +25,10 @@ contentType: application/json
       描述待生成模型的文本提示词。不能为空，最多 500 个字符。
     </ParamField>
     <ParamField body="with_texture" type="boolean" default={false}>
-      是否生成纹理。设为 `false` 时仅生成网格，也不会生成 PBR 材质。
+      是否生成纹理。设为 `false` 时仅生成网格。
     </ParamField>
     <ParamField body="with_pbr" type="boolean" default={false}>
-      是否生成 PBR 材质。只有 `with_texture` 为 `true` 时才有效。
+      是否生成 PBR 材质。为 `true` 时，`with_texture` 必须为 `true`。
     </ParamField>
     <ParamField body="mesh_quality" type="enum&lt;string&gt;" default="standard">
       网格质量：`standard`、`high` 或 `extra_high`。
@@ -72,10 +72,10 @@ contentType: application/json
       是否在生成 3D 模型前增强输入图片，帮助改善生成效果。设为 `true` 时开启，默认关闭。
     </ParamField>
     <ParamField body="with_texture" type="boolean" default={false}>
-      是否生成纹理。设为 `false` 时仅生成网格，也不会生成 PBR 材质。
+      是否生成纹理。设为 `false` 时仅生成网格。
     </ParamField>
     <ParamField body="with_pbr" type="boolean" default={false}>
-      是否生成 PBR 材质。只有 `with_texture` 为 `true` 时才有效。
+      是否生成 PBR 材质。为 `true` 时，`with_texture` 必须为 `true`。
     </ParamField>
     <ParamField body="mesh_quality" type="enum&lt;string&gt;" default="standard">
       网格质量：`standard`、`high` 或 `extra_high`。
@@ -119,10 +119,10 @@ contentType: application/json
       是否在生成 3D 模型前增强批次中的每张输入图片，帮助改善生成效果。设为 `true` 时开启，默认关闭。
     </ParamField>
     <ParamField body="with_texture" type="boolean" default={false}>
-      是否生成纹理。设为 `false` 时仅生成网格，也不会生成 PBR 材质。
+      是否生成纹理。设为 `false` 时仅生成网格。
     </ParamField>
     <ParamField body="with_pbr" type="boolean" default={false}>
-      是否生成 PBR 材质。只有 `with_texture` 为 `true` 时才有效。
+      是否生成 PBR 材质。为 `true` 时，`with_texture` 必须为 `true`。
     </ParamField>
     <ParamField body="mesh_quality" type="enum&lt;string&gt;" default="standard">
       网格质量：`standard`、`high` 或 `extra_high`。
@@ -157,10 +157,10 @@ contentType: application/json
       </Expandable>
     </ParamField>
     <ParamField body="with_texture" type="boolean" default={false}>
-      是否生成纹理。设为 `false` 时仅生成网格，也不会生成 PBR 材质。
+      是否生成纹理。设为 `false` 时仅生成网格。
     </ParamField>
     <ParamField body="with_pbr" type="boolean" default={false}>
-      是否生成 PBR 材质。只有 `with_texture` 为 `true` 时才有效。
+      是否生成 PBR 材质。为 `true` 时，`with_texture` 必须为 `true`。
     </ParamField>
     <ParamField body="target_polycount" type="integer" default={500000}>
       目标面数。多视图使用 `high` 质量的三角网格，可设为 500,000–1,000,000，默认 500,000，以 1,000 递增。

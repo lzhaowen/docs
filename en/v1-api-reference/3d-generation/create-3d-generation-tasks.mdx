@@ -25,10 +25,10 @@ contentType: application/json
       Text describing the model to generate. Must not be empty and is limited to 500 characters.
     </ParamField>
     <ParamField body="with_texture" type="boolean" default={false}>
-      Whether to generate a texture. When `false`, the task creates only a mesh and does not generate PBR materials.
+      Whether to generate a texture. When `false`, the task creates only a mesh.
     </ParamField>
     <ParamField body="with_pbr" type="boolean" default={false}>
-      Whether to generate PBR materials. This applies only when `with_texture` is `true`.
+      Whether to generate PBR materials. When `true`, `with_texture` must be `true`.
     </ParamField>
     <ParamField body="mesh_quality" type="enum&lt;string&gt;" default="standard">
       Mesh quality: `standard`, `high`, or `extra_high`.
@@ -72,10 +72,10 @@ contentType: application/json
       Whether to enhance the input image before 3D model generation to help improve results. Set to `true` to enable. Disabled by default.
     </ParamField>
     <ParamField body="with_texture" type="boolean" default={false}>
-      Whether to generate a texture. When `false`, the task creates only a mesh and does not generate PBR materials.
+      Whether to generate a texture. When `false`, the task creates only a mesh.
     </ParamField>
     <ParamField body="with_pbr" type="boolean" default={false}>
-      Whether to generate PBR materials. This applies only when `with_texture` is `true`.
+      Whether to generate PBR materials. When `true`, `with_texture` must be `true`.
     </ParamField>
     <ParamField body="mesh_quality" type="enum&lt;string&gt;" default="standard">
       Mesh quality: `standard`, `high`, or `extra_high`.
@@ -119,10 +119,10 @@ contentType: application/json
       Whether to enhance each input image in the batch before 3D model generation to help improve results. Set to `true` to enable. Disabled by default.
     </ParamField>
     <ParamField body="with_texture" type="boolean" default={false}>
-      Whether to generate a texture. When `false`, the task creates only a mesh and does not generate PBR materials.
+      Whether to generate a texture. When `false`, the task creates only a mesh.
     </ParamField>
     <ParamField body="with_pbr" type="boolean" default={false}>
-      Whether to generate PBR materials. This applies only when `with_texture` is `true`.
+      Whether to generate PBR materials. When `true`, `with_texture` must be `true`.
     </ParamField>
     <ParamField body="mesh_quality" type="enum&lt;string&gt;" default="standard">
       Mesh quality: `standard`, `high`, or `extra_high`.
@@ -157,10 +157,10 @@ contentType: application/json
       </Expandable>
     </ParamField>
     <ParamField body="with_texture" type="boolean" default={false}>
-      Whether to generate a texture. When `false`, the task creates only a mesh and does not generate PBR materials.
+      Whether to generate a texture. When `false`, the task creates only a mesh.
     </ParamField>
     <ParamField body="with_pbr" type="boolean" default={false}>
-      Whether to generate PBR materials. This applies only when `with_texture` is `true`.
+      Whether to generate PBR materials. When `true`, `with_texture` must be `true`.
     </ParamField>
     <ParamField body="target_polycount" type="integer" default={500000}>
       Target face count. Multi-view generation uses a `high`-quality triangle mesh. The range is 500,000–1,000,000, the default is 500,000, and counts increase in steps of 1,000.

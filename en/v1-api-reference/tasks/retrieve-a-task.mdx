@@ -234,7 +234,7 @@ Console.WriteLine(await response.Content.ReadAsStringAsync());
               Whether to generate textures, matching the requested `with_texture` value.
             </ResponseField>
             <ResponseField name="with_pbr" pre={["output.models[]."]} type="boolean" required>
-              Whether to generate PBR materials, matching the requested `with_pbr` value. This applies only when `with_texture` is `true`.
+              Whether to generate PBR materials, matching the requested `with_pbr` value.
             </ResponseField>
             <ResponseField name="image_enhancement" pre={["output.models[]."]} type="boolean" required>
               Whether input-image enhancement was enabled, matching the requested `image_enhancement` value. Defaults to `false` when omitted and is `false` for text-to-3D and multi-view generation.
