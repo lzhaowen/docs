@@ -251,7 +251,8 @@
   "redirects": [
     {
       "source": "/",
-      "destination": "/en/v1-overview"
+      "destination": "/en/v1-overview",
+      "permanent": false
     },
     {
       "source": "/en",
