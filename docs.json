@@ -21,6 +21,7 @@
         "versions": [
           {
             "version": "v1",
+            "default": true,
             "groups": [
               {
                 "group": "Get started",
@@ -60,7 +61,6 @@
           },
           {
             "version": "old",
-            "default": true,
             "groups": [
               {
                 "group": "Get started",
@@ -213,7 +213,7 @@
   "logo": {
     "light": "/logo/n4d-black.svg",
     "dark": "/logo/n4d-white.svg",
-    "href": "/en/quickstart"
+    "href": "/en/v1-overview"
   },
   "api": {
     "playground": {
@@ -251,11 +251,11 @@
   "redirects": [
     {
       "source": "/",
-      "destination": "/en/quickstart"
+      "destination": "/en/v1-overview"
     },
     {
       "source": "/en",
-      "destination": "/en/quickstart"
+      "destination": "/en/v1-overview"
     },
     {
       "source": "/zh",
