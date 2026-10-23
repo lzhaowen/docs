@@ -196,6 +196,12 @@ Each first frame, last frame, and reference image must be at most 10 MiB, whethe
   Required range: `1 <= x <= 4`.
 </ParamField>
 
+<ParamField body="input_with_person" type="boolean" default={false}>
+  Enable person references for `frame_images` and `input_references`. Generated videos are private by default when enabled. This option increases processing time; enable it only when person references are needed.
+
+  Only supports `bytedance/seedance-2.0` and `bytedance/seedance-2.0-fast`. Provide at least one non-empty array: `frame_images` or `input_references`. Does not support copyrighted faces that require verification.
+</ParamField>
+
 <ParamField body="frame_images" type="object[]">
   First-frame and last-frame images supplied by `file_id` or `url`. Supported formats are JPG, JPEG, PNG, and WEBP, with a maximum of 10 MiB per image. Images must pass content moderation. Each `frame_type` may appear at most once; `last_frame` requires `first_frame`.
 
@@ -231,7 +237,7 @@ Each first frame, last frame, and reference image must be at most 10 MiB, whethe
   - Videos: up to 4 per request; MP4 or MOV; up to 100 MiB per file by default.
   - Audio: up to 2 per request; MP3 or WAV; up to 15 MiB per file by default.
 
-  Reference order is preserved within each media type; frame images are ordered first frame, then last frame.
+  List reference materials in the order you want to use them.
 
   <Tabs sync={false}>
     <Tab title="Image">
@@ -1281,6 +1287,11 @@ Identify errors by `error.code`, not by matching message text.
           - `invalid_reference_url`: The URL format or length is invalid.
           - `unsafe_reference_url`: The URL or redirect destination is not allowed. Use a public file URL that meets the requirements above.
           - `file_rejected`: The image failed content moderation. Use another image.
+
+          Person-reference errors:
+
+          - `unsupported_person_reference`: The selected model or route does not support `input_with_person: true`.
+          - `invalid_input_references`: Person references are enabled but neither `frame_images` nor `input_references` is provided.
         </ResponseField>
 
         <ResponseField name="message" pre={["error."]} type="string" required>
