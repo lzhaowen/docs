@@ -196,6 +196,12 @@ contentType: application/json
   取值范围：`1 <= x <= 4`。
 </ParamField>
 
+<ParamField body="input_with_person" type="boolean" default={false}>
+  是否对 `frame_images` 和 `input_references` 启用人物素材参考生成，开启后生成的视频默认私有。开启后会增加处理耗时，请仅在需要人物素材参考时启用。
+
+  仅支持 `bytedance/seedance-2.0` 和 `bytedance/seedance-2.0-fast`，`frame_images` 或 `input_references` 至少提供一个非空数组；不支持需认证的版权脸素材。
+</ParamField>
+
 <ParamField body="frame_images" type="object[]">
   通过 `file_id` 或 `url` 传入的首帧和尾帧图片。支持 JPG、JPEG、PNG 和 WEBP，单张图片不超过 10 MiB。图片须通过内容审核。每个 `frame_type` 最多出现一次；传入 `last_frame` 时必须同时传入 `first_frame`。
 
@@ -231,7 +237,7 @@ contentType: application/json
   - 视频：每个请求最多 4 个；支持 MP4、MOV，单文件默认不超过 100 MiB。
   - 音频：每个请求最多 2 个；支持 MP3、WAV，单文件默认不超过 15 MiB。
 
-  同类参考素材保持传入顺序；帧图片按首帧、尾帧排序。
+  请按使用顺序排列参考素材。
 
   <Tabs sync={false}>
     <Tab title="图片">
@@ -1281,6 +1287,11 @@ Console.WriteLine(await response.Content.ReadAsStringAsync());
           - `invalid_reference_url`：URL 格式或长度不符合要求。
           - `unsafe_reference_url`：地址或重定向目标不符合安全要求，请使用符合上述要求的公网直链。
           - `file_rejected`：图片未通过内容审核，请更换图片。
+
+          人物参考错误：
+
+          - `unsupported_person_reference`：所选模型或通道不支持 `input_with_person: true`。
+          - `invalid_input_references`：开启人物参考但 `frame_images` 和 `input_references` 均未提供。
         </ResponseField>
 
         <ResponseField name="message" pre={["error."]} type="string" required>
