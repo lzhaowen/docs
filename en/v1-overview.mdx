@@ -1,6 +1,6 @@
 ---
 title: "Quickstart"
-description: "Create a 3D model generation task from a text prompt, then retrieve and download the result."
+description: "Generate a 3D model with PBR materials from a text prompt, then retrieve and download the result."
 keywords:
   - Neural4D
   - 3D
@@ -13,23 +13,269 @@ The API v1 base URL is `https://api.neural4d.com/openapi/v1`. This guide uses te
 
 Use an account with an active paid subscription to get your key from the [API key page](https://www.neural4d.com/account?api).
 
+```bash Configure your API key
+export YOUR_API_KEY='your-api-key'
+```
+
 ## 2. Create a 3D generation task
 
-Submit a prompt to generate a textured 3D model. Send your key in the `Authorization: Bearer` header with every request.
+Submit a prompt to generate a 3D model with PBR materials. Set both `with_texture: true` and `with_pbr: true`. Send your key in the `Authorization: Bearer` header with every request.
 
+<div data-api-example="request">
+<CodeGroup>
 ```bash cURL
 curl --request POST \
   --url 'https://api.neural4d.com/openapi/v1/3dmodels/generations' \
   --header "Authorization: Bearer ${YOUR_API_KEY}" \
   --header 'Content-Type: application/json' \
   --data '{
-    "model": "dreamtech/neural4d-2.5",
-    "prompt": "A ceramic teapot on a white studio background",
-    "with_texture": true
-  }'
+  "model": "dreamtech/neural4d-2.5",
+  "prompt": "A ceramic teapot on a white studio background",
+  "with_texture": true,
+  "with_pbr": true
+}'
 ```
 
-The API returns `202 Accepted`. Save the task `id` for the next step.
+```python Python
+import os
+import requests
+
+api_key = os.environ["YOUR_API_KEY"]
+
+response = requests.post(
+    "https://api.neural4d.com/openapi/v1/3dmodels/generations",
+    headers={
+        "Authorization": f"Bearer {api_key}",
+        "Content-Type": "application/json"
+    },
+    json={
+        "model": "dreamtech/neural4d-2.5",
+        "prompt": "A ceramic teapot on a white studio background",
+        "with_texture": True,
+        "with_pbr": True
+    }
+)
+print(response.json())
+```
+
+```javascript JavaScript
+const apiKey = process.env.YOUR_API_KEY;
+
+const response = await fetch(
+  "https://api.neural4d.com/openapi/v1/3dmodels/generations",
+  {
+    method: "POST",
+    headers: {
+      "Authorization": `Bearer ${apiKey}`,
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      "model": "dreamtech/neural4d-2.5",
+      "prompt": "A ceramic teapot on a white studio background",
+      "with_texture": true,
+      "with_pbr": true
+    })
+  }
+);
+console.log(await response.json());
+```
+
+```typescript TypeScript
+const apiKey = process.env.YOUR_API_KEY;
+
+const response: Response = await fetch(
+  "https://api.neural4d.com/openapi/v1/3dmodels/generations",
+  {
+    method: "POST",
+    headers: {
+      "Authorization": `Bearer ${apiKey}`,
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      "model": "dreamtech/neural4d-2.5",
+      "prompt": "A ceramic teapot on a white studio background",
+      "with_texture": true,
+      "with_pbr": true
+    })
+  }
+);
+console.log(await response.json());
+```
+
+```java Java
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+
+class Main {
+  public static void main(String[] args) throws Exception {
+    String apiKey = System.getenv("YOUR_API_KEY");
+
+    String payload = String.join("\n",
+        "{",
+        "  \"model\": \"dreamtech/neural4d-2.5\",",
+        "  \"prompt\": \"A ceramic teapot on a white studio background\",",
+        "  \"with_texture\": true,",
+        "  \"with_pbr\": true",
+        "}"
+    );
+
+    HttpRequest request = HttpRequest.newBuilder()
+        .uri(URI.create("https://api.neural4d.com/openapi/v1/3dmodels/generations"))
+        .header("Authorization", "Bearer " + apiKey)
+        .header("Content-Type", "application/json")
+        .POST(HttpRequest.BodyPublishers.ofString(payload))
+        .build();
+    HttpResponse<String> response = HttpClient.newHttpClient().send(
+        request,
+        HttpResponse.BodyHandlers.ofString()
+    );
+    System.out.println(response.body());
+  }
+}
+```
+
+```go Go
+package main
+
+import (
+    "fmt"
+    "io"
+    "log"
+    "net/http"
+    "os"
+    "strings"
+)
+
+func main() {
+    if err := run(); err != nil {
+        log.Fatal(err)
+    }
+}
+
+func run() error {
+    payload := strings.NewReader(`{
+      "model": "dreamtech/neural4d-2.5",
+      "prompt": "A ceramic teapot on a white studio background",
+      "with_texture": true,
+      "with_pbr": true
+    }`)
+    request, err := http.NewRequest(
+        "POST",
+        "https://api.neural4d.com/openapi/v1/3dmodels/generations",
+        payload,
+    )
+    if err != nil {
+        return err
+    }
+    request.Header.Set("Authorization", "Bearer "+os.Getenv("YOUR_API_KEY"))
+    request.Header.Set("Content-Type", "application/json")
+
+    response, err := http.DefaultClient.Do(request)
+    if err != nil {
+        return err
+    }
+    defer response.Body.Close()
+    result, err := io.ReadAll(response.Body)
+    if err != nil {
+        return err
+    }
+    fmt.Println(string(result))
+    return nil
+}
+```
+
+```ruby Ruby
+require "net/http"
+require "json"
+
+api_key = ENV.fetch("YOUR_API_KEY")
+uri = URI("https://api.neural4d.com/openapi/v1/3dmodels/generations")
+request = Net::HTTP::Post.new(uri)
+request["Authorization"] = "Bearer #{api_key}"
+request["Content-Type"] = "application/json"
+request.body = {
+    "model": "dreamtech/neural4d-2.5",
+    "prompt": "A ceramic teapot on a white studio background",
+    "with_texture": true,
+    "with_pbr": true
+}.to_json
+
+response = Net::HTTP.start(
+  uri.hostname,
+  uri.port,
+  use_ssl: uri.scheme == "https"
+) do |http|
+  http.request(request)
+end
+puts response.body
+```
+
+```php PHP
+<?php
+
+$apiKey = getenv("YOUR_API_KEY");
+
+$payload = <<<'JSON'
+{
+  "model": "dreamtech/neural4d-2.5",
+  "prompt": "A ceramic teapot on a white studio background",
+  "with_texture": true,
+  "with_pbr": true
+}
+JSON;
+
+$ch = curl_init("https://api.neural4d.com/openapi/v1/3dmodels/generations");
+curl_setopt_array($ch, [
+    CURLOPT_CUSTOMREQUEST => "POST",
+    CURLOPT_RETURNTRANSFER => true,
+    CURLOPT_HTTPHEADER => [
+        "Authorization: Bearer {$apiKey}",
+        "Content-Type: application/json",
+    ],
+    CURLOPT_POSTFIELDS => $payload,
+]);
+$response = curl_exec($ch);
+curl_close($ch);
+echo $response;
+```
+
+```csharp C#
+using System;
+using System.Net.Http;
+using System.Text;
+
+var apiKey = Environment.GetEnvironmentVariable("YOUR_API_KEY");
+
+var payload = @"{
+  ""model"": ""dreamtech/neural4d-2.5"",
+  ""prompt"": ""A ceramic teapot on a white studio background"",
+  ""with_texture"": true,
+  ""with_pbr"": true
+}";
+
+using var client = new HttpClient();
+using var request = new HttpRequestMessage(
+    HttpMethod.Post,
+    "https://api.neural4d.com/openapi/v1/3dmodels/generations"
+);
+request.Headers.TryAddWithoutValidation(
+    "Authorization",
+    "Bearer " + apiKey
+);
+request.Content = new StringContent(
+    payload,
+    Encoding.UTF8,
+    "application/json"
+);
+using var response = await client.SendAsync(request);
+Console.WriteLine(await response.Content.ReadAsStringAsync());
+```
+</CodeGroup>
+</div>
+
+The API returns `202 Accepted`. Save the task `id` for the next step. Responses below illustrate the structure; use the actual IDs, asset URLs, and `usage.credits` returned by the API.
 
 ```json 202 Accepted
 {
@@ -55,11 +301,182 @@ The API returns `202 Accepted`. Save the task `id` for the next step.
 
 Replace the sample `id` with the value returned when you created the task, then query every few seconds. `queued` and `processing` mean the task is still running. Stop at `succeeded` or `failed`; check `error` if it failed.
 
+<div data-api-example="request">
+<CodeGroup>
 ```bash cURL
 curl --request GET \
   --url 'https://api.neural4d.com/openapi/v1/tasks/task-info?id=normal-3d-c50fe63e-699d-4d61-93f5-2099ab159d6d' \
   --header "Authorization: Bearer ${YOUR_API_KEY}"
 ```
+
+```python Python
+import os
+import requests
+
+api_key = os.environ["YOUR_API_KEY"]
+
+response = requests.get(
+    "https://api.neural4d.com/openapi/v1/tasks/task-info?id=normal-3d-c50fe63e-699d-4d61-93f5-2099ab159d6d",
+    headers={
+        "Authorization": f"Bearer {api_key}"
+    }
+)
+print(response.json())
+```
+
+```javascript JavaScript
+const apiKey = process.env.YOUR_API_KEY;
+
+const response = await fetch(
+  "https://api.neural4d.com/openapi/v1/tasks/task-info?id=normal-3d-c50fe63e-699d-4d61-93f5-2099ab159d6d",
+  {
+    method: "GET",
+    headers: {
+      "Authorization": `Bearer ${apiKey}`
+    }
+  }
+);
+console.log(await response.json());
+```
+
+```typescript TypeScript
+const apiKey = process.env.YOUR_API_KEY;
+
+const response: Response = await fetch(
+  "https://api.neural4d.com/openapi/v1/tasks/task-info?id=normal-3d-c50fe63e-699d-4d61-93f5-2099ab159d6d",
+  {
+    method: "GET",
+    headers: {
+      "Authorization": `Bearer ${apiKey}`
+    }
+  }
+);
+console.log(await response.json());
+```
+
+```java Java
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+
+class Main {
+  public static void main(String[] args) throws Exception {
+    String apiKey = System.getenv("YOUR_API_KEY");
+
+    HttpRequest request = HttpRequest.newBuilder()
+        .uri(URI.create("https://api.neural4d.com/openapi/v1/tasks/task-info?id=normal-3d-c50fe63e-699d-4d61-93f5-2099ab159d6d"))
+        .header("Authorization", "Bearer " + apiKey)
+        .GET()
+        .build();
+    HttpResponse<String> response = HttpClient.newHttpClient().send(
+        request,
+        HttpResponse.BodyHandlers.ofString()
+    );
+    System.out.println(response.body());
+  }
+}
+```
+
+```go Go
+package main
+
+import (
+    "fmt"
+    "io"
+    "log"
+    "net/http"
+    "os"
+)
+
+func main() {
+    if err := run(); err != nil {
+        log.Fatal(err)
+    }
+}
+
+func run() error {
+    request, err := http.NewRequest(
+        "GET",
+        "https://api.neural4d.com/openapi/v1/tasks/task-info?id=normal-3d-c50fe63e-699d-4d61-93f5-2099ab159d6d",
+        nil,
+    )
+    if err != nil {
+        return err
+    }
+    request.Header.Set("Authorization", "Bearer "+os.Getenv("YOUR_API_KEY"))
+
+    response, err := http.DefaultClient.Do(request)
+    if err != nil {
+        return err
+    }
+    defer response.Body.Close()
+    result, err := io.ReadAll(response.Body)
+    if err != nil {
+        return err
+    }
+    fmt.Println(string(result))
+    return nil
+}
+```
+
+```ruby Ruby
+require "net/http"
+require "json"
+
+api_key = ENV.fetch("YOUR_API_KEY")
+uri = URI("https://api.neural4d.com/openapi/v1/tasks/task-info?id=normal-3d-c50fe63e-699d-4d61-93f5-2099ab159d6d")
+request = Net::HTTP::Get.new(uri)
+request["Authorization"] = "Bearer #{api_key}"
+
+response = Net::HTTP.start(
+  uri.hostname,
+  uri.port,
+  use_ssl: uri.scheme == "https"
+) do |http|
+  http.request(request)
+end
+puts response.body
+```
+
+```php PHP
+<?php
+
+$apiKey = getenv("YOUR_API_KEY");
+
+$ch = curl_init("https://api.neural4d.com/openapi/v1/tasks/task-info?id=normal-3d-c50fe63e-699d-4d61-93f5-2099ab159d6d");
+curl_setopt_array($ch, [
+    CURLOPT_CUSTOMREQUEST => "GET",
+    CURLOPT_RETURNTRANSFER => true,
+    CURLOPT_HTTPHEADER => [
+        "Authorization: Bearer {$apiKey}",
+    ],
+]);
+$response = curl_exec($ch);
+curl_close($ch);
+echo $response;
+```
+
+```csharp C#
+using System;
+using System.Net.Http;
+
+var apiKey = Environment.GetEnvironmentVariable("YOUR_API_KEY");
+
+using var client = new HttpClient();
+using var request = new HttpRequestMessage(
+    HttpMethod.Get,
+    "https://api.neural4d.com/openapi/v1/tasks/task-info?id=normal-3d-c50fe63e-699d-4d61-93f5-2099ab159d6d"
+);
+request.Headers.TryAddWithoutValidation(
+    "Authorization",
+    "Bearer " + apiKey
+);
+using var response = await client.SendAsync(request);
+Console.WriteLine(await response.Content.ReadAsStringAsync());
+```
+</CodeGroup>
+</div>
 
 ```json 200 OK
 {
@@ -85,7 +502,7 @@ curl --request GET \
         "target_polycount": 500000,
         "topology": "triangle",
         "with_texture": true,
-        "with_pbr": false,
+        "with_pbr": true,
         "image_enhancement": false,
         "mode": "text_to_3d",
         "status": "succeeded",
@@ -100,8 +517,8 @@ curl --request GET \
 }
 ```
 
-Download models from `model_urls` and view the thumbnail at `thumbnail_urls.front`. `thumbnail_urls` is `{}` until available. Retrieve the task again when the URLs expire.
+Download the model from `model_urls.glb` and view the thumbnail at `thumbnail_urls.front`. `thumbnail_urls` is `{}` until available.
 
-`model_urls` only includes original generation files, unaffected by format conversions: `glb` for triangle models and `obj` for quad models. Textured quad models also return `mtl` if the material file has been generated. Texture maps are in `texture_urls`.
+This example generates a triangle-mesh GLB with its PBR materials and textures included in the file.
 
 More examples: [3D generation parameters](/en/v1-api-reference/3d-generation/create-3d-generation-tasks) · [Complete task response](/en/v1-api-reference/tasks/retrieve-a-task) · [Upload a reference file](/en/v1-api-reference/files/upload-a-file).

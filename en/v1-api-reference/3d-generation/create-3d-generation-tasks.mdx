@@ -172,7 +172,192 @@ contentType: application/json
 </Tabs>
 
 <RequestExample>
-```json Text-to-3D request body
+```bash cURL · text_to_3d
+curl --request POST \
+  --url https://api.neural4d.com/openapi/v1/3dmodels/generations \
+  --header 'Authorization: Bearer <token>' \
+  --header 'Content-Type: application/json' \
+  --data '{
+  "model": "dreamtech/neural4d-2.5",
+  "prompt": "A ceramic teapot on a white studio background",
+  "mesh_quality": "standard",
+  "topology": "triangle",
+  "target_polycount": 500000,
+  "with_texture": false,
+  "with_pbr": false,
+  "n": 1
+}'
+```
+
+```python Python · text_to_3d
+import requests
+
+response = requests.post(
+    "https://api.neural4d.com/openapi/v1/3dmodels/generations",
+    headers={
+        "Authorization": "Bearer <token>",
+        "Content-Type": "application/json",
+    },
+    json={
+        "model": "dreamtech/neural4d-2.5",
+        "prompt": "A ceramic teapot on a white studio background",
+        "mesh_quality": "standard",
+        "topology": "triangle",
+        "target_polycount": 500000,
+        "with_texture": False,
+        "with_pbr": False,
+        "n": 1,
+    },
+)
+print(response.json())
+```
+
+```javascript JavaScript · text_to_3d
+const response = await fetch(
+  "https://api.neural4d.com/openapi/v1/3dmodels/generations",
+  {
+    method: "POST",
+    headers: {
+      "Authorization": "Bearer <token>",
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      "model": "dreamtech/neural4d-2.5",
+      "prompt": "A ceramic teapot on a white studio background",
+      "mesh_quality": "standard",
+      "topology": "triangle",
+      "target_polycount": 500000,
+      "with_texture": false,
+      "with_pbr": false,
+      "n": 1
+    })
+  }
+);
+console.log(await response.json());
+```
+
+```typescript TypeScript · text_to_3d
+const response: Response = await fetch(
+  "https://api.neural4d.com/openapi/v1/3dmodels/generations",
+  {
+    method: "POST",
+    headers: {
+      "Authorization": "Bearer <token>",
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      "model": "dreamtech/neural4d-2.5",
+      "prompt": "A ceramic teapot on a white studio background",
+      "mesh_quality": "standard",
+      "topology": "triangle",
+      "target_polycount": 500000,
+      "with_texture": false,
+      "with_pbr": false,
+      "n": 1
+    })
+  }
+);
+console.log(await response.json());
+```
+
+```java Java · text_to_3d
+import java.net.URI;
+import java.net.http.*;
+
+String payload = String.join("\n",
+    "{",
+    "  \"model\": \"dreamtech/neural4d-2.5\",",
+    "  \"prompt\": \"A ceramic teapot on a white studio background\",",
+    "  \"mesh_quality\": \"standard\",",
+    "  \"topology\": \"triangle\",",
+    "  \"target_polycount\": 500000,",
+    "  \"with_texture\": false,",
+    "  \"with_pbr\": false,",
+    "  \"n\": 1",
+    "}"
+);
+
+HttpRequest request = HttpRequest.newBuilder()
+    .uri(URI.create("https://api.neural4d.com/openapi/v1/3dmodels/generations"))
+    .header("Authorization", "Bearer <token>")
+    .header("Content-Type", "application/json")
+    .POST(HttpRequest.BodyPublishers.ofString(payload))
+    .build();
+HttpResponse<String> response = HttpClient.newHttpClient().send(
+    request,
+    HttpResponse.BodyHandlers.ofString()
+);
+System.out.println(response.body());
+```
+
+```go Go · text_to_3d
+package main
+
+import (
+    "fmt"
+    "io"
+    "net/http"
+    "strings"
+)
+
+func main() {
+    payload := strings.NewReader(`{
+      "model": "dreamtech/neural4d-2.5",
+      "prompt": "A ceramic teapot on a white studio background",
+      "mesh_quality": "standard",
+      "topology": "triangle",
+      "target_polycount": 500000,
+      "with_texture": false,
+      "with_pbr": false,
+      "n": 1
+    }`)
+    req, _ := http.NewRequest(
+        "POST",
+        "https://api.neural4d.com/openapi/v1/3dmodels/generations",
+        payload,
+    )
+    req.Header.Set("Authorization", "Bearer <token>")
+    req.Header.Set("Content-Type", "application/json")
+    resp, _ := http.DefaultClient.Do(req)
+    defer resp.Body.Close()
+    bodyBytes, _ := io.ReadAll(resp.Body)
+    fmt.Println(string(bodyBytes))
+}
+```
+
+```ruby Ruby · text_to_3d
+require "net/http"
+require "json"
+
+uri = URI("https://api.neural4d.com/openapi/v1/3dmodels/generations")
+request = Net::HTTP::Post.new(uri)
+request["Authorization"] = "Bearer <token>"
+request["Content-Type"] = "application/json"
+request.body = {
+  "model": "dreamtech/neural4d-2.5",
+  "prompt": "A ceramic teapot on a white studio background",
+  "mesh_quality": "standard",
+  "topology": "triangle",
+  "target_polycount": 500000,
+  "with_texture": false,
+  "with_pbr": false,
+  "n": 1
+}.to_json
+
+response = Net::HTTP.start(
+  uri.hostname,
+  uri.port,
+  use_ssl: uri.scheme == "https"
+) do |http|
+  http.request(request)
+end
+puts response.body
+```
+
+```php PHP · text_to_3d
+<?php
+
+$payload = <<<'JSON'
 {
   "model": "dreamtech/neural4d-2.5",
   "prompt": "A ceramic teapot on a white studio background",
@@ -183,50 +368,1041 @@ contentType: application/json
   "with_pbr": false,
   "n": 1
 }
+JSON;
+
+$ch = curl_init("https://api.neural4d.com/openapi/v1/3dmodels/generations");
+curl_setopt_array($ch, [
+    CURLOPT_CUSTOMREQUEST => "POST",
+    CURLOPT_RETURNTRANSFER => true,
+    CURLOPT_HTTPHEADER => [
+        "Authorization: Bearer <token>",
+        "Content-Type: application/json",
+    ],
+    CURLOPT_POSTFIELDS => $payload,
+]);
+$response = curl_exec($ch);
+curl_close($ch);
+echo $response;
 ```
 
-```json Single-image-to-3D request body
+```csharp C# · text_to_3d
+using System.Net.Http;
+using System.Text;
+
+var payload = @"{
+  ""model"": ""dreamtech/neural4d-2.5"",
+  ""prompt"": ""A ceramic teapot on a white studio background"",
+  ""mesh_quality"": ""standard"",
+  ""topology"": ""triangle"",
+  ""target_polycount"": 500000,
+  ""with_texture"": false,
+  ""with_pbr"": false,
+  ""n"": 1
+}";
+
+using var client = new HttpClient();
+using var request = new HttpRequestMessage(
+    HttpMethod.Post,
+    "https://api.neural4d.com/openapi/v1/3dmodels/generations"
+);
+request.Headers.TryAddWithoutValidation("Authorization", "Bearer <token>");
+request.Content = new StringContent(
+    payload,
+    Encoding.UTF8,
+    "application/json"
+);
+using var response = await client.SendAsync(request);
+Console.WriteLine(await response.Content.ReadAsStringAsync());
+```
+
+```bash cURL · image_to_3d
+curl --request POST \
+  --url https://api.neural4d.com/openapi/v1/3dmodels/generations \
+  --header 'Authorization: Bearer <token>' \
+  --header 'Content-Type: application/json' \
+  --data '{
+  "model": "dreamtech/neural4d-2.5",
+  "input_references": [
+    {
+      "type": "image",
+      "file_id": "550e8400-e29b-41d4-a716-446655440000"
+    }
+  ],
+  "image_enhancement": true,
+  "pose": "T-pose",
+  "mesh_quality": "standard",
+  "n": 2
+}'
+```
+
+```python Python · image_to_3d
+import requests
+
+response = requests.post(
+    "https://api.neural4d.com/openapi/v1/3dmodels/generations",
+    headers={
+        "Authorization": "Bearer <token>",
+        "Content-Type": "application/json",
+    },
+    json={
+        "model": "dreamtech/neural4d-2.5",
+        "input_references": [
+            {"type": "image", "file_id": "550e8400-e29b-41d4-a716-446655440000"}
+        ],
+        "image_enhancement": True,
+        "pose": "T-pose",
+        "mesh_quality": "standard",
+        "n": 2,
+    },
+)
+print(response.json())
+```
+
+```javascript JavaScript · image_to_3d
+const response = await fetch(
+  "https://api.neural4d.com/openapi/v1/3dmodels/generations",
+  {
+    method: "POST",
+    headers: {
+      "Authorization": "Bearer <token>",
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      "model": "dreamtech/neural4d-2.5",
+      "input_references": [
+        {
+          "type": "image",
+          "file_id": "550e8400-e29b-41d4-a716-446655440000"
+        }
+      ],
+      "image_enhancement": true,
+      "pose": "T-pose",
+      "mesh_quality": "standard",
+      "n": 2
+    })
+  }
+);
+console.log(await response.json());
+```
+
+```typescript TypeScript · image_to_3d
+const response: Response = await fetch(
+  "https://api.neural4d.com/openapi/v1/3dmodels/generations",
+  {
+    method: "POST",
+    headers: {
+      "Authorization": "Bearer <token>",
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      "model": "dreamtech/neural4d-2.5",
+      "input_references": [
+        {
+          "type": "image",
+          "file_id": "550e8400-e29b-41d4-a716-446655440000"
+        }
+      ],
+      "image_enhancement": true,
+      "pose": "T-pose",
+      "mesh_quality": "standard",
+      "n": 2
+    })
+  }
+);
+console.log(await response.json());
+```
+
+```java Java · image_to_3d
+import java.net.URI;
+import java.net.http.*;
+
+String payload = String.join("\n",
+    "{",
+    "  \"model\": \"dreamtech/neural4d-2.5\",",
+    "  \"input_references\": [",
+    "    {",
+    "      \"type\": \"image\",",
+    "      \"file_id\": \"550e8400-e29b-41d4-a716-446655440000\"",
+    "    }",
+    "  ],",
+    "  \"image_enhancement\": true,",
+    "  \"pose\": \"T-pose\",",
+    "  \"mesh_quality\": \"standard\",",
+    "  \"n\": 2",
+    "}"
+);
+
+HttpRequest request = HttpRequest.newBuilder()
+    .uri(URI.create("https://api.neural4d.com/openapi/v1/3dmodels/generations"))
+    .header("Authorization", "Bearer <token>")
+    .header("Content-Type", "application/json")
+    .POST(HttpRequest.BodyPublishers.ofString(payload))
+    .build();
+HttpResponse<String> response = HttpClient.newHttpClient().send(
+    request,
+    HttpResponse.BodyHandlers.ofString()
+);
+System.out.println(response.body());
+```
+
+```go Go · image_to_3d
+package main
+
+import (
+    "fmt"
+    "io"
+    "net/http"
+    "strings"
+)
+
+func main() {
+    payload := strings.NewReader(`{
+      "model": "dreamtech/neural4d-2.5",
+      "input_references": [
+        {
+          "type": "image",
+          "file_id": "550e8400-e29b-41d4-a716-446655440000"
+        }
+      ],
+      "image_enhancement": true,
+      "pose": "T-pose",
+      "mesh_quality": "standard",
+      "n": 2
+    }`)
+    req, _ := http.NewRequest(
+        "POST",
+        "https://api.neural4d.com/openapi/v1/3dmodels/generations",
+        payload,
+    )
+    req.Header.Set("Authorization", "Bearer <token>")
+    req.Header.Set("Content-Type", "application/json")
+    resp, _ := http.DefaultClient.Do(req)
+    defer resp.Body.Close()
+    bodyBytes, _ := io.ReadAll(resp.Body)
+    fmt.Println(string(bodyBytes))
+}
+```
+
+```ruby Ruby · image_to_3d
+require "net/http"
+require "json"
+
+uri = URI("https://api.neural4d.com/openapi/v1/3dmodels/generations")
+request = Net::HTTP::Post.new(uri)
+request["Authorization"] = "Bearer <token>"
+request["Content-Type"] = "application/json"
+request.body = {
+  "model": "dreamtech/neural4d-2.5",
+  "input_references": [
+    {
+      "type": "image",
+      "file_id": "550e8400-e29b-41d4-a716-446655440000"
+    }
+  ],
+  "image_enhancement": true,
+  "pose": "T-pose",
+  "mesh_quality": "standard",
+  "n": 2
+}.to_json
+
+response = Net::HTTP.start(
+  uri.hostname,
+  uri.port,
+  use_ssl: uri.scheme == "https"
+) do |http|
+  http.request(request)
+end
+puts response.body
+```
+
+```php PHP · image_to_3d
+<?php
+
+$payload = <<<'JSON'
 {
   "model": "dreamtech/neural4d-2.5",
   "input_references": [
-    { "type": "image", "file_id": "550e8400-e29b-41d4-a716-446655440000" }
+    {
+      "type": "image",
+      "file_id": "550e8400-e29b-41d4-a716-446655440000"
+    }
   ],
   "image_enhancement": true,
   "pose": "T-pose",
   "mesh_quality": "standard",
   "n": 2
 }
+JSON;
+
+$ch = curl_init("https://api.neural4d.com/openapi/v1/3dmodels/generations");
+curl_setopt_array($ch, [
+    CURLOPT_CUSTOMREQUEST => "POST",
+    CURLOPT_RETURNTRANSFER => true,
+    CURLOPT_HTTPHEADER => [
+        "Authorization: Bearer <token>",
+        "Content-Type: application/json",
+    ],
+    CURLOPT_POSTFIELDS => $payload,
+]);
+$response = curl_exec($ch);
+curl_close($ch);
+echo $response;
 ```
 
-```json Batch image-to-3D request body
+```csharp C# · image_to_3d
+using System.Net.Http;
+using System.Text;
+
+var payload = @"{
+  ""model"": ""dreamtech/neural4d-2.5"",
+  ""input_references"": [
+    {
+      ""type"": ""image"",
+      ""file_id"": ""550e8400-e29b-41d4-a716-446655440000""
+    }
+  ],
+  ""image_enhancement"": true,
+  ""pose"": ""T-pose"",
+  ""mesh_quality"": ""standard"",
+  ""n"": 2
+}";
+
+using var client = new HttpClient();
+using var request = new HttpRequestMessage(
+    HttpMethod.Post,
+    "https://api.neural4d.com/openapi/v1/3dmodels/generations"
+);
+request.Headers.TryAddWithoutValidation("Authorization", "Bearer <token>");
+request.Content = new StringContent(
+    payload,
+    Encoding.UTF8,
+    "application/json"
+);
+using var response = await client.SendAsync(request);
+Console.WriteLine(await response.Content.ReadAsStringAsync());
+```
+
+```bash cURL · batch_image_to_3d
+curl --request POST \
+  --url https://api.neural4d.com/openapi/v1/3dmodels/generations \
+  --header 'Authorization: Bearer <token>' \
+  --header 'Content-Type: application/json' \
+  --data '{
+  "model": "dreamtech/neural4d-2.5",
+  "input_references": [
+    {
+      "type": "image",
+      "file_id": "550e8400-e29b-41d4-a716-446655440000"
+    },
+    {
+      "type": "image",
+      "file_id": "550e8400-e29b-41d4-a716-446655440001"
+    }
+  ],
+  "image_enhancement": true,
+  "mesh_quality": "standard",
+  "target_polycount": 500000
+}'
+```
+
+```python Python · batch_image_to_3d
+import requests
+
+response = requests.post(
+    "https://api.neural4d.com/openapi/v1/3dmodels/generations",
+    headers={
+        "Authorization": "Bearer <token>",
+        "Content-Type": "application/json",
+    },
+    json={
+        "model": "dreamtech/neural4d-2.5",
+        "input_references": [
+            {"type": "image", "file_id": "550e8400-e29b-41d4-a716-446655440000"},
+            {"type": "image", "file_id": "550e8400-e29b-41d4-a716-446655440001"},
+        ],
+        "image_enhancement": True,
+        "mesh_quality": "standard",
+        "target_polycount": 500000,
+    },
+)
+print(response.json())
+```
+
+```javascript JavaScript · batch_image_to_3d
+const response = await fetch(
+  "https://api.neural4d.com/openapi/v1/3dmodels/generations",
+  {
+    method: "POST",
+    headers: {
+      "Authorization": "Bearer <token>",
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      "model": "dreamtech/neural4d-2.5",
+      "input_references": [
+        {
+          "type": "image",
+          "file_id": "550e8400-e29b-41d4-a716-446655440000"
+        },
+        {
+          "type": "image",
+          "file_id": "550e8400-e29b-41d4-a716-446655440001"
+        }
+      ],
+      "image_enhancement": true,
+      "mesh_quality": "standard",
+      "target_polycount": 500000
+    })
+  }
+);
+console.log(await response.json());
+```
+
+```typescript TypeScript · batch_image_to_3d
+const response: Response = await fetch(
+  "https://api.neural4d.com/openapi/v1/3dmodels/generations",
+  {
+    method: "POST",
+    headers: {
+      "Authorization": "Bearer <token>",
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      "model": "dreamtech/neural4d-2.5",
+      "input_references": [
+        {
+          "type": "image",
+          "file_id": "550e8400-e29b-41d4-a716-446655440000"
+        },
+        {
+          "type": "image",
+          "file_id": "550e8400-e29b-41d4-a716-446655440001"
+        }
+      ],
+      "image_enhancement": true,
+      "mesh_quality": "standard",
+      "target_polycount": 500000
+    })
+  }
+);
+console.log(await response.json());
+```
+
+```java Java · batch_image_to_3d
+import java.net.URI;
+import java.net.http.*;
+
+String payload = String.join("\n",
+    "{",
+    "  \"model\": \"dreamtech/neural4d-2.5\",",
+    "  \"input_references\": [",
+    "    {",
+    "      \"type\": \"image\",",
+    "      \"file_id\": \"550e8400-e29b-41d4-a716-446655440000\"",
+    "    },",
+    "    {",
+    "      \"type\": \"image\",",
+    "      \"file_id\": \"550e8400-e29b-41d4-a716-446655440001\"",
+    "    }",
+    "  ],",
+    "  \"image_enhancement\": true,",
+    "  \"mesh_quality\": \"standard\",",
+    "  \"target_polycount\": 500000",
+    "}"
+);
+
+HttpRequest request = HttpRequest.newBuilder()
+    .uri(URI.create("https://api.neural4d.com/openapi/v1/3dmodels/generations"))
+    .header("Authorization", "Bearer <token>")
+    .header("Content-Type", "application/json")
+    .POST(HttpRequest.BodyPublishers.ofString(payload))
+    .build();
+HttpResponse<String> response = HttpClient.newHttpClient().send(
+    request,
+    HttpResponse.BodyHandlers.ofString()
+);
+System.out.println(response.body());
+```
+
+```go Go · batch_image_to_3d
+package main
+
+import (
+    "fmt"
+    "io"
+    "net/http"
+    "strings"
+)
+
+func main() {
+    payload := strings.NewReader(`{
+      "model": "dreamtech/neural4d-2.5",
+      "input_references": [
+        {
+          "type": "image",
+          "file_id": "550e8400-e29b-41d4-a716-446655440000"
+        },
+        {
+          "type": "image",
+          "file_id": "550e8400-e29b-41d4-a716-446655440001"
+        }
+      ],
+      "image_enhancement": true,
+      "mesh_quality": "standard",
+      "target_polycount": 500000
+    }`)
+    req, _ := http.NewRequest(
+        "POST",
+        "https://api.neural4d.com/openapi/v1/3dmodels/generations",
+        payload,
+    )
+    req.Header.Set("Authorization", "Bearer <token>")
+    req.Header.Set("Content-Type", "application/json")
+    resp, _ := http.DefaultClient.Do(req)
+    defer resp.Body.Close()
+    bodyBytes, _ := io.ReadAll(resp.Body)
+    fmt.Println(string(bodyBytes))
+}
+```
+
+```ruby Ruby · batch_image_to_3d
+require "net/http"
+require "json"
+
+uri = URI("https://api.neural4d.com/openapi/v1/3dmodels/generations")
+request = Net::HTTP::Post.new(uri)
+request["Authorization"] = "Bearer <token>"
+request["Content-Type"] = "application/json"
+request.body = {
+  "model": "dreamtech/neural4d-2.5",
+  "input_references": [
+    {
+      "type": "image",
+      "file_id": "550e8400-e29b-41d4-a716-446655440000"
+    },
+    {
+      "type": "image",
+      "file_id": "550e8400-e29b-41d4-a716-446655440001"
+    }
+  ],
+  "image_enhancement": true,
+  "mesh_quality": "standard",
+  "target_polycount": 500000
+}.to_json
+
+response = Net::HTTP.start(
+  uri.hostname,
+  uri.port,
+  use_ssl: uri.scheme == "https"
+) do |http|
+  http.request(request)
+end
+puts response.body
+```
+
+```php PHP · batch_image_to_3d
+<?php
+
+$payload = <<<'JSON'
 {
   "model": "dreamtech/neural4d-2.5",
   "input_references": [
-    { "type": "image", "file_id": "550e8400-e29b-41d4-a716-446655440000" },
-    { "type": "image", "file_id": "550e8400-e29b-41d4-a716-446655440001" }
+    {
+      "type": "image",
+      "file_id": "550e8400-e29b-41d4-a716-446655440000"
+    },
+    {
+      "type": "image",
+      "file_id": "550e8400-e29b-41d4-a716-446655440001"
+    }
   ],
   "image_enhancement": true,
   "mesh_quality": "standard",
   "target_polycount": 500000
 }
+JSON;
+
+$ch = curl_init("https://api.neural4d.com/openapi/v1/3dmodels/generations");
+curl_setopt_array($ch, [
+    CURLOPT_CUSTOMREQUEST => "POST",
+    CURLOPT_RETURNTRANSFER => true,
+    CURLOPT_HTTPHEADER => [
+        "Authorization: Bearer <token>",
+        "Content-Type: application/json",
+    ],
+    CURLOPT_POSTFIELDS => $payload,
+]);
+$response = curl_exec($ch);
+curl_close($ch);
+echo $response;
 ```
 
-```json Multi-view-to-3D request body
+```csharp C# · batch_image_to_3d
+using System.Net.Http;
+using System.Text;
+
+var payload = @"{
+  ""model"": ""dreamtech/neural4d-2.5"",
+  ""input_references"": [
+    {
+      ""type"": ""image"",
+      ""file_id"": ""550e8400-e29b-41d4-a716-446655440000""
+    },
+    {
+      ""type"": ""image"",
+      ""file_id"": ""550e8400-e29b-41d4-a716-446655440001""
+    }
+  ],
+  ""image_enhancement"": true,
+  ""mesh_quality"": ""standard"",
+  ""target_polycount"": 500000
+}";
+
+using var client = new HttpClient();
+using var request = new HttpRequestMessage(
+    HttpMethod.Post,
+    "https://api.neural4d.com/openapi/v1/3dmodels/generations"
+);
+request.Headers.TryAddWithoutValidation("Authorization", "Bearer <token>");
+request.Content = new StringContent(
+    payload,
+    Encoding.UTF8,
+    "application/json"
+);
+using var response = await client.SendAsync(request);
+Console.WriteLine(await response.Content.ReadAsStringAsync());
+```
+
+```bash cURL · multi_view_to_3d
+curl --request POST \
+  --url https://api.neural4d.com/openapi/v1/3dmodels/generations \
+  --header 'Authorization: Bearer <token>' \
+  --header 'Content-Type: application/json' \
+  --data '{
+  "model": "dreamtech/neural4d-2.5",
+  "multi_view_images": [
+    {
+      "view_type": "front",
+      "file_id": "550e8400-e29b-41d4-a716-446655440001"
+    },
+    {
+      "view_type": "back",
+      "file_id": "550e8400-e29b-41d4-a716-446655440002"
+    },
+    {
+      "view_type": "left",
+      "file_id": "550e8400-e29b-41d4-a716-446655440003"
+    },
+    {
+      "view_type": "right",
+      "file_id": "550e8400-e29b-41d4-a716-446655440004"
+    },
+    {
+      "view_type": "top",
+      "file_id": "550e8400-e29b-41d4-a716-446655440005"
+    },
+    {
+      "view_type": "bottom",
+      "file_id": "550e8400-e29b-41d4-a716-446655440006"
+    }
+  ],
+  "target_polycount": 500000,
+  "with_texture": false,
+  "with_pbr": false,
+  "n": 1
+}'
+```
+
+```python Python · multi_view_to_3d
+import requests
+
+response = requests.post(
+    "https://api.neural4d.com/openapi/v1/3dmodels/generations",
+    headers={
+        "Authorization": "Bearer <token>",
+        "Content-Type": "application/json",
+    },
+    json={
+        "model": "dreamtech/neural4d-2.5",
+        "multi_view_images": [
+            {"view_type": "front", "file_id": "550e8400-e29b-41d4-a716-446655440001"},
+            {"view_type": "back", "file_id": "550e8400-e29b-41d4-a716-446655440002"},
+            {"view_type": "left", "file_id": "550e8400-e29b-41d4-a716-446655440003"},
+            {"view_type": "right", "file_id": "550e8400-e29b-41d4-a716-446655440004"},
+            {"view_type": "top", "file_id": "550e8400-e29b-41d4-a716-446655440005"},
+            {"view_type": "bottom", "file_id": "550e8400-e29b-41d4-a716-446655440006"},
+        ],
+        "target_polycount": 500000,
+        "with_texture": False,
+        "with_pbr": False,
+        "n": 1,
+    },
+)
+print(response.json())
+```
+
+```javascript JavaScript · multi_view_to_3d
+const response = await fetch(
+  "https://api.neural4d.com/openapi/v1/3dmodels/generations",
+  {
+    method: "POST",
+    headers: {
+      "Authorization": "Bearer <token>",
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      "model": "dreamtech/neural4d-2.5",
+      "multi_view_images": [
+        {
+          "view_type": "front",
+          "file_id": "550e8400-e29b-41d4-a716-446655440001"
+        },
+        {
+          "view_type": "back",
+          "file_id": "550e8400-e29b-41d4-a716-446655440002"
+        },
+        {
+          "view_type": "left",
+          "file_id": "550e8400-e29b-41d4-a716-446655440003"
+        },
+        {
+          "view_type": "right",
+          "file_id": "550e8400-e29b-41d4-a716-446655440004"
+        },
+        {
+          "view_type": "top",
+          "file_id": "550e8400-e29b-41d4-a716-446655440005"
+        },
+        {
+          "view_type": "bottom",
+          "file_id": "550e8400-e29b-41d4-a716-446655440006"
+        }
+      ],
+      "target_polycount": 500000,
+      "with_texture": false,
+      "with_pbr": false,
+      "n": 1
+    })
+  }
+);
+console.log(await response.json());
+```
+
+```typescript TypeScript · multi_view_to_3d
+const response: Response = await fetch(
+  "https://api.neural4d.com/openapi/v1/3dmodels/generations",
+  {
+    method: "POST",
+    headers: {
+      "Authorization": "Bearer <token>",
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      "model": "dreamtech/neural4d-2.5",
+      "multi_view_images": [
+        {
+          "view_type": "front",
+          "file_id": "550e8400-e29b-41d4-a716-446655440001"
+        },
+        {
+          "view_type": "back",
+          "file_id": "550e8400-e29b-41d4-a716-446655440002"
+        },
+        {
+          "view_type": "left",
+          "file_id": "550e8400-e29b-41d4-a716-446655440003"
+        },
+        {
+          "view_type": "right",
+          "file_id": "550e8400-e29b-41d4-a716-446655440004"
+        },
+        {
+          "view_type": "top",
+          "file_id": "550e8400-e29b-41d4-a716-446655440005"
+        },
+        {
+          "view_type": "bottom",
+          "file_id": "550e8400-e29b-41d4-a716-446655440006"
+        }
+      ],
+      "target_polycount": 500000,
+      "with_texture": false,
+      "with_pbr": false,
+      "n": 1
+    })
+  }
+);
+console.log(await response.json());
+```
+
+```java Java · multi_view_to_3d
+import java.net.URI;
+import java.net.http.*;
+
+String payload = String.join("\n",
+    "{",
+    "  \"model\": \"dreamtech/neural4d-2.5\",",
+    "  \"multi_view_images\": [",
+    "    {",
+    "      \"view_type\": \"front\",",
+    "      \"file_id\": \"550e8400-e29b-41d4-a716-446655440001\"",
+    "    },",
+    "    {",
+    "      \"view_type\": \"back\",",
+    "      \"file_id\": \"550e8400-e29b-41d4-a716-446655440002\"",
+    "    },",
+    "    {",
+    "      \"view_type\": \"left\",",
+    "      \"file_id\": \"550e8400-e29b-41d4-a716-446655440003\"",
+    "    },",
+    "    {",
+    "      \"view_type\": \"right\",",
+    "      \"file_id\": \"550e8400-e29b-41d4-a716-446655440004\"",
+    "    },",
+    "    {",
+    "      \"view_type\": \"top\",",
+    "      \"file_id\": \"550e8400-e29b-41d4-a716-446655440005\"",
+    "    },",
+    "    {",
+    "      \"view_type\": \"bottom\",",
+    "      \"file_id\": \"550e8400-e29b-41d4-a716-446655440006\"",
+    "    }",
+    "  ],",
+    "  \"target_polycount\": 500000,",
+    "  \"with_texture\": false,",
+    "  \"with_pbr\": false,",
+    "  \"n\": 1",
+    "}"
+);
+
+HttpRequest request = HttpRequest.newBuilder()
+    .uri(URI.create("https://api.neural4d.com/openapi/v1/3dmodels/generations"))
+    .header("Authorization", "Bearer <token>")
+    .header("Content-Type", "application/json")
+    .POST(HttpRequest.BodyPublishers.ofString(payload))
+    .build();
+HttpResponse<String> response = HttpClient.newHttpClient().send(
+    request,
+    HttpResponse.BodyHandlers.ofString()
+);
+System.out.println(response.body());
+```
+
+```go Go · multi_view_to_3d
+package main
+
+import (
+    "fmt"
+    "io"
+    "net/http"
+    "strings"
+)
+
+func main() {
+    payload := strings.NewReader(`{
+      "model": "dreamtech/neural4d-2.5",
+      "multi_view_images": [
+        {
+          "view_type": "front",
+          "file_id": "550e8400-e29b-41d4-a716-446655440001"
+        },
+        {
+          "view_type": "back",
+          "file_id": "550e8400-e29b-41d4-a716-446655440002"
+        },
+        {
+          "view_type": "left",
+          "file_id": "550e8400-e29b-41d4-a716-446655440003"
+        },
+        {
+          "view_type": "right",
+          "file_id": "550e8400-e29b-41d4-a716-446655440004"
+        },
+        {
+          "view_type": "top",
+          "file_id": "550e8400-e29b-41d4-a716-446655440005"
+        },
+        {
+          "view_type": "bottom",
+          "file_id": "550e8400-e29b-41d4-a716-446655440006"
+        }
+      ],
+      "target_polycount": 500000,
+      "with_texture": false,
+      "with_pbr": false,
+      "n": 1
+    }`)
+    req, _ := http.NewRequest(
+        "POST",
+        "https://api.neural4d.com/openapi/v1/3dmodels/generations",
+        payload,
+    )
+    req.Header.Set("Authorization", "Bearer <token>")
+    req.Header.Set("Content-Type", "application/json")
+    resp, _ := http.DefaultClient.Do(req)
+    defer resp.Body.Close()
+    bodyBytes, _ := io.ReadAll(resp.Body)
+    fmt.Println(string(bodyBytes))
+}
+```
+
+```ruby Ruby · multi_view_to_3d
+require "net/http"
+require "json"
+
+uri = URI("https://api.neural4d.com/openapi/v1/3dmodels/generations")
+request = Net::HTTP::Post.new(uri)
+request["Authorization"] = "Bearer <token>"
+request["Content-Type"] = "application/json"
+request.body = {
+  "model": "dreamtech/neural4d-2.5",
+  "multi_view_images": [
+    {
+      "view_type": "front",
+      "file_id": "550e8400-e29b-41d4-a716-446655440001"
+    },
+    {
+      "view_type": "back",
+      "file_id": "550e8400-e29b-41d4-a716-446655440002"
+    },
+    {
+      "view_type": "left",
+      "file_id": "550e8400-e29b-41d4-a716-446655440003"
+    },
+    {
+      "view_type": "right",
+      "file_id": "550e8400-e29b-41d4-a716-446655440004"
+    },
+    {
+      "view_type": "top",
+      "file_id": "550e8400-e29b-41d4-a716-446655440005"
+    },
+    {
+      "view_type": "bottom",
+      "file_id": "550e8400-e29b-41d4-a716-446655440006"
+    }
+  ],
+  "target_polycount": 500000,
+  "with_texture": false,
+  "with_pbr": false,
+  "n": 1
+}.to_json
+
+response = Net::HTTP.start(
+  uri.hostname,
+  uri.port,
+  use_ssl: uri.scheme == "https"
+) do |http|
+  http.request(request)
+end
+puts response.body
+```
+
+```php PHP · multi_view_to_3d
+<?php
+
+$payload = <<<'JSON'
 {
   "model": "dreamtech/neural4d-2.5",
   "multi_view_images": [
-    { "view_type": "front", "file_id": "550e8400-e29b-41d4-a716-446655440001" },
-    { "view_type": "back", "file_id": "550e8400-e29b-41d4-a716-446655440002" },
-    { "view_type": "left", "file_id": "550e8400-e29b-41d4-a716-446655440003" },
-    { "view_type": "right", "file_id": "550e8400-e29b-41d4-a716-446655440004" },
-    { "view_type": "top", "file_id": "550e8400-e29b-41d4-a716-446655440005" },
-    { "view_type": "bottom", "file_id": "550e8400-e29b-41d4-a716-446655440006" }
+    {
+      "view_type": "front",
+      "file_id": "550e8400-e29b-41d4-a716-446655440001"
+    },
+    {
+      "view_type": "back",
+      "file_id": "550e8400-e29b-41d4-a716-446655440002"
+    },
+    {
+      "view_type": "left",
+      "file_id": "550e8400-e29b-41d4-a716-446655440003"
+    },
+    {
+      "view_type": "right",
+      "file_id": "550e8400-e29b-41d4-a716-446655440004"
+    },
+    {
+      "view_type": "top",
+      "file_id": "550e8400-e29b-41d4-a716-446655440005"
+    },
+    {
+      "view_type": "bottom",
+      "file_id": "550e8400-e29b-41d4-a716-446655440006"
+    }
   ],
   "target_polycount": 500000,
   "with_texture": false,
   "with_pbr": false,
   "n": 1
 }
+JSON;
+
+$ch = curl_init("https://api.neural4d.com/openapi/v1/3dmodels/generations");
+curl_setopt_array($ch, [
+    CURLOPT_CUSTOMREQUEST => "POST",
+    CURLOPT_RETURNTRANSFER => true,
+    CURLOPT_HTTPHEADER => [
+        "Authorization: Bearer <token>",
+        "Content-Type: application/json",
+    ],
+    CURLOPT_POSTFIELDS => $payload,
+]);
+$response = curl_exec($ch);
+curl_close($ch);
+echo $response;
+```
+
+```csharp C# · multi_view_to_3d
+using System.Net.Http;
+using System.Text;
+
+var payload = @"{
+  ""model"": ""dreamtech/neural4d-2.5"",
+  ""multi_view_images"": [
+    {
+      ""view_type"": ""front"",
+      ""file_id"": ""550e8400-e29b-41d4-a716-446655440001""
+    },
+    {
+      ""view_type"": ""back"",
+      ""file_id"": ""550e8400-e29b-41d4-a716-446655440002""
+    },
+    {
+      ""view_type"": ""left"",
+      ""file_id"": ""550e8400-e29b-41d4-a716-446655440003""
+    },
+    {
+      ""view_type"": ""right"",
+      ""file_id"": ""550e8400-e29b-41d4-a716-446655440004""
+    },
+    {
+      ""view_type"": ""top"",
+      ""file_id"": ""550e8400-e29b-41d4-a716-446655440005""
+    },
+    {
+      ""view_type"": ""bottom"",
+      ""file_id"": ""550e8400-e29b-41d4-a716-446655440006""
+    }
+  ],
+  ""target_polycount"": 500000,
+  ""with_texture"": false,
+  ""with_pbr"": false,
+  ""n"": 1
+}";
+
+using var client = new HttpClient();
+using var request = new HttpRequestMessage(
+    HttpMethod.Post,
+    "https://api.neural4d.com/openapi/v1/3dmodels/generations"
+);
+request.Headers.TryAddWithoutValidation("Authorization", "Bearer <token>");
+request.Content = new StringContent(
+    payload,
+    Encoding.UTF8,
+    "application/json"
+);
+using var response = await client.SendAsync(request);
+Console.WriteLine(await response.Content.ReadAsStringAsync());
 ```
 </RequestExample>
 

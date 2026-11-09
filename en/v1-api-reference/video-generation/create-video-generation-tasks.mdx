@@ -55,6 +55,18 @@ Each first frame, last frame, and reference image must be at most 10 MiB, whethe
 
       Available options: `4`, `5`, `6`, `7`, `8`, `9`, `10`, `11`, `12`, `13`, `14`, `15`.
     </ParamField>
+
+    <ParamField body="return_last_frame" type="boolean" default={false}>
+      Return an image of the generated video's final frame.
+
+      When enabled, get the image URL from `output.videos[].last_frame_url` in [Retrieve a task](/en/v1-api-reference/tasks/retrieve-a-task).
+    </ParamField>
+
+    <ParamField body="input_with_person" type="boolean" default={false}>
+      Enable person references for `frame_images` and `input_references`. Generated videos are private by default when enabled. Processing time may increase; enable it only when person references are needed.
+
+      Provide at least one non-empty array: `frame_images` or `input_references`. Does not support copyrighted faces that require verification.
+    </ParamField>
   </Tab>
 
   <Tab title="seedance-2.0-fast">
@@ -88,6 +100,18 @@ Each first frame, last frame, and reference image must be at most 10 MiB, whethe
       Duration in seconds.
 
       Available options: `4`, `5`, `6`, `7`, `8`, `9`, `10`, `11`, `12`, `13`, `14`, `15`.
+    </ParamField>
+
+    <ParamField body="return_last_frame" type="boolean" default={false}>
+      Return an image of the generated video's final frame.
+
+      When enabled, get the image URL from `output.videos[].last_frame_url` in [Retrieve a task](/en/v1-api-reference/tasks/retrieve-a-task).
+    </ParamField>
+
+    <ParamField body="input_with_person" type="boolean" default={false}>
+      Enable person references for `frame_images` and `input_references`. Generated videos are private by default when enabled. Processing time may increase; enable it only when person references are needed.
+
+      Provide at least one non-empty array: `frame_images` or `input_references`. Does not support copyrighted faces that require verification.
     </ParamField>
   </Tab>
 
@@ -196,12 +220,6 @@ Each first frame, last frame, and reference image must be at most 10 MiB, whethe
   Required range: `1 <= x <= 4`.
 </ParamField>
 
-<ParamField body="input_with_person" type="boolean" default={false}>
-  Enable person references for `frame_images` and `input_references`. Generated videos are private by default when enabled. This option increases processing time; enable it only when person references are needed.
-
-  Only supports `bytedance/seedance-2.0` and `bytedance/seedance-2.0-fast`. Provide at least one non-empty array: `frame_images` or `input_references`. Does not support copyrighted faces that require verification.
-</ParamField>
-
 <ParamField body="frame_images" type="object[]">
   First-frame and last-frame images supplied by `file_id` or `url`. Supported formats are JPG, JPEG, PNG, and WEBP, with a maximum of 10 MiB per image. Images must pass content moderation. Each `frame_type` may appear at most once; `last_frame` requires `first_frame`.
 
@@ -303,60 +321,19 @@ Each first frame, last frame, and reference image must be at most 10 MiB, whethe
 </ParamField>
 
 <RequestExample>
-```bash cURL · kling-3.0 · text_to_video
-curl --request POST \
-  --url https://api.neural4d.com/openapi/v1/videos/generations \
-  --header 'Authorization: Bearer <token>' \
-  --header 'Content-Type: application/json' \
-  --data '{
-  "model": "kuaishou/kling-3.0",
-  "prompt": "A cinematic tracking shot through a neon-lit street",
-  "duration": 10,
-  "n": 1,
-  "resolution": "720p",
-  "aspect_ratio": "16:9",
-  "output_with_audio": true
-}'
-```
-
-```bash cURL · kling-3.0 · first_frame_image_to_video
-curl --request POST \
-  --url https://api.neural4d.com/openapi/v1/videos/generations \
-  --header 'Authorization: Bearer <token>' \
-  --header 'Content-Type: application/json' \
-  --data '{
-  "model": "kuaishou/kling-3.0",
-  "prompt": "A cinematic tracking shot through a neon-lit street",
-  "duration": 10,
-  "n": 1,
-  "resolution": "720p",
-  "aspect_ratio": "16:9",
-  "output_with_audio": true,
-  "frame_images": [
-    {
-      "type": "image",
-      "frame_type": "first_frame",
-      "url": "https://s3.neural4d.com/first-frame.png"
-    }
-  ]
-}'
-```
-
 ```bash cURL · text_to_video
 curl --request POST \
   --url https://api.neural4d.com/openapi/v1/videos/generations \
   --header 'Authorization: Bearer <token>' \
   --header 'Content-Type: application/json' \
-  --data '
-{
+  --data '{
   "model": "xai/grok-imagine",
   "prompt": "A cinematic tracking shot through a neon-lit street at night",
   "duration": 6,
   "n": 1,
   "resolution": "720p",
   "aspect_ratio": "16:9"
-}
-'
+}'
 ```
 
 ```python Python · text_to_video
@@ -366,16 +343,16 @@ response = requests.request(
     "POST",
     "https://api.neural4d.com/openapi/v1/videos/generations",
     headers={
-    "Authorization": "Bearer <token>",
-    "Content-Type": "application/json",
+        "Authorization": "Bearer <token>",
+        "Content-Type": "application/json",
     },
     json={
-      "model": "xai/grok-imagine",
-      "prompt": "A cinematic tracking shot through a neon-lit street at night",
-      "duration": 6,
-      "n": 1,
-      "resolution": "720p",
-      "aspect_ratio": "16:9"
+        "model": "xai/grok-imagine",
+        "prompt": "A cinematic tracking shot through a neon-lit street at night",
+        "duration": 6,
+        "n": 1,
+        "resolution": "720p",
+        "aspect_ratio": "16:9",
     },
 )
 print(response.json())
@@ -395,28 +372,31 @@ const response = await fetch("https://api.neural4d.com/openapi/v1/videos/generat
     "n": 1,
     "resolution": "720p",
     "aspect_ratio": "16:9"
-  }),
+  })
 });
 const data = await response.json();
 console.log(data);
 ```
 
 ```typescript TypeScript · text_to_video
-const response: Response = await fetch("https://api.neural4d.com/openapi/v1/videos/generations", {
-  method: "POST",
-  headers: {
-    "Authorization": "Bearer <token>",
-    "Content-Type": "application/json"
-  },
-  body: JSON.stringify({
-    "model": "xai/grok-imagine",
-    "prompt": "A cinematic tracking shot through a neon-lit street at night",
-    "duration": 6,
-    "n": 1,
-    "resolution": "720p",
-    "aspect_ratio": "16:9"
-  }),
-});
+const response: Response = await fetch(
+  "https://api.neural4d.com/openapi/v1/videos/generations",
+  {
+    method: "POST",
+    headers: {
+      "Authorization": "Bearer <token>",
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      "model": "xai/grok-imagine",
+      "prompt": "A cinematic tracking shot through a neon-lit street at night",
+      "duration": 6,
+      "n": 1,
+      "resolution": "720p",
+      "aspect_ratio": "16:9"
+    })
+  }
+);
 const data = await response.json();
 console.log(data);
 ```
@@ -425,13 +405,27 @@ console.log(data);
 import java.net.URI;
 import java.net.http.*;
 
+String payload = String.join("\n",
+    "{",
+    "  \"model\": \"xai/grok-imagine\",",
+    "  \"prompt\": \"A cinematic tracking shot through a neon-lit street at night\",",
+    "  \"duration\": 6,",
+    "  \"n\": 1,",
+    "  \"resolution\": \"720p\",",
+    "  \"aspect_ratio\": \"16:9\"",
+    "}"
+);
+
 HttpRequest request = HttpRequest.newBuilder()
     .uri(URI.create("https://api.neural4d.com/openapi/v1/videos/generations"))
     .header("Authorization", "Bearer <token>")
     .header("Content-Type", "application/json")
-    .method("POST", HttpRequest.BodyPublishers.ofString("{\n      \"model\": \"xai/grok-imagine\",\n      \"prompt\": \"A cinematic tracking shot through a neon-lit street at night\",\n      \"duration\": 6,\n      \"n\": 1,\n      \"resolution\": \"720p\",\n      \"aspect_ratio\": \"16:9\"\n    }"))
+    .method("POST", HttpRequest.BodyPublishers.ofString(payload))
     .build();
-HttpResponse<String> response = HttpClient.newHttpClient().send(request, HttpResponse.BodyHandlers.ofString());
+HttpResponse<String> response = HttpClient.newHttpClient().send(
+    request,
+    HttpResponse.BodyHandlers.ofString()
+);
 System.out.println(response.body());
 ```
 
@@ -439,20 +433,33 @@ System.out.println(response.body());
 package main
 
 import (
-  "fmt"
-  "io"
-  "net/http"
-  "strings"
+    "fmt"
+    "io"
+    "net/http"
+    "strings"
 )
 
-payload := strings.NewReader("{\n  \"model\": \"xai/grok-imagine\",\n  \"prompt\": \"A cinematic tracking shot through a neon-lit street at night\",\n  \"duration\": 6,\n  \"n\": 1,\n  \"resolution\": \"720p\",\n  \"aspect_ratio\": \"16:9\"\n}")
-req, _ := http.NewRequest("POST", "https://api.neural4d.com/openapi/v1/videos/generations", payload)
-req.Header.Set("Authorization", "Bearer <token>")
-req.Header.Set("Content-Type", "application/json")
-resp, _ := http.DefaultClient.Do(req)
-defer resp.Body.Close()
-bodyBytes, _ := io.ReadAll(resp.Body)
-fmt.Println(string(bodyBytes))
+func main() {
+    payload := strings.NewReader(`{
+      "model": "xai/grok-imagine",
+      "prompt": "A cinematic tracking shot through a neon-lit street at night",
+      "duration": 6,
+      "n": 1,
+      "resolution": "720p",
+      "aspect_ratio": "16:9"
+    }`)
+    req, _ := http.NewRequest(
+        "POST",
+        "https://api.neural4d.com/openapi/v1/videos/generations",
+        payload,
+    )
+    req.Header.Set("Authorization", "Bearer <token>")
+    req.Header.Set("Content-Type", "application/json")
+    resp, _ := http.DefaultClient.Do(req)
+    defer resp.Body.Close()
+    bodyBytes, _ := io.ReadAll(resp.Body)
+    fmt.Println(string(bodyBytes))
+}
 ```
 
 ```ruby Ruby · text_to_video
@@ -472,19 +479,39 @@ request.body = {
   "aspect_ratio": "16:9"
 }.to_json
 
-response = Net::HTTP.start(uri.hostname, uri.port, use_ssl: uri.scheme == "https") { |http| http.request(request) }
+response = Net::HTTP.start(
+  uri.hostname,
+  uri.port,
+  use_ssl: uri.scheme == "https"
+) do |http|
+  http.request(request)
+end
 puts response.body
 ```
 
 ```php PHP · text_to_video
 <?php
 
+$payload = <<<'JSON'
+{
+  "model": "xai/grok-imagine",
+  "prompt": "A cinematic tracking shot through a neon-lit street at night",
+  "duration": 6,
+  "n": 1,
+  "resolution": "720p",
+  "aspect_ratio": "16:9"
+}
+JSON;
+
 $ch = curl_init("https://api.neural4d.com/openapi/v1/videos/generations");
 curl_setopt_array($ch, [
     CURLOPT_CUSTOMREQUEST => "POST",
     CURLOPT_RETURNTRANSFER => true,
-    CURLOPT_HTTPHEADER => ["Authorization: Bearer <token>", "Content-Type: application/json"],
-    CURLOPT_POSTFIELDS => "{\n  \"model\": \"xai/grok-imagine\",\n  \"prompt\": \"A cinematic tracking shot through a neon-lit street at night\",\n  \"duration\": 6,\n  \"n\": 1,\n  \"resolution\": \"720p\",\n  \"aspect_ratio\": \"16:9\"\n}",
+    CURLOPT_HTTPHEADER => [
+        "Authorization: Bearer <token>",
+        "Content-Type: application/json",
+    ],
+    CURLOPT_POSTFIELDS => $payload,
 ]);
 $response = curl_exec($ch);
 curl_close($ch);
@@ -495,11 +522,27 @@ echo $response;
 using System.Net.Http;
 using System.Text;
 
+var payload = @"{
+  ""model"": ""xai/grok-imagine"",
+  ""prompt"": ""A cinematic tracking shot through a neon-lit street at night"",
+  ""duration"": 6,
+  ""n"": 1,
+  ""resolution"": ""720p"",
+  ""aspect_ratio"": ""16:9""
+}";
+
 using var client = new HttpClient();
-using var request = new HttpRequestMessage(HttpMethod.Post, "https://api.neural4d.com/openapi/v1/videos/generations");
+using var request = new HttpRequestMessage(
+    HttpMethod.Post,
+    "https://api.neural4d.com/openapi/v1/videos/generations"
+);
 request.Headers.TryAddWithoutValidation("Authorization", "Bearer <token>");
 request.Headers.TryAddWithoutValidation("Content-Type", "application/json");
-request.Content = new StringContent("{\n  \"model\": \"xai/grok-imagine\",\n  \"prompt\": \"A cinematic tracking shot through a neon-lit street at night\",\n  \"duration\": 6,\n  \"n\": 1,\n  \"resolution\": \"720p\",\n  \"aspect_ratio\": \"16:9\"\n}", Encoding.UTF8, "application/json");
+request.Content = new StringContent(
+    payload,
+    Encoding.UTF8,
+    "application/json"
+);
 using var response = await client.SendAsync(request);
 Console.WriteLine(await response.Content.ReadAsStringAsync());
 ```
@@ -509,8 +552,7 @@ curl --request POST \
   --url https://api.neural4d.com/openapi/v1/videos/generations \
   --header 'Authorization: Bearer <token>' \
   --header 'Content-Type: application/json' \
-  --data '
-{
+  --data '{
   "model": "bytedance/seedance-2.0",
   "prompt": "The camera slowly pushes in while soft wind moves the leaves",
   "frame_images": [
@@ -524,8 +566,7 @@ curl --request POST \
   "resolution": "720p",
   "aspect_ratio": "16:9",
   "output_with_audio": true
-}
-'
+}'
 ```
 
 ```python Python · first_frame_image_to_video
@@ -535,23 +576,23 @@ response = requests.request(
     "POST",
     "https://api.neural4d.com/openapi/v1/videos/generations",
     headers={
-    "Authorization": "Bearer <token>",
-    "Content-Type": "application/json",
+        "Authorization": "Bearer <token>",
+        "Content-Type": "application/json",
     },
     json={
-      "model": "bytedance/seedance-2.0",
-      "prompt": "The camera slowly pushes in while soft wind moves the leaves",
-      "frame_images": [
-        {
-          "frame_type": "first_frame",
-          "file_id": "550e8400-e29b-41d4-a716-446655440000"
-        }
-      ],
-      "duration": 5,
-      "n": 1,
-      "resolution": "720p",
-      "aspect_ratio": "16:9",
-      "output_with_audio": true
+        "model": "bytedance/seedance-2.0",
+        "prompt": "The camera slowly pushes in while soft wind moves the leaves",
+        "frame_images": [
+            {
+                "frame_type": "first_frame",
+                "file_id": "550e8400-e29b-41d4-a716-446655440000",
+            }
+        ],
+        "duration": 5,
+        "n": 1,
+        "resolution": "720p",
+        "aspect_ratio": "16:9",
+        "output_with_audio": True,
     },
 )
 print(response.json())
@@ -578,35 +619,38 @@ const response = await fetch("https://api.neural4d.com/openapi/v1/videos/generat
     "resolution": "720p",
     "aspect_ratio": "16:9",
     "output_with_audio": true
-  }),
+  })
 });
 const data = await response.json();
 console.log(data);
 ```
 
 ```typescript TypeScript · first_frame_image_to_video
-const response: Response = await fetch("https://api.neural4d.com/openapi/v1/videos/generations", {
-  method: "POST",
-  headers: {
-    "Authorization": "Bearer <token>",
-    "Content-Type": "application/json"
-  },
-  body: JSON.stringify({
-    "model": "bytedance/seedance-2.0",
-    "prompt": "The camera slowly pushes in while soft wind moves the leaves",
-    "frame_images": [
-      {
-        "frame_type": "first_frame",
-        "file_id": "550e8400-e29b-41d4-a716-446655440000"
-      }
-    ],
-    "duration": 5,
-    "n": 1,
-    "resolution": "720p",
-    "aspect_ratio": "16:9",
-    "output_with_audio": true
-  }),
-});
+const response: Response = await fetch(
+  "https://api.neural4d.com/openapi/v1/videos/generations",
+  {
+    method: "POST",
+    headers: {
+      "Authorization": "Bearer <token>",
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      "model": "bytedance/seedance-2.0",
+      "prompt": "The camera slowly pushes in while soft wind moves the leaves",
+      "frame_images": [
+        {
+          "frame_type": "first_frame",
+          "file_id": "550e8400-e29b-41d4-a716-446655440000"
+        }
+      ],
+      "duration": 5,
+      "n": 1,
+      "resolution": "720p",
+      "aspect_ratio": "16:9",
+      "output_with_audio": true
+    })
+  }
+);
 const data = await response.json();
 console.log(data);
 ```
@@ -615,13 +659,34 @@ console.log(data);
 import java.net.URI;
 import java.net.http.*;
 
+String payload = String.join("\n",
+    "{",
+    "  \"model\": \"bytedance/seedance-2.0\",",
+    "  \"prompt\": \"The camera slowly pushes in while soft wind moves the leaves\",",
+    "  \"frame_images\": [",
+    "    {",
+    "      \"frame_type\": \"first_frame\",",
+    "      \"file_id\": \"550e8400-e29b-41d4-a716-446655440000\"",
+    "    }",
+    "  ],",
+    "  \"duration\": 5,",
+    "  \"n\": 1,",
+    "  \"resolution\": \"720p\",",
+    "  \"aspect_ratio\": \"16:9\",",
+    "  \"output_with_audio\": true",
+    "}"
+);
+
 HttpRequest request = HttpRequest.newBuilder()
     .uri(URI.create("https://api.neural4d.com/openapi/v1/videos/generations"))
     .header("Authorization", "Bearer <token>")
     .header("Content-Type", "application/json")
-    .method("POST", HttpRequest.BodyPublishers.ofString("{\n      \"model\": \"bytedance/seedance-2.0\",\n      \"prompt\": \"The camera slowly pushes in while soft wind moves the leaves\",\n      \"frame_images\": [\n        {\n          \"frame_type\": \"first_frame\",\n          \"file_id\": \"550e8400-e29b-41d4-a716-446655440000\"\n        }\n      ],\n      \"duration\": 5,\n      \"n\": 1,\n      \"resolution\": \"720p\",\n      \"aspect_ratio\": \"16:9\",\n      \"output_with_audio\": true\n    }"))
+    .method("POST", HttpRequest.BodyPublishers.ofString(payload))
     .build();
-HttpResponse<String> response = HttpClient.newHttpClient().send(request, HttpResponse.BodyHandlers.ofString());
+HttpResponse<String> response = HttpClient.newHttpClient().send(
+    request,
+    HttpResponse.BodyHandlers.ofString()
+);
 System.out.println(response.body());
 ```
 
@@ -629,20 +694,40 @@ System.out.println(response.body());
 package main
 
 import (
-  "fmt"
-  "io"
-  "net/http"
-  "strings"
+    "fmt"
+    "io"
+    "net/http"
+    "strings"
 )
 
-payload := strings.NewReader("{\n  \"model\": \"bytedance/seedance-2.0\",\n  \"prompt\": \"The camera slowly pushes in while soft wind moves the leaves\",\n  \"frame_images\": [\n    {\n      \"frame_type\": \"first_frame\",\n      \"file_id\": \"550e8400-e29b-41d4-a716-446655440000\"\n    }\n  ],\n  \"duration\": 5,\n  \"n\": 1,\n  \"resolution\": \"720p\",\n  \"aspect_ratio\": \"16:9\",\n  \"output_with_audio\": true\n}")
-req, _ := http.NewRequest("POST", "https://api.neural4d.com/openapi/v1/videos/generations", payload)
-req.Header.Set("Authorization", "Bearer <token>")
-req.Header.Set("Content-Type", "application/json")
-resp, _ := http.DefaultClient.Do(req)
-defer resp.Body.Close()
-bodyBytes, _ := io.ReadAll(resp.Body)
-fmt.Println(string(bodyBytes))
+func main() {
+    payload := strings.NewReader(`{
+      "model": "bytedance/seedance-2.0",
+      "prompt": "The camera slowly pushes in while soft wind moves the leaves",
+      "frame_images": [
+        {
+          "frame_type": "first_frame",
+          "file_id": "550e8400-e29b-41d4-a716-446655440000"
+        }
+      ],
+      "duration": 5,
+      "n": 1,
+      "resolution": "720p",
+      "aspect_ratio": "16:9",
+      "output_with_audio": true
+    }`)
+    req, _ := http.NewRequest(
+        "POST",
+        "https://api.neural4d.com/openapi/v1/videos/generations",
+        payload,
+    )
+    req.Header.Set("Authorization", "Bearer <token>")
+    req.Header.Set("Content-Type", "application/json")
+    resp, _ := http.DefaultClient.Do(req)
+    defer resp.Body.Close()
+    bodyBytes, _ := io.ReadAll(resp.Body)
+    fmt.Println(string(bodyBytes))
+}
 ```
 
 ```ruby Ruby · first_frame_image_to_video
@@ -669,19 +754,46 @@ request.body = {
   "output_with_audio": true
 }.to_json
 
-response = Net::HTTP.start(uri.hostname, uri.port, use_ssl: uri.scheme == "https") { |http| http.request(request) }
+response = Net::HTTP.start(
+  uri.hostname,
+  uri.port,
+  use_ssl: uri.scheme == "https"
+) do |http|
+  http.request(request)
+end
 puts response.body
 ```
 
 ```php PHP · first_frame_image_to_video
 <?php
 
+$payload = <<<'JSON'
+{
+  "model": "bytedance/seedance-2.0",
+  "prompt": "The camera slowly pushes in while soft wind moves the leaves",
+  "frame_images": [
+    {
+      "frame_type": "first_frame",
+      "file_id": "550e8400-e29b-41d4-a716-446655440000"
+    }
+  ],
+  "duration": 5,
+  "n": 1,
+  "resolution": "720p",
+  "aspect_ratio": "16:9",
+  "output_with_audio": true
+}
+JSON;
+
 $ch = curl_init("https://api.neural4d.com/openapi/v1/videos/generations");
 curl_setopt_array($ch, [
     CURLOPT_CUSTOMREQUEST => "POST",
     CURLOPT_RETURNTRANSFER => true,
-    CURLOPT_HTTPHEADER => ["Authorization: Bearer <token>", "Content-Type: application/json"],
-    CURLOPT_POSTFIELDS => "{\n  \"model\": \"bytedance/seedance-2.0\",\n  \"prompt\": \"The camera slowly pushes in while soft wind moves the leaves\",\n  \"frame_images\": [\n    {\n      \"frame_type\": \"first_frame\",\n      \"file_id\": \"550e8400-e29b-41d4-a716-446655440000\"\n    }\n  ],\n  \"duration\": 5,\n  \"n\": 1,\n  \"resolution\": \"720p\",\n  \"aspect_ratio\": \"16:9\",\n  \"output_with_audio\": true\n}",
+    CURLOPT_HTTPHEADER => [
+        "Authorization: Bearer <token>",
+        "Content-Type: application/json",
+    ],
+    CURLOPT_POSTFIELDS => $payload,
 ]);
 $response = curl_exec($ch);
 curl_close($ch);
@@ -692,11 +804,34 @@ echo $response;
 using System.Net.Http;
 using System.Text;
 
+var payload = @"{
+  ""model"": ""bytedance/seedance-2.0"",
+  ""prompt"": ""The camera slowly pushes in while soft wind moves the leaves"",
+  ""frame_images"": [
+    {
+      ""frame_type"": ""first_frame"",
+      ""file_id"": ""550e8400-e29b-41d4-a716-446655440000""
+    }
+  ],
+  ""duration"": 5,
+  ""n"": 1,
+  ""resolution"": ""720p"",
+  ""aspect_ratio"": ""16:9"",
+  ""output_with_audio"": true
+}";
+
 using var client = new HttpClient();
-using var request = new HttpRequestMessage(HttpMethod.Post, "https://api.neural4d.com/openapi/v1/videos/generations");
+using var request = new HttpRequestMessage(
+    HttpMethod.Post,
+    "https://api.neural4d.com/openapi/v1/videos/generations"
+);
 request.Headers.TryAddWithoutValidation("Authorization", "Bearer <token>");
 request.Headers.TryAddWithoutValidation("Content-Type", "application/json");
-request.Content = new StringContent("{\n  \"model\": \"bytedance/seedance-2.0\",\n  \"prompt\": \"The camera slowly pushes in while soft wind moves the leaves\",\n  \"frame_images\": [\n    {\n      \"frame_type\": \"first_frame\",\n      \"file_id\": \"550e8400-e29b-41d4-a716-446655440000\"\n    }\n  ],\n  \"duration\": 5,\n  \"n\": 1,\n  \"resolution\": \"720p\",\n  \"aspect_ratio\": \"16:9\",\n  \"output_with_audio\": true\n}", Encoding.UTF8, "application/json");
+request.Content = new StringContent(
+    payload,
+    Encoding.UTF8,
+    "application/json"
+);
 using var response = await client.SendAsync(request);
 Console.WriteLine(await response.Content.ReadAsStringAsync());
 ```
@@ -706,8 +841,7 @@ curl --request POST \
   --url https://api.neural4d.com/openapi/v1/videos/generations \
   --header 'Authorization: Bearer <token>' \
   --header 'Content-Type: application/json' \
-  --data '
-{
+  --data '{
   "model": "bytedance/seedance-2.0-fast",
   "prompt": "Move naturally from the opening frame to the closing frame",
   "frame_images": [
@@ -725,8 +859,7 @@ curl --request POST \
   "resolution": "720p",
   "aspect_ratio": "16:9",
   "output_with_audio": true
-}
-'
+}'
 ```
 
 ```python Python · first_last_frame_image_to_video
@@ -736,27 +869,27 @@ response = requests.request(
     "POST",
     "https://api.neural4d.com/openapi/v1/videos/generations",
     headers={
-    "Authorization": "Bearer <token>",
-    "Content-Type": "application/json",
+        "Authorization": "Bearer <token>",
+        "Content-Type": "application/json",
     },
     json={
-      "model": "bytedance/seedance-2.0-fast",
-      "prompt": "Move naturally from the opening frame to the closing frame",
-      "frame_images": [
-        {
-          "frame_type": "first_frame",
-          "file_id": "550e8400-e29b-41d4-a716-446655440000"
-        },
-        {
-          "frame_type": "last_frame",
-          "file_id": "6ba7b810-9dad-11d1-80b4-00c04fd430c8"
-        }
-      ],
-      "duration": 5,
-      "n": 1,
-      "resolution": "720p",
-      "aspect_ratio": "16:9",
-      "output_with_audio": true
+        "model": "bytedance/seedance-2.0-fast",
+        "prompt": "Move naturally from the opening frame to the closing frame",
+        "frame_images": [
+            {
+                "frame_type": "first_frame",
+                "file_id": "550e8400-e29b-41d4-a716-446655440000",
+            },
+            {
+                "frame_type": "last_frame",
+                "file_id": "6ba7b810-9dad-11d1-80b4-00c04fd430c8",
+            },
+        ],
+        "duration": 5,
+        "n": 1,
+        "resolution": "720p",
+        "aspect_ratio": "16:9",
+        "output_with_audio": True,
     },
 )
 print(response.json())
@@ -787,39 +920,42 @@ const response = await fetch("https://api.neural4d.com/openapi/v1/videos/generat
     "resolution": "720p",
     "aspect_ratio": "16:9",
     "output_with_audio": true
-  }),
+  })
 });
 const data = await response.json();
 console.log(data);
 ```
 
 ```typescript TypeScript · first_last_frame_image_to_video
-const response: Response = await fetch("https://api.neural4d.com/openapi/v1/videos/generations", {
-  method: "POST",
-  headers: {
-    "Authorization": "Bearer <token>",
-    "Content-Type": "application/json"
-  },
-  body: JSON.stringify({
-    "model": "bytedance/seedance-2.0-fast",
-    "prompt": "Move naturally from the opening frame to the closing frame",
-    "frame_images": [
-      {
-        "frame_type": "first_frame",
-        "file_id": "550e8400-e29b-41d4-a716-446655440000"
-      },
-      {
-        "frame_type": "last_frame",
-        "file_id": "6ba7b810-9dad-11d1-80b4-00c04fd430c8"
-      }
-    ],
-    "duration": 5,
-    "n": 1,
-    "resolution": "720p",
-    "aspect_ratio": "16:9",
-    "output_with_audio": true
-  }),
-});
+const response: Response = await fetch(
+  "https://api.neural4d.com/openapi/v1/videos/generations",
+  {
+    method: "POST",
+    headers: {
+      "Authorization": "Bearer <token>",
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      "model": "bytedance/seedance-2.0-fast",
+      "prompt": "Move naturally from the opening frame to the closing frame",
+      "frame_images": [
+        {
+          "frame_type": "first_frame",
+          "file_id": "550e8400-e29b-41d4-a716-446655440000"
+        },
+        {
+          "frame_type": "last_frame",
+          "file_id": "6ba7b810-9dad-11d1-80b4-00c04fd430c8"
+        }
+      ],
+      "duration": 5,
+      "n": 1,
+      "resolution": "720p",
+      "aspect_ratio": "16:9",
+      "output_with_audio": true
+    })
+  }
+);
 const data = await response.json();
 console.log(data);
 ```
@@ -828,13 +964,38 @@ console.log(data);
 import java.net.URI;
 import java.net.http.*;
 
+String payload = String.join("\n",
+    "{",
+    "  \"model\": \"bytedance/seedance-2.0-fast\",",
+    "  \"prompt\": \"Move naturally from the opening frame to the closing frame\",",
+    "  \"frame_images\": [",
+    "    {",
+    "      \"frame_type\": \"first_frame\",",
+    "      \"file_id\": \"550e8400-e29b-41d4-a716-446655440000\"",
+    "    },",
+    "    {",
+    "      \"frame_type\": \"last_frame\",",
+    "      \"file_id\": \"6ba7b810-9dad-11d1-80b4-00c04fd430c8\"",
+    "    }",
+    "  ],",
+    "  \"duration\": 5,",
+    "  \"n\": 1,",
+    "  \"resolution\": \"720p\",",
+    "  \"aspect_ratio\": \"16:9\",",
+    "  \"output_with_audio\": true",
+    "}"
+);
+
 HttpRequest request = HttpRequest.newBuilder()
     .uri(URI.create("https://api.neural4d.com/openapi/v1/videos/generations"))
     .header("Authorization", "Bearer <token>")
     .header("Content-Type", "application/json")
-    .method("POST", HttpRequest.BodyPublishers.ofString("{\n      \"model\": \"bytedance/seedance-2.0-fast\",\n      \"prompt\": \"Move naturally from the opening frame to the closing frame\",\n      \"frame_images\": [\n        {\n          \"frame_type\": \"first_frame\",\n          \"file_id\": \"550e8400-e29b-41d4-a716-446655440000\"\n        },\n        {\n          \"frame_type\": \"last_frame\",\n          \"file_id\": \"6ba7b810-9dad-11d1-80b4-00c04fd430c8\"\n        }\n      ],\n      \"duration\": 5,\n      \"n\": 1,\n      \"resolution\": \"720p\",\n      \"aspect_ratio\": \"16:9\",\n      \"output_with_audio\": true\n    }"))
+    .method("POST", HttpRequest.BodyPublishers.ofString(payload))
     .build();
-HttpResponse<String> response = HttpClient.newHttpClient().send(request, HttpResponse.BodyHandlers.ofString());
+HttpResponse<String> response = HttpClient.newHttpClient().send(
+    request,
+    HttpResponse.BodyHandlers.ofString()
+);
 System.out.println(response.body());
 ```
 
@@ -842,20 +1003,44 @@ System.out.println(response.body());
 package main
 
 import (
-  "fmt"
-  "io"
-  "net/http"
-  "strings"
+    "fmt"
+    "io"
+    "net/http"
+    "strings"
 )
 
-payload := strings.NewReader("{\n  \"model\": \"bytedance/seedance-2.0-fast\",\n  \"prompt\": \"Move naturally from the opening frame to the closing frame\",\n  \"frame_images\": [\n    {\n      \"frame_type\": \"first_frame\",\n      \"file_id\": \"550e8400-e29b-41d4-a716-446655440000\"\n    },\n    {\n      \"frame_type\": \"last_frame\",\n      \"file_id\": \"6ba7b810-9dad-11d1-80b4-00c04fd430c8\"\n    }\n  ],\n  \"duration\": 5,\n  \"n\": 1,\n  \"resolution\": \"720p\",\n  \"aspect_ratio\": \"16:9\",\n  \"output_with_audio\": true\n}")
-req, _ := http.NewRequest("POST", "https://api.neural4d.com/openapi/v1/videos/generations", payload)
-req.Header.Set("Authorization", "Bearer <token>")
-req.Header.Set("Content-Type", "application/json")
-resp, _ := http.DefaultClient.Do(req)
-defer resp.Body.Close()
-bodyBytes, _ := io.ReadAll(resp.Body)
-fmt.Println(string(bodyBytes))
+func main() {
+    payload := strings.NewReader(`{
+      "model": "bytedance/seedance-2.0-fast",
+      "prompt": "Move naturally from the opening frame to the closing frame",
+      "frame_images": [
+        {
+          "frame_type": "first_frame",
+          "file_id": "550e8400-e29b-41d4-a716-446655440000"
+        },
+        {
+          "frame_type": "last_frame",
+          "file_id": "6ba7b810-9dad-11d1-80b4-00c04fd430c8"
+        }
+      ],
+      "duration": 5,
+      "n": 1,
+      "resolution": "720p",
+      "aspect_ratio": "16:9",
+      "output_with_audio": true
+    }`)
+    req, _ := http.NewRequest(
+        "POST",
+        "https://api.neural4d.com/openapi/v1/videos/generations",
+        payload,
+    )
+    req.Header.Set("Authorization", "Bearer <token>")
+    req.Header.Set("Content-Type", "application/json")
+    resp, _ := http.DefaultClient.Do(req)
+    defer resp.Body.Close()
+    bodyBytes, _ := io.ReadAll(resp.Body)
+    fmt.Println(string(bodyBytes))
+}
 ```
 
 ```ruby Ruby · first_last_frame_image_to_video
@@ -886,19 +1071,50 @@ request.body = {
   "output_with_audio": true
 }.to_json
 
-response = Net::HTTP.start(uri.hostname, uri.port, use_ssl: uri.scheme == "https") { |http| http.request(request) }
+response = Net::HTTP.start(
+  uri.hostname,
+  uri.port,
+  use_ssl: uri.scheme == "https"
+) do |http|
+  http.request(request)
+end
 puts response.body
 ```
 
 ```php PHP · first_last_frame_image_to_video
 <?php
 
+$payload = <<<'JSON'
+{
+  "model": "bytedance/seedance-2.0-fast",
+  "prompt": "Move naturally from the opening frame to the closing frame",
+  "frame_images": [
+    {
+      "frame_type": "first_frame",
+      "file_id": "550e8400-e29b-41d4-a716-446655440000"
+    },
+    {
+      "frame_type": "last_frame",
+      "file_id": "6ba7b810-9dad-11d1-80b4-00c04fd430c8"
+    }
+  ],
+  "duration": 5,
+  "n": 1,
+  "resolution": "720p",
+  "aspect_ratio": "16:9",
+  "output_with_audio": true
+}
+JSON;
+
 $ch = curl_init("https://api.neural4d.com/openapi/v1/videos/generations");
 curl_setopt_array($ch, [
     CURLOPT_CUSTOMREQUEST => "POST",
     CURLOPT_RETURNTRANSFER => true,
-    CURLOPT_HTTPHEADER => ["Authorization: Bearer <token>", "Content-Type: application/json"],
-    CURLOPT_POSTFIELDS => "{\n  \"model\": \"bytedance/seedance-2.0-fast\",\n  \"prompt\": \"Move naturally from the opening frame to the closing frame\",\n  \"frame_images\": [\n    {\n      \"frame_type\": \"first_frame\",\n      \"file_id\": \"550e8400-e29b-41d4-a716-446655440000\"\n    },\n    {\n      \"frame_type\": \"last_frame\",\n      \"file_id\": \"6ba7b810-9dad-11d1-80b4-00c04fd430c8\"\n    }\n  ],\n  \"duration\": 5,\n  \"n\": 1,\n  \"resolution\": \"720p\",\n  \"aspect_ratio\": \"16:9\",\n  \"output_with_audio\": true\n}",
+    CURLOPT_HTTPHEADER => [
+        "Authorization: Bearer <token>",
+        "Content-Type: application/json",
+    ],
+    CURLOPT_POSTFIELDS => $payload,
 ]);
 $response = curl_exec($ch);
 curl_close($ch);
@@ -909,11 +1125,38 @@ echo $response;
 using System.Net.Http;
 using System.Text;
 
+var payload = @"{
+  ""model"": ""bytedance/seedance-2.0-fast"",
+  ""prompt"": ""Move naturally from the opening frame to the closing frame"",
+  ""frame_images"": [
+    {
+      ""frame_type"": ""first_frame"",
+      ""file_id"": ""550e8400-e29b-41d4-a716-446655440000""
+    },
+    {
+      ""frame_type"": ""last_frame"",
+      ""file_id"": ""6ba7b810-9dad-11d1-80b4-00c04fd430c8""
+    }
+  ],
+  ""duration"": 5,
+  ""n"": 1,
+  ""resolution"": ""720p"",
+  ""aspect_ratio"": ""16:9"",
+  ""output_with_audio"": true
+}";
+
 using var client = new HttpClient();
-using var request = new HttpRequestMessage(HttpMethod.Post, "https://api.neural4d.com/openapi/v1/videos/generations");
+using var request = new HttpRequestMessage(
+    HttpMethod.Post,
+    "https://api.neural4d.com/openapi/v1/videos/generations"
+);
 request.Headers.TryAddWithoutValidation("Authorization", "Bearer <token>");
 request.Headers.TryAddWithoutValidation("Content-Type", "application/json");
-request.Content = new StringContent("{\n  \"model\": \"bytedance/seedance-2.0-fast\",\n  \"prompt\": \"Move naturally from the opening frame to the closing frame\",\n  \"frame_images\": [\n    {\n      \"frame_type\": \"first_frame\",\n      \"file_id\": \"550e8400-e29b-41d4-a716-446655440000\"\n    },\n    {\n      \"frame_type\": \"last_frame\",\n      \"file_id\": \"6ba7b810-9dad-11d1-80b4-00c04fd430c8\"\n    }\n  ],\n  \"duration\": 5,\n  \"n\": 1,\n  \"resolution\": \"720p\",\n  \"aspect_ratio\": \"16:9\",\n  \"output_with_audio\": true\n}", Encoding.UTF8, "application/json");
+request.Content = new StringContent(
+    payload,
+    Encoding.UTF8,
+    "application/json"
+);
 using var response = await client.SendAsync(request);
 Console.WriteLine(await response.Content.ReadAsStringAsync());
 ```
@@ -923,8 +1166,7 @@ curl --request POST \
   --url https://api.neural4d.com/openapi/v1/videos/generations \
   --header 'Authorization: Bearer <token>' \
   --header 'Content-Type: application/json' \
-  --data '
-{
+  --data '{
   "model": "google/veo-3.1",
   "prompt": "Create a cohesive cinematic sequence using the supplied references",
   "input_references": [
@@ -946,8 +1188,7 @@ curl --request POST \
   "resolution": "720p",
   "aspect_ratio": "16:9",
   "output_with_audio": true
-}
-'
+}'
 ```
 
 ```python Python · reference_to_video
@@ -957,31 +1198,22 @@ response = requests.request(
     "POST",
     "https://api.neural4d.com/openapi/v1/videos/generations",
     headers={
-    "Authorization": "Bearer <token>",
-    "Content-Type": "application/json",
+        "Authorization": "Bearer <token>",
+        "Content-Type": "application/json",
     },
     json={
-      "model": "google/veo-3.1",
-      "prompt": "Create a cohesive cinematic sequence using the supplied references",
-      "input_references": [
-        {
-          "type": "image",
-          "file_id": "550e8400-e29b-41d4-a716-446655440000"
-        },
-        {
-          "type": "video",
-          "file_id": "6ba7b810-9dad-11d1-80b4-00c04fd430c8"
-        },
-        {
-          "type": "audio",
-          "file_id": "7d1fa4bb-41e6-4a5d-88d8-1851f5342e87"
-        }
-      ],
-      "duration": 8,
-      "n": 1,
-      "resolution": "720p",
-      "aspect_ratio": "16:9",
-      "output_with_audio": true
+        "model": "google/veo-3.1",
+        "prompt": "Create a cohesive cinematic sequence using the supplied references",
+        "input_references": [
+            {"type": "image", "file_id": "550e8400-e29b-41d4-a716-446655440000"},
+            {"type": "video", "file_id": "6ba7b810-9dad-11d1-80b4-00c04fd430c8"},
+            {"type": "audio", "file_id": "7d1fa4bb-41e6-4a5d-88d8-1851f5342e87"},
+        ],
+        "duration": 8,
+        "n": 1,
+        "resolution": "720p",
+        "aspect_ratio": "16:9",
+        "output_with_audio": True,
     },
 )
 print(response.json())
@@ -1016,43 +1248,46 @@ const response = await fetch("https://api.neural4d.com/openapi/v1/videos/generat
     "resolution": "720p",
     "aspect_ratio": "16:9",
     "output_with_audio": true
-  }),
+  })
 });
 const data = await response.json();
 console.log(data);
 ```
 
 ```typescript TypeScript · reference_to_video
-const response: Response = await fetch("https://api.neural4d.com/openapi/v1/videos/generations", {
-  method: "POST",
-  headers: {
-    "Authorization": "Bearer <token>",
-    "Content-Type": "application/json"
-  },
-  body: JSON.stringify({
-    "model": "google/veo-3.1",
-    "prompt": "Create a cohesive cinematic sequence using the supplied references",
-    "input_references": [
-      {
-        "type": "image",
-        "file_id": "550e8400-e29b-41d4-a716-446655440000"
-      },
-      {
-        "type": "video",
-        "file_id": "6ba7b810-9dad-11d1-80b4-00c04fd430c8"
-      },
-      {
-        "type": "audio",
-        "file_id": "7d1fa4bb-41e6-4a5d-88d8-1851f5342e87"
-      }
-    ],
-    "duration": 8,
-    "n": 1,
-    "resolution": "720p",
-    "aspect_ratio": "16:9",
-    "output_with_audio": true
-  }),
-});
+const response: Response = await fetch(
+  "https://api.neural4d.com/openapi/v1/videos/generations",
+  {
+    method: "POST",
+    headers: {
+      "Authorization": "Bearer <token>",
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      "model": "google/veo-3.1",
+      "prompt": "Create a cohesive cinematic sequence using the supplied references",
+      "input_references": [
+        {
+          "type": "image",
+          "file_id": "550e8400-e29b-41d4-a716-446655440000"
+        },
+        {
+          "type": "video",
+          "file_id": "6ba7b810-9dad-11d1-80b4-00c04fd430c8"
+        },
+        {
+          "type": "audio",
+          "file_id": "7d1fa4bb-41e6-4a5d-88d8-1851f5342e87"
+        }
+      ],
+      "duration": 8,
+      "n": 1,
+      "resolution": "720p",
+      "aspect_ratio": "16:9",
+      "output_with_audio": true
+    })
+  }
+);
 const data = await response.json();
 console.log(data);
 ```
@@ -1061,13 +1296,42 @@ console.log(data);
 import java.net.URI;
 import java.net.http.*;
 
+String payload = String.join("\n",
+    "{",
+    "  \"model\": \"google/veo-3.1\",",
+    "  \"prompt\": \"Create a cohesive cinematic sequence using the supplied references\",",
+    "  \"input_references\": [",
+    "    {",
+    "      \"type\": \"image\",",
+    "      \"file_id\": \"550e8400-e29b-41d4-a716-446655440000\"",
+    "    },",
+    "    {",
+    "      \"type\": \"video\",",
+    "      \"file_id\": \"6ba7b810-9dad-11d1-80b4-00c04fd430c8\"",
+    "    },",
+    "    {",
+    "      \"type\": \"audio\",",
+    "      \"file_id\": \"7d1fa4bb-41e6-4a5d-88d8-1851f5342e87\"",
+    "    }",
+    "  ],",
+    "  \"duration\": 8,",
+    "  \"n\": 1,",
+    "  \"resolution\": \"720p\",",
+    "  \"aspect_ratio\": \"16:9\",",
+    "  \"output_with_audio\": true",
+    "}"
+);
+
 HttpRequest request = HttpRequest.newBuilder()
     .uri(URI.create("https://api.neural4d.com/openapi/v1/videos/generations"))
     .header("Authorization", "Bearer <token>")
     .header("Content-Type", "application/json")
-    .method("POST", HttpRequest.BodyPublishers.ofString("{\n      \"model\": \"google/veo-3.1\",\n      \"prompt\": \"Create a cohesive cinematic sequence using the supplied references\",\n      \"input_references\": [\n        {\n          \"type\": \"image\",\n          \"file_id\": \"550e8400-e29b-41d4-a716-446655440000\"\n        },\n        {\n          \"type\": \"video\",\n          \"file_id\": \"6ba7b810-9dad-11d1-80b4-00c04fd430c8\"\n        },\n        {\n          \"type\": \"audio\",\n          \"file_id\": \"7d1fa4bb-41e6-4a5d-88d8-1851f5342e87\"\n        }\n      ],\n      \"duration\": 8,\n      \"n\": 1,\n      \"resolution\": \"720p\",\n      \"aspect_ratio\": \"16:9\",\n      \"output_with_audio\": true\n    }"))
+    .method("POST", HttpRequest.BodyPublishers.ofString(payload))
     .build();
-HttpResponse<String> response = HttpClient.newHttpClient().send(request, HttpResponse.BodyHandlers.ofString());
+HttpResponse<String> response = HttpClient.newHttpClient().send(
+    request,
+    HttpResponse.BodyHandlers.ofString()
+);
 System.out.println(response.body());
 ```
 
@@ -1075,20 +1339,48 @@ System.out.println(response.body());
 package main
 
 import (
-  "fmt"
-  "io"
-  "net/http"
-  "strings"
+    "fmt"
+    "io"
+    "net/http"
+    "strings"
 )
 
-payload := strings.NewReader("{\n  \"model\": \"google/veo-3.1\",\n  \"prompt\": \"Create a cohesive cinematic sequence using the supplied references\",\n  \"input_references\": [\n    {\n      \"type\": \"image\",\n      \"file_id\": \"550e8400-e29b-41d4-a716-446655440000\"\n    },\n    {\n      \"type\": \"video\",\n      \"file_id\": \"6ba7b810-9dad-11d1-80b4-00c04fd430c8\"\n    },\n    {\n      \"type\": \"audio\",\n      \"file_id\": \"7d1fa4bb-41e6-4a5d-88d8-1851f5342e87\"\n    }\n  ],\n  \"duration\": 8,\n  \"n\": 1,\n  \"resolution\": \"720p\",\n  \"aspect_ratio\": \"16:9\",\n  \"output_with_audio\": true\n}")
-req, _ := http.NewRequest("POST", "https://api.neural4d.com/openapi/v1/videos/generations", payload)
-req.Header.Set("Authorization", "Bearer <token>")
-req.Header.Set("Content-Type", "application/json")
-resp, _ := http.DefaultClient.Do(req)
-defer resp.Body.Close()
-bodyBytes, _ := io.ReadAll(resp.Body)
-fmt.Println(string(bodyBytes))
+func main() {
+    payload := strings.NewReader(`{
+      "model": "google/veo-3.1",
+      "prompt": "Create a cohesive cinematic sequence using the supplied references",
+      "input_references": [
+        {
+          "type": "image",
+          "file_id": "550e8400-e29b-41d4-a716-446655440000"
+        },
+        {
+          "type": "video",
+          "file_id": "6ba7b810-9dad-11d1-80b4-00c04fd430c8"
+        },
+        {
+          "type": "audio",
+          "file_id": "7d1fa4bb-41e6-4a5d-88d8-1851f5342e87"
+        }
+      ],
+      "duration": 8,
+      "n": 1,
+      "resolution": "720p",
+      "aspect_ratio": "16:9",
+      "output_with_audio": true
+    }`)
+    req, _ := http.NewRequest(
+        "POST",
+        "https://api.neural4d.com/openapi/v1/videos/generations",
+        payload,
+    )
+    req.Header.Set("Authorization", "Bearer <token>")
+    req.Header.Set("Content-Type", "application/json")
+    resp, _ := http.DefaultClient.Do(req)
+    defer resp.Body.Close()
+    bodyBytes, _ := io.ReadAll(resp.Body)
+    fmt.Println(string(bodyBytes))
+}
 ```
 
 ```ruby Ruby · reference_to_video
@@ -1123,19 +1415,54 @@ request.body = {
   "output_with_audio": true
 }.to_json
 
-response = Net::HTTP.start(uri.hostname, uri.port, use_ssl: uri.scheme == "https") { |http| http.request(request) }
+response = Net::HTTP.start(
+  uri.hostname,
+  uri.port,
+  use_ssl: uri.scheme == "https"
+) do |http|
+  http.request(request)
+end
 puts response.body
 ```
 
 ```php PHP · reference_to_video
 <?php
 
+$payload = <<<'JSON'
+{
+  "model": "google/veo-3.1",
+  "prompt": "Create a cohesive cinematic sequence using the supplied references",
+  "input_references": [
+    {
+      "type": "image",
+      "file_id": "550e8400-e29b-41d4-a716-446655440000"
+    },
+    {
+      "type": "video",
+      "file_id": "6ba7b810-9dad-11d1-80b4-00c04fd430c8"
+    },
+    {
+      "type": "audio",
+      "file_id": "7d1fa4bb-41e6-4a5d-88d8-1851f5342e87"
+    }
+  ],
+  "duration": 8,
+  "n": 1,
+  "resolution": "720p",
+  "aspect_ratio": "16:9",
+  "output_with_audio": true
+}
+JSON;
+
 $ch = curl_init("https://api.neural4d.com/openapi/v1/videos/generations");
 curl_setopt_array($ch, [
     CURLOPT_CUSTOMREQUEST => "POST",
     CURLOPT_RETURNTRANSFER => true,
-    CURLOPT_HTTPHEADER => ["Authorization: Bearer <token>", "Content-Type: application/json"],
-    CURLOPT_POSTFIELDS => "{\n  \"model\": \"google/veo-3.1\",\n  \"prompt\": \"Create a cohesive cinematic sequence using the supplied references\",\n  \"input_references\": [\n    {\n      \"type\": \"image\",\n      \"file_id\": \"550e8400-e29b-41d4-a716-446655440000\"\n    },\n    {\n      \"type\": \"video\",\n      \"file_id\": \"6ba7b810-9dad-11d1-80b4-00c04fd430c8\"\n    },\n    {\n      \"type\": \"audio\",\n      \"file_id\": \"7d1fa4bb-41e6-4a5d-88d8-1851f5342e87\"\n    }\n  ],\n  \"duration\": 8,\n  \"n\": 1,\n  \"resolution\": \"720p\",\n  \"aspect_ratio\": \"16:9\",\n  \"output_with_audio\": true\n}",
+    CURLOPT_HTTPHEADER => [
+        "Authorization: Bearer <token>",
+        "Content-Type: application/json",
+    ],
+    CURLOPT_POSTFIELDS => $payload,
 ]);
 $response = curl_exec($ch);
 curl_close($ch);
@@ -1146,11 +1473,42 @@ echo $response;
 using System.Net.Http;
 using System.Text;
 
+var payload = @"{
+  ""model"": ""google/veo-3.1"",
+  ""prompt"": ""Create a cohesive cinematic sequence using the supplied references"",
+  ""input_references"": [
+    {
+      ""type"": ""image"",
+      ""file_id"": ""550e8400-e29b-41d4-a716-446655440000""
+    },
+    {
+      ""type"": ""video"",
+      ""file_id"": ""6ba7b810-9dad-11d1-80b4-00c04fd430c8""
+    },
+    {
+      ""type"": ""audio"",
+      ""file_id"": ""7d1fa4bb-41e6-4a5d-88d8-1851f5342e87""
+    }
+  ],
+  ""duration"": 8,
+  ""n"": 1,
+  ""resolution"": ""720p"",
+  ""aspect_ratio"": ""16:9"",
+  ""output_with_audio"": true
+}";
+
 using var client = new HttpClient();
-using var request = new HttpRequestMessage(HttpMethod.Post, "https://api.neural4d.com/openapi/v1/videos/generations");
+using var request = new HttpRequestMessage(
+    HttpMethod.Post,
+    "https://api.neural4d.com/openapi/v1/videos/generations"
+);
 request.Headers.TryAddWithoutValidation("Authorization", "Bearer <token>");
 request.Headers.TryAddWithoutValidation("Content-Type", "application/json");
-request.Content = new StringContent("{\n  \"model\": \"google/veo-3.1\",\n  \"prompt\": \"Create a cohesive cinematic sequence using the supplied references\",\n  \"input_references\": [\n    {\n      \"type\": \"image\",\n      \"file_id\": \"550e8400-e29b-41d4-a716-446655440000\"\n    },\n    {\n      \"type\": \"video\",\n      \"file_id\": \"6ba7b810-9dad-11d1-80b4-00c04fd430c8\"\n    },\n    {\n      \"type\": \"audio\",\n      \"file_id\": \"7d1fa4bb-41e6-4a5d-88d8-1851f5342e87\"\n    }\n  ],\n  \"duration\": 8,\n  \"n\": 1,\n  \"resolution\": \"720p\",\n  \"aspect_ratio\": \"16:9\",\n  \"output_with_audio\": true\n}", Encoding.UTF8, "application/json");
+request.Content = new StringContent(
+    payload,
+    Encoding.UTF8,
+    "application/json"
+);
 using var response = await client.SendAsync(request);
 Console.WriteLine(await response.Content.ReadAsStringAsync());
 ```

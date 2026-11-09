@@ -32,116 +32,241 @@ contentType: multipart/form-data
 | 多视图生 3D | 10 MiB |
 
 <RequestExample>
-```bash cURL
+```bash cURL · 上传文件
 curl --request POST \
   --url https://api.neural4d.com/openapi/v1/files \
   --header 'Authorization: Bearer <token>' \
   --form 'file=@/path/to/file.png'
 ```
 
-```python Python
+```python Python · 上传文件
 import requests
 
 response = requests.request(
     "POST",
     "https://api.neural4d.com/openapi/v1/files",
     headers={
-    "Authorization": "Bearer <token>",
+        "Authorization": "Bearer <token>",
     },
-    files={"file": open('/path/to/file', 'rb')},
+    files={"file": open("/path/to/file", "rb")},
 )
 print(response.json())
 ```
 
-```javascript JavaScript
+```javascript JavaScript · 上传文件
 const response = await fetch("https://api.neural4d.com/openapi/v1/files", {
   method: "POST",
   headers: {
     "Authorization": "Bearer <token>"
   },
-  body: (() => { const form = new FormData(); form.append("file", fileInput.files[0]); return form; })(),
+  body: (() => {
+    const form = new FormData();
+    form.append("file", fileInput.files[0]);
+    return form;
+  })()
 });
 const data = await response.json();
 console.log(data);
 ```
 
-```typescript TypeScript
+```typescript TypeScript · 上传文件
 const response: Response = await fetch("https://api.neural4d.com/openapi/v1/files", {
   method: "POST",
   headers: {
     "Authorization": "Bearer <token>"
   },
-  body: (() => { const form = new FormData(); form.append("file", fileInput.files[0]); return form; })(),
+  body: (() => {
+    const form = new FormData();
+    form.append("file", fileInput.files[0]);
+    return form;
+  })()
 });
 const data = await response.json();
 console.log(data);
 ```
 
-```java Java
+```java Java · 上传文件
 import java.net.URI;
-import java.net.http.*;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.List;
+import java.util.UUID;
 
-HttpRequest request = HttpRequest.newBuilder()
-    .uri(URI.create("https://api.neural4d.com/openapi/v1/files"))
-    .header("Authorization", "Bearer <token>")
-    .method("POST", HttpRequest.BodyPublishers.noBody())
-    .build();
-HttpResponse<String> response = HttpClient.newHttpClient().send(request, HttpResponse.BodyHandlers.ofString());
-System.out.println(response.body());
+class Main {
+  public static void main(String[] args) throws Exception {
+    Path file = Path.of("/path/to/file.png");
+    String boundary = "----Neural4DUpload" + UUID.randomUUID();
+    String partHeader = "--" + boundary + "\r\n"
+        + "Content-Disposition: form-data; name=\"file\"; filename=\""
+        + file.getFileName() + "\"\r\n"
+        + "Content-Type: image/png\r\n\r\n";
+
+    HttpRequest.BodyPublisher body = HttpRequest.BodyPublishers.ofByteArrays(List.of(
+        partHeader.getBytes(StandardCharsets.UTF_8),
+        Files.readAllBytes(file),
+        ("\r\n--" + boundary + "--\r\n").getBytes(StandardCharsets.UTF_8)
+    ));
+    HttpRequest request = HttpRequest.newBuilder()
+        .uri(URI.create("https://api.neural4d.com/openapi/v1/files"))
+        .header("Authorization", "Bearer <token>")
+        .header("Content-Type", "multipart/form-data; boundary=" + boundary)
+        .POST(body)
+        .build();
+    HttpResponse<String> response = HttpClient.newHttpClient().send(
+        request,
+        HttpResponse.BodyHandlers.ofString()
+    );
+    System.out.println(response.body());
+  }
+}
 ```
 
-```go Go
+```go Go · 上传文件
 package main
 
 import (
-  "fmt"
-  "io"
-  "net/http"
-  "strings"
+	"bytes"
+	"fmt"
+	"io"
+	"log"
+	"mime"
+	"mime/multipart"
+	"net/http"
+	"net/textproto"
+	"os"
+	"path/filepath"
 )
 
-payload := nil
-req, _ := http.NewRequest("POST", "https://api.neural4d.com/openapi/v1/files", payload)
-req.Header.Set("Authorization", "Bearer <token>")
-resp, _ := http.DefaultClient.Do(req)
-defer resp.Body.Close()
-bodyBytes, _ := io.ReadAll(resp.Body)
-fmt.Println(string(bodyBytes))
+func main() {
+	filename := "/path/to/file.png"
+	data, err := os.ReadFile(filename)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	var payload bytes.Buffer
+	writer := multipart.NewWriter(&payload)
+	header := make(textproto.MIMEHeader)
+	header.Set("Content-Disposition", mime.FormatMediaType(
+		"form-data",
+		map[string]string{
+			"name":     "file",
+			"filename": filepath.Base(filename),
+		},
+	))
+	contentType := mime.TypeByExtension(filepath.Ext(filename))
+	if contentType == "" {
+		contentType = http.DetectContentType(data)
+	}
+	header.Set("Content-Type", contentType)
+	part, err := writer.CreatePart(header)
+	if err != nil {
+		log.Fatal(err)
+	}
+	if _, err := part.Write(data); err != nil {
+		log.Fatal(err)
+	}
+	if err := writer.Close(); err != nil {
+		log.Fatal(err)
+	}
+
+	req, err := http.NewRequest(
+		"POST",
+		"https://api.neural4d.com/openapi/v1/files",
+		&payload,
+	)
+	if err != nil {
+		log.Fatal(err)
+	}
+	req.Header.Set("Authorization", "Bearer <token>")
+	req.Header.Set("Content-Type", writer.FormDataContentType())
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer resp.Body.Close()
+
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		log.Fatal(err)
+	}
+	fmt.Println(string(body))
+}
 ```
 
-```ruby Ruby
+```ruby Ruby · 上传文件
 require "net/http"
-require "json"
 
 uri = URI("https://api.neural4d.com/openapi/v1/files")
 request = Net::HTTP::Post.new(uri)
 request["Authorization"] = "Bearer <token>"
 
-response = Net::HTTP.start(uri.hostname, uri.port, use_ssl: uri.scheme == "https") { |http| http.request(request) }
-puts response.body
+File.open("/path/to/file.png", "rb") do |file|
+  request.set_form(
+    [["file", file, {
+      filename: File.basename(file.path),
+      content_type: "image/png"
+    }]],
+    "multipart/form-data"
+  )
+
+  response = Net::HTTP.start(
+    uri.hostname,
+    uri.port,
+    use_ssl: uri.scheme == "https"
+  ) do |http|
+    http.request(request)
+  end
+  puts response.body
+end
 ```
 
-```php PHP
+```php PHP · 上传文件
 <?php
 
+$filePath = "/path/to/file.png";
 $ch = curl_init("https://api.neural4d.com/openapi/v1/files");
 curl_setopt_array($ch, [
     CURLOPT_CUSTOMREQUEST => "POST",
     CURLOPT_RETURNTRANSFER => true,
-    CURLOPT_HTTPHEADER => ["Authorization: Bearer <token>"],
+    CURLOPT_HTTPHEADER => [
+        "Authorization: Bearer <token>",
+    ],
+    CURLOPT_POSTFIELDS => [
+        "file" => new CURLFile($filePath, "image/png", basename($filePath)),
+    ],
 ]);
 $response = curl_exec($ch);
+if ($response === false) {
+    throw new RuntimeException(curl_error($ch));
+}
 curl_close($ch);
 echo $response;
 ```
 
-```csharp C#
+```csharp C# · 上传文件
+using System;
+using System.IO;
 using System.Net.Http;
-using System.Text;
+using System.Net.Http.Headers;
 
+var filePath = "/path/to/file.png";
 using var client = new HttpClient();
-using var request = new HttpRequestMessage(HttpMethod.Post, "https://api.neural4d.com/openapi/v1/files");
+using var content = new MultipartFormDataContent();
+using var file = new StreamContent(File.OpenRead(filePath));
+file.Headers.ContentType = new MediaTypeHeaderValue("image/png");
+content.Add(file, "file", Path.GetFileName(filePath));
+
+using var request = new HttpRequestMessage(
+    HttpMethod.Post,
+    "https://api.neural4d.com/openapi/v1/files"
+);
 request.Headers.TryAddWithoutValidation("Authorization", "Bearer <token>");
+request.Content = content;
 using var response = await client.SendAsync(request);
 Console.WriteLine(await response.Content.ReadAsStringAsync());
 ```
@@ -326,7 +451,7 @@ Console.WriteLine(await response.Content.ReadAsStringAsync());
 </Tabs>
 
 <ResponseExample>
-```json 201 Example
+```json 201 示例
 {
   "id": "550e8400-e29b-41d4-a716-446655440000",
   "filename": "first-frame.png",
@@ -336,7 +461,7 @@ Console.WriteLine(await response.Content.ReadAsStringAsync());
 }
 ```
 
-```json 400 invalid_prompt
+```json 400 提示词无效
 {
   "error": {
     "code": "invalid_prompt",
@@ -345,7 +470,7 @@ Console.WriteLine(await response.Content.ReadAsStringAsync());
 }
 ```
 
-```json 400 unsupported_model
+```json 400 模型不支持
 {
   "error": {
     "code": "unsupported_model",
@@ -354,7 +479,7 @@ Console.WriteLine(await response.Content.ReadAsStringAsync());
 }
 ```
 
-```json 400 model_unavailable
+```json 400 模型不可用
 {
   "error": {
     "code": "model_unavailable",
@@ -363,7 +488,7 @@ Console.WriteLine(await response.Content.ReadAsStringAsync());
 }
 ```
 
-```json 401 Example
+```json 401 示例
 {
   "error": {
     "code": "invalid_api_key",
@@ -372,7 +497,7 @@ Console.WriteLine(await response.Content.ReadAsStringAsync());
 }
 ```
 
-```json 403 Example
+```json 403 示例
 {
   "error": {
     "code": "insufficient_credits",
@@ -381,7 +506,7 @@ Console.WriteLine(await response.Content.ReadAsStringAsync());
 }
 ```
 
-```json 429 Example
+```json 429 示例
 {
   "error": {
     "code": "rate_limit_exceeded",
@@ -390,7 +515,7 @@ Console.WriteLine(await response.Content.ReadAsStringAsync());
 }
 ```
 
-```json 500 Example
+```json 500 示例
 {
   "error": {
     "code": "internal_error",

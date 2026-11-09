@@ -31,40 +31,38 @@ contentType: application/json
 </ParamField>
 
 <RequestExample>
-```bash cURL
+```bash cURL · 模型格式转换
 curl --request POST \
   --url https://alb.neural4d.com:3000/api/convertToFormat \
   --header 'Authorization: Bearer <token>' \
   --header 'Content-Type: application/json' \
-  --data '
-{
+  --data '{
   "uuid": "2dee04d4-f6e5-4fdf-b626-0f814e24db84",
   "modelType": "fbx",
   "modelSize": 2
-}
-'
+}'
 ```
 
-```python Python
+```python Python · 模型格式转换
 import requests
 
 response = requests.request(
     "POST",
     "https://alb.neural4d.com:3000/api/convertToFormat",
     headers={
-    "Authorization": "Bearer <token>",
-    "Content-Type": "application/json",
+        "Authorization": "Bearer <token>",
+        "Content-Type": "application/json",
     },
     json={
-      "uuid": "2dee04d4-f6e5-4fdf-b626-0f814e24db84",
-      "modelType": "fbx",
-      "modelSize": 2
+        "uuid": "2dee04d4-f6e5-4fdf-b626-0f814e24db84",
+        "modelType": "fbx",
+        "modelSize": 2,
     },
 )
 print(response.json())
 ```
 
-```javascript JavaScript
+```javascript JavaScript · 模型格式转换
 const response = await fetch("https://alb.neural4d.com:3000/api/convertToFormat", {
   method: "POST",
   headers: {
@@ -75,64 +73,88 @@ const response = await fetch("https://alb.neural4d.com:3000/api/convertToFormat"
     "uuid": "2dee04d4-f6e5-4fdf-b626-0f814e24db84",
     "modelType": "fbx",
     "modelSize": 2
-  }),
+  })
 });
 const data = await response.json();
 console.log(data);
 ```
 
-```typescript TypeScript
-const response: Response = await fetch("https://alb.neural4d.com:3000/api/convertToFormat", {
-  method: "POST",
-  headers: {
-    "Authorization": "Bearer <token>",
-    "Content-Type": "application/json"
-  },
-  body: JSON.stringify({
-    "uuid": "2dee04d4-f6e5-4fdf-b626-0f814e24db84",
-    "modelType": "fbx",
-    "modelSize": 2
-  }),
-});
+```typescript TypeScript · 模型格式转换
+const response: Response = await fetch(
+  "https://alb.neural4d.com:3000/api/convertToFormat",
+  {
+    method: "POST",
+    headers: {
+      "Authorization": "Bearer <token>",
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      "uuid": "2dee04d4-f6e5-4fdf-b626-0f814e24db84",
+      "modelType": "fbx",
+      "modelSize": 2
+    })
+  }
+);
 const data = await response.json();
 console.log(data);
 ```
 
-```java Java
+```java Java · 模型格式转换
 import java.net.URI;
 import java.net.http.*;
+
+String payload = String.join("\n",
+    "{",
+    "  \"uuid\": \"2dee04d4-f6e5-4fdf-b626-0f814e24db84\",",
+    "  \"modelType\": \"fbx\",",
+    "  \"modelSize\": 2",
+    "}"
+);
 
 HttpRequest request = HttpRequest.newBuilder()
     .uri(URI.create("https://alb.neural4d.com:3000/api/convertToFormat"))
     .header("Authorization", "Bearer <token>")
     .header("Content-Type", "application/json")
-    .method("POST", HttpRequest.BodyPublishers.ofString("{\n      \"uuid\": \"2dee04d4-f6e5-4fdf-b626-0f814e24db84\",\n      \"modelType\": \"fbx\",\n      \"modelSize\": 2\n    }"))
+    .method("POST", HttpRequest.BodyPublishers.ofString(payload))
     .build();
-HttpResponse<String> response = HttpClient.newHttpClient().send(request, HttpResponse.BodyHandlers.ofString());
+HttpResponse<String> response = HttpClient.newHttpClient().send(
+    request,
+    HttpResponse.BodyHandlers.ofString()
+);
 System.out.println(response.body());
 ```
 
-```go Go
+```go Go · 模型格式转换
 package main
 
 import (
-  "fmt"
-  "io"
-  "net/http"
-  "strings"
+    "fmt"
+    "io"
+    "net/http"
+    "strings"
 )
 
-payload := strings.NewReader("{\n  \"uuid\": \"2dee04d4-f6e5-4fdf-b626-0f814e24db84\",\n  \"modelType\": \"fbx\",\n  \"modelSize\": 2\n}")
-req, _ := http.NewRequest("POST", "https://alb.neural4d.com:3000/api/convertToFormat", payload)
-req.Header.Set("Authorization", "Bearer <token>")
-req.Header.Set("Content-Type", "application/json")
-resp, _ := http.DefaultClient.Do(req)
-defer resp.Body.Close()
-bodyBytes, _ := io.ReadAll(resp.Body)
-fmt.Println(string(bodyBytes))
+func main() {
+    payload := strings.NewReader(`{
+      "uuid": "2dee04d4-f6e5-4fdf-b626-0f814e24db84",
+      "modelType": "fbx",
+      "modelSize": 2
+    }`)
+    req, _ := http.NewRequest(
+        "POST",
+        "https://alb.neural4d.com:3000/api/convertToFormat",
+        payload,
+    )
+    req.Header.Set("Authorization", "Bearer <token>")
+    req.Header.Set("Content-Type", "application/json")
+    resp, _ := http.DefaultClient.Do(req)
+    defer resp.Body.Close()
+    bodyBytes, _ := io.ReadAll(resp.Body)
+    fmt.Println(string(bodyBytes))
+}
 ```
 
-```ruby Ruby
+```ruby Ruby · 模型格式转换
 require "net/http"
 require "json"
 
@@ -146,34 +168,64 @@ request.body = {
   "modelSize": 2
 }.to_json
 
-response = Net::HTTP.start(uri.hostname, uri.port, use_ssl: uri.scheme == "https") { |http| http.request(request) }
+response = Net::HTTP.start(
+  uri.hostname,
+  uri.port,
+  use_ssl: uri.scheme == "https"
+) do |http|
+  http.request(request)
+end
 puts response.body
 ```
 
-```php PHP
+```php PHP · 模型格式转换
 <?php
+
+$payload = <<<'JSON'
+{
+  "uuid": "2dee04d4-f6e5-4fdf-b626-0f814e24db84",
+  "modelType": "fbx",
+  "modelSize": 2
+}
+JSON;
 
 $ch = curl_init("https://alb.neural4d.com:3000/api/convertToFormat");
 curl_setopt_array($ch, [
     CURLOPT_CUSTOMREQUEST => "POST",
     CURLOPT_RETURNTRANSFER => true,
-    CURLOPT_HTTPHEADER => ["Authorization: Bearer <token>", "Content-Type: application/json"],
-    CURLOPT_POSTFIELDS => "{\n  \"uuid\": \"2dee04d4-f6e5-4fdf-b626-0f814e24db84\",\n  \"modelType\": \"fbx\",\n  \"modelSize\": 2\n}",
+    CURLOPT_HTTPHEADER => [
+        "Authorization: Bearer <token>",
+        "Content-Type: application/json",
+    ],
+    CURLOPT_POSTFIELDS => $payload,
 ]);
 $response = curl_exec($ch);
 curl_close($ch);
 echo $response;
 ```
 
-```csharp C#
+```csharp C# · 模型格式转换
 using System.Net.Http;
 using System.Text;
 
+var payload = @"{
+  ""uuid"": ""2dee04d4-f6e5-4fdf-b626-0f814e24db84"",
+  ""modelType"": ""fbx"",
+  ""modelSize"": 2
+}";
+
 using var client = new HttpClient();
-using var request = new HttpRequestMessage(HttpMethod.Post, "https://alb.neural4d.com:3000/api/convertToFormat");
+using var request = new HttpRequestMessage(
+    HttpMethod.Post,
+    "https://alb.neural4d.com:3000/api/convertToFormat"
+);
 request.Headers.TryAddWithoutValidation("Authorization", "Bearer <token>");
 request.Headers.TryAddWithoutValidation("Content-Type", "application/json");
-request.Content = new StringContent("{\n  \"uuid\": \"2dee04d4-f6e5-4fdf-b626-0f814e24db84\",\n  \"modelType\": \"fbx\",\n  \"modelSize\": 2\n}", Encoding.UTF8, "application/json");
+request.Content = new StringContent(
+    payload,
+    Encoding.UTF8,
+    "application/json"
+);
 using var response = await client.SendAsync(request);
 Console.WriteLine(await response.Content.ReadAsStringAsync());
 ```
@@ -210,7 +262,7 @@ Console.WriteLine(await response.Content.ReadAsStringAsync());
 </Tabs>
 
 <ResponseExample>
-```json 200 converting
+```json 200 转换中
 {
   "statusType": 1,
   "modelSize": 2,
@@ -218,7 +270,7 @@ Console.WriteLine(await response.Content.ReadAsStringAsync());
 }
 ```
 
-```json 200 completed
+```json 200 已完成
 {
   "statusType": 0,
   "modelUrl": "https://s3.neural4d.com/fbx_54078587-7fdd-49c5-9fe6-317d22f27098.zip?sig=example",
@@ -227,7 +279,7 @@ Console.WriteLine(await response.Content.ReadAsStringAsync());
 }
 ```
 
-```json 200 missingUuid
+```json 200 缺少 UUID
 {
   "statusType": -1,
   "message": "Model not found for this UUID (0efc2b3-57e1-4813-90c6-419de96e785e). Please check if the UUID is correct."

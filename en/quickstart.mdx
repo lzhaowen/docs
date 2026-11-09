@@ -28,97 +28,237 @@ This page covers the minimum request flow. You submit a create request, keep the
   </Step>
 
   <Step title="Submit a create request">
-    Start with a simple create endpoint such as `POST /api/generateModelWithText`.
+    Call `POST /api/generateModelWithText` to generate a 3D model with PBR materials. Set `disablePbr: 0` to enable PBR; `1` generates ordinary textures only.
 
+    <div data-api-example="request">
     <CodeGroup>
-      ```bash cURL
-      curl --location 'https://alb.neural4d.com:3000/api/generateModelWithText' \
-        --header 'Content-Type: application/json;charset=utf-8' \
-        --header 'Authorization: Bearer YOUR_TOKEN' \
-        --data '{
-          "prompt": "a cute bird",
-          "modelCount": 1,
-          "disablePbr": 1
-        }'
-      ```
+    ```bash cURL
+    curl --request POST \
+      --url 'https://alb.neural4d.com:3000/api/generateModelWithText' \
+      --header 'Authorization: Bearer YOUR_TOKEN' \
+      --header 'Content-Type: application/json' \
+      --data '{
+      "prompt": "a cute bird",
+      "modelCount": 1,
+      "disablePbr": 0
+    }'
+    ```
 
-      ```python Python
-      import requests
+    ```python Python
+    import requests
 
-      response = requests.post(
-          "https://alb.neural4d.com:3000/api/generateModelWithText",
-          headers={
-              "Content-Type": "application/json;charset=utf-8",
-              "Authorization": "Bearer YOUR_TOKEN",
-          },
-          json={"prompt": "a cute bird", "modelCount": 1, "disablePbr": 1},
-      )
-      print(response.json())
-      ```
+    response = requests.post(
+        "https://alb.neural4d.com:3000/api/generateModelWithText",
+        headers={
+            "Authorization": "Bearer YOUR_TOKEN",
+            "Content-Type": "application/json"
+        },
+        json={
+            "prompt": "a cute bird",
+            "modelCount": 1,
+            "disablePbr": 0
+        }
+    )
+    print(response.json())
+    ```
 
-      ```javascript Node.js
-      const response = await fetch("https://alb.neural4d.com:3000/api/generateModelWithText", {
+    ```javascript JavaScript
+    const response = await fetch(
+      "https://alb.neural4d.com:3000/api/generateModelWithText",
+      {
         method: "POST",
         headers: {
-          "Content-Type": "application/json;charset=utf-8",
-          Authorization: "Bearer YOUR_TOKEN",
+          "Authorization": "Bearer YOUR_TOKEN",
+          "Content-Type": "application/json"
         },
-        body: JSON.stringify({ prompt: "a cute bird", modelCount: 1, disablePbr: 1 }),
-      });
-
-      console.log(await response.json());
-      ```
-
-      ```go Go
-      package main
-
-      import (
-          "bytes"
-          "fmt"
-          "io"
-          "net/http"
-      )
-
-      func main() {
-          body := []byte(`{"prompt":"a cute bird","modelCount":1,"disablePbr":1}`)
-          request, _ := http.NewRequest(
-              "POST",
-              "https://alb.neural4d.com:3000/api/generateModelWithText",
-              bytes.NewReader(body),
-          )
-          request.Header.Set("Content-Type", "application/json;charset=utf-8")
-          request.Header.Set("Authorization", "Bearer YOUR_TOKEN")
-
-          response, _ := http.DefaultClient.Do(request)
-          defer response.Body.Close()
-          result, _ := io.ReadAll(response.Body)
-          fmt.Println(string(result))
+        body: JSON.stringify({
+          "prompt": "a cute bird",
+          "modelCount": 1,
+          "disablePbr": 0
+        })
       }
-      ```
+    );
+    console.log(await response.json());
+    ```
 
-      ```java Java
-      import java.net.URI;
-      import java.net.http.HttpClient;
-      import java.net.http.HttpRequest;
-      import java.net.http.HttpResponse;
+    ```typescript TypeScript
+    const response: Response = await fetch(
+      "https://alb.neural4d.com:3000/api/generateModelWithText",
+      {
+        method: "POST",
+        headers: {
+          "Authorization": "Bearer YOUR_TOKEN",
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          "prompt": "a cute bird",
+          "modelCount": 1,
+          "disablePbr": 0
+        })
+      }
+    );
+    console.log(await response.json());
+    ```
 
-      class Main {
-        public static void main(String[] args) throws Exception {
-          var request = HttpRequest.newBuilder()
-              .uri(URI.create("https://alb.neural4d.com:3000/api/generateModelWithText"))
-              .header("Content-Type", "application/json;charset=utf-8")
-              .header("Authorization", "Bearer YOUR_TOKEN")
-              .POST(HttpRequest.BodyPublishers.ofString(
-                  "{\"prompt\":\"a cute bird\",\"modelCount\":1,\"disablePbr\":1}"))
-              .build();
+    ```java Java
+    import java.net.URI;
+    import java.net.http.HttpClient;
+    import java.net.http.HttpRequest;
+    import java.net.http.HttpResponse;
 
-          var response = HttpClient.newHttpClient().send(
-              request, HttpResponse.BodyHandlers.ofString());
-          System.out.println(response.body());
+    class Main {
+      public static void main(String[] args) throws Exception {
+        String payload = String.join("\n",
+            "{",
+            "  \"prompt\": \"a cute bird\",",
+            "  \"modelCount\": 1,",
+            "  \"disablePbr\": 0",
+            "}"
+        );
+
+        HttpRequest request = HttpRequest.newBuilder()
+            .uri(URI.create("https://alb.neural4d.com:3000/api/generateModelWithText"))
+            .header("Authorization", "Bearer YOUR_TOKEN")
+            .header("Content-Type", "application/json")
+            .POST(HttpRequest.BodyPublishers.ofString(payload))
+            .build();
+        HttpResponse<String> response = HttpClient.newHttpClient().send(
+            request,
+            HttpResponse.BodyHandlers.ofString()
+        );
+        System.out.println(response.body());
+      }
+    }
+    ```
+
+    ```go Go
+    package main
+
+    import (
+        "fmt"
+        "io"
+        "log"
+        "net/http"
+        "strings"
+    )
+
+    func main() {
+        if err := run(); err != nil {
+            log.Fatal(err)
         }
-      }
-      ```
+    }
+
+    func run() error {
+        payload := strings.NewReader(`{
+          "prompt": "a cute bird",
+          "modelCount": 1,
+          "disablePbr": 0
+        }`)
+        request, err := http.NewRequest(
+            "POST",
+            "https://alb.neural4d.com:3000/api/generateModelWithText",
+            payload,
+        )
+        if err != nil {
+            return err
+        }
+        request.Header.Set("Authorization", "Bearer YOUR_TOKEN")
+        request.Header.Set("Content-Type", "application/json")
+
+        response, err := http.DefaultClient.Do(request)
+        if err != nil {
+            return err
+        }
+        defer response.Body.Close()
+        result, err := io.ReadAll(response.Body)
+        if err != nil {
+            return err
+        }
+        fmt.Println(string(result))
+        return nil
+    }
+    ```
+
+    ```ruby Ruby
+    require "net/http"
+    require "json"
+
+    uri = URI("https://alb.neural4d.com:3000/api/generateModelWithText")
+    request = Net::HTTP::Post.new(uri)
+    request["Authorization"] = "Bearer YOUR_TOKEN"
+    request["Content-Type"] = "application/json"
+    request.body = {
+        "prompt": "a cute bird",
+        "modelCount": 1,
+        "disablePbr": 0
+    }.to_json
+
+    response = Net::HTTP.start(
+      uri.hostname,
+      uri.port,
+      use_ssl: uri.scheme == "https"
+    ) do |http|
+      http.request(request)
+    end
+    puts response.body
+    ```
+
+    ```php PHP
+    <?php
+
+    $payload = <<<'JSON'
+    {
+      "prompt": "a cute bird",
+      "modelCount": 1,
+      "disablePbr": 0
+    }
+    JSON;
+
+    $ch = curl_init("https://alb.neural4d.com:3000/api/generateModelWithText");
+    curl_setopt_array($ch, [
+        CURLOPT_CUSTOMREQUEST => "POST",
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_HTTPHEADER => [
+            "Authorization: Bearer YOUR_TOKEN",
+            "Content-Type: application/json",
+        ],
+        CURLOPT_POSTFIELDS => $payload,
+    ]);
+    $response = curl_exec($ch);
+    curl_close($ch);
+    echo $response;
+    ```
+
+    ```csharp C#
+    using System;
+    using System.Net.Http;
+    using System.Text;
+
+    var payload = @"{
+      ""prompt"": ""a cute bird"",
+      ""modelCount"": 1,
+      ""disablePbr"": 0
+    }";
+
+    using var client = new HttpClient();
+    using var request = new HttpRequestMessage(
+        HttpMethod.Post,
+        "https://alb.neural4d.com:3000/api/generateModelWithText"
+    );
+    request.Headers.TryAddWithoutValidation(
+        "Authorization",
+        "Bearer YOUR_TOKEN"
+    );
+    request.Content = new StringContent(
+        payload,
+        Encoding.UTF8,
+        "application/json"
+    );
+    using var response = await client.SendAsync(request);
+    Console.WriteLine(await response.Content.ReadAsStringAsync());
+    ```
     </CodeGroup>
+    </div>
   </Step>
 
   <Step title="Store the uuid">
@@ -128,91 +268,217 @@ This page covers the minimum request flow. You submit a create request, keep the
   <Step title="Query the result or progress">
     For 3D model tasks, call `POST /api/retrieveModel`. For picture or video tasks, call `POST /api/queryGenerationResult`. You can also call `POST /api/queryJobProgress` for progress polling.
 
+    <div data-api-example="request">
     <CodeGroup>
-      ```bash cURL
-      curl --location 'https://alb.neural4d.com:3000/api/retrieveModel' \
-        --header 'Content-Type: application/json;charset=utf-8' \
-        --header 'Authorization: Bearer YOUR_TOKEN' \
-        --data '{"uuid":"f47ac10b-58cc-4372-a567-0e02b2c3d479"}'
-      ```
+    ```bash cURL
+    curl --request POST \
+      --url 'https://alb.neural4d.com:3000/api/retrieveModel' \
+      --header 'Authorization: Bearer YOUR_TOKEN' \
+      --header 'Content-Type: application/json' \
+      --data '{
+      "uuid": "f47ac10b-58cc-4372-a567-0e02b2c3d479"
+    }'
+    ```
 
-      ```python Python
-      import requests
+    ```python Python
+    import requests
 
-      response = requests.post(
-          "https://alb.neural4d.com:3000/api/retrieveModel",
-          headers={
-              "Content-Type": "application/json;charset=utf-8",
-              "Authorization": "Bearer YOUR_TOKEN",
-          },
-          json={"uuid": "f47ac10b-58cc-4372-a567-0e02b2c3d479"},
-      )
-      print(response.json())
-      ```
+    response = requests.post(
+        "https://alb.neural4d.com:3000/api/retrieveModel",
+        headers={
+            "Authorization": "Bearer YOUR_TOKEN",
+            "Content-Type": "application/json"
+        },
+        json={
+            "uuid": "f47ac10b-58cc-4372-a567-0e02b2c3d479"
+        }
+    )
+    print(response.json())
+    ```
 
-      ```javascript Node.js
-      const response = await fetch("https://alb.neural4d.com:3000/api/retrieveModel", {
+    ```javascript JavaScript
+    const response = await fetch(
+      "https://alb.neural4d.com:3000/api/retrieveModel",
+      {
         method: "POST",
         headers: {
-          "Content-Type": "application/json;charset=utf-8",
-          Authorization: "Bearer YOUR_TOKEN",
+          "Authorization": "Bearer YOUR_TOKEN",
+          "Content-Type": "application/json"
         },
-        body: JSON.stringify({ uuid: "f47ac10b-58cc-4372-a567-0e02b2c3d479" }),
-      });
-
-      console.log(await response.json());
-      ```
-
-      ```go Go
-      package main
-
-      import (
-          "bytes"
-          "fmt"
-          "io"
-          "net/http"
-      )
-
-      func main() {
-          body := []byte(`{"uuid":"f47ac10b-58cc-4372-a567-0e02b2c3d479"}`)
-          request, _ := http.NewRequest(
-              "POST",
-              "https://alb.neural4d.com:3000/api/retrieveModel",
-              bytes.NewReader(body),
-          )
-          request.Header.Set("Content-Type", "application/json;charset=utf-8")
-          request.Header.Set("Authorization", "Bearer YOUR_TOKEN")
-
-          response, _ := http.DefaultClient.Do(request)
-          defer response.Body.Close()
-          result, _ := io.ReadAll(response.Body)
-          fmt.Println(string(result))
+        body: JSON.stringify({
+          "uuid": "f47ac10b-58cc-4372-a567-0e02b2c3d479"
+        })
       }
-      ```
+    );
+    console.log(await response.json());
+    ```
 
-      ```java Java
-      import java.net.URI;
-      import java.net.http.HttpClient;
-      import java.net.http.HttpRequest;
-      import java.net.http.HttpResponse;
+    ```typescript TypeScript
+    const response: Response = await fetch(
+      "https://alb.neural4d.com:3000/api/retrieveModel",
+      {
+        method: "POST",
+        headers: {
+          "Authorization": "Bearer YOUR_TOKEN",
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          "uuid": "f47ac10b-58cc-4372-a567-0e02b2c3d479"
+        })
+      }
+    );
+    console.log(await response.json());
+    ```
 
-      class Main {
-        public static void main(String[] args) throws Exception {
-          var request = HttpRequest.newBuilder()
-              .uri(URI.create("https://alb.neural4d.com:3000/api/retrieveModel"))
-              .header("Content-Type", "application/json;charset=utf-8")
-              .header("Authorization", "Bearer YOUR_TOKEN")
-              .POST(HttpRequest.BodyPublishers.ofString(
-                  "{\"uuid\":\"f47ac10b-58cc-4372-a567-0e02b2c3d479\"}"))
-              .build();
+    ```java Java
+    import java.net.URI;
+    import java.net.http.HttpClient;
+    import java.net.http.HttpRequest;
+    import java.net.http.HttpResponse;
 
-          var response = HttpClient.newHttpClient().send(
-              request, HttpResponse.BodyHandlers.ofString());
-          System.out.println(response.body());
+    class Main {
+      public static void main(String[] args) throws Exception {
+        String payload = String.join("\n",
+            "{",
+            "  \"uuid\": \"f47ac10b-58cc-4372-a567-0e02b2c3d479\"",
+            "}"
+        );
+
+        HttpRequest request = HttpRequest.newBuilder()
+            .uri(URI.create("https://alb.neural4d.com:3000/api/retrieveModel"))
+            .header("Authorization", "Bearer YOUR_TOKEN")
+            .header("Content-Type", "application/json")
+            .POST(HttpRequest.BodyPublishers.ofString(payload))
+            .build();
+        HttpResponse<String> response = HttpClient.newHttpClient().send(
+            request,
+            HttpResponse.BodyHandlers.ofString()
+        );
+        System.out.println(response.body());
+      }
+    }
+    ```
+
+    ```go Go
+    package main
+
+    import (
+        "fmt"
+        "io"
+        "log"
+        "net/http"
+        "strings"
+    )
+
+    func main() {
+        if err := run(); err != nil {
+            log.Fatal(err)
         }
-      }
-      ```
+    }
+
+    func run() error {
+        payload := strings.NewReader(`{
+          "uuid": "f47ac10b-58cc-4372-a567-0e02b2c3d479"
+        }`)
+        request, err := http.NewRequest(
+            "POST",
+            "https://alb.neural4d.com:3000/api/retrieveModel",
+            payload,
+        )
+        if err != nil {
+            return err
+        }
+        request.Header.Set("Authorization", "Bearer YOUR_TOKEN")
+        request.Header.Set("Content-Type", "application/json")
+
+        response, err := http.DefaultClient.Do(request)
+        if err != nil {
+            return err
+        }
+        defer response.Body.Close()
+        result, err := io.ReadAll(response.Body)
+        if err != nil {
+            return err
+        }
+        fmt.Println(string(result))
+        return nil
+    }
+    ```
+
+    ```ruby Ruby
+    require "net/http"
+    require "json"
+
+    uri = URI("https://alb.neural4d.com:3000/api/retrieveModel")
+    request = Net::HTTP::Post.new(uri)
+    request["Authorization"] = "Bearer YOUR_TOKEN"
+    request["Content-Type"] = "application/json"
+    request.body = {
+        "uuid": "f47ac10b-58cc-4372-a567-0e02b2c3d479"
+    }.to_json
+
+    response = Net::HTTP.start(
+      uri.hostname,
+      uri.port,
+      use_ssl: uri.scheme == "https"
+    ) do |http|
+      http.request(request)
+    end
+    puts response.body
+    ```
+
+    ```php PHP
+    <?php
+
+    $payload = <<<'JSON'
+    {
+      "uuid": "f47ac10b-58cc-4372-a567-0e02b2c3d479"
+    }
+    JSON;
+
+    $ch = curl_init("https://alb.neural4d.com:3000/api/retrieveModel");
+    curl_setopt_array($ch, [
+        CURLOPT_CUSTOMREQUEST => "POST",
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_HTTPHEADER => [
+            "Authorization: Bearer YOUR_TOKEN",
+            "Content-Type: application/json",
+        ],
+        CURLOPT_POSTFIELDS => $payload,
+    ]);
+    $response = curl_exec($ch);
+    curl_close($ch);
+    echo $response;
+    ```
+
+    ```csharp C#
+    using System;
+    using System.Net.Http;
+    using System.Text;
+
+    var payload = @"{
+      ""uuid"": ""f47ac10b-58cc-4372-a567-0e02b2c3d479""
+    }";
+
+    using var client = new HttpClient();
+    using var request = new HttpRequestMessage(
+        HttpMethod.Post,
+        "https://alb.neural4d.com:3000/api/retrieveModel"
+    );
+    request.Headers.TryAddWithoutValidation(
+        "Authorization",
+        "Bearer YOUR_TOKEN"
+    );
+    request.Content = new StringContent(
+        payload,
+        Encoding.UTF8,
+        "application/json"
+    );
+    using var response = await client.SendAsync(request);
+    Console.WriteLine(await response.Content.ReadAsStringAsync());
+    ```
     </CodeGroup>
+    </div>
   </Step>
 
   <Step title="Download or convert the asset">
